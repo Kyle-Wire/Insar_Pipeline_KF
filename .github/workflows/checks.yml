@@ -34,7 +34,7 @@ jobs:
       # the results viewer's browser code (viewer_assets/): it parses, and its
       # arithmetic passes its own small tests; the parity with the Python
       # reference (tests/test_viewer_js_parity.py) runs in tests.yml
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: "22"
       - name: viewer scripts parse and pass their tests
