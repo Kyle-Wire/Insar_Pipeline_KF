@@ -25,7 +25,7 @@ jobs:
         shell: bash -el {0}
     steps:
       # the folder is the package: tests import insar_pipeline from the folder above it
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           path: insar_pipeline
       - uses: mamba-org/setup-micromamba@v2

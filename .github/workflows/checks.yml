@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: No client data or local records in the repository
         run: bash scripts/check_repo_clean.sh
       # the Kleinfelder copy still builds: its wording edits apply and its code hash is
