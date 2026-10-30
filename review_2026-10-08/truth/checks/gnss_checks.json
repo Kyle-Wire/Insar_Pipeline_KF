@@ -1,0 +1,743 @@
+{
+ "units": {
+  "TW_G07": {
+   "e": {
+    "report8_minus_report7_mm": {
+     "n": 71,
+     "median": 0.0,
+     "rms": 0.05,
+     "max_abs": 0.35
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.09,
+     "max_abs": 0.55
+    }
+   },
+   "n": {
+    "report8_minus_report7_mm": {
+     "n": 71,
+     "median": 0.0,
+     "rms": 0.21,
+     "max_abs": 1.16
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.27,
+     "max_abs": 1.61
+    }
+   },
+   "u": {
+    "report8_minus_report7_mm": {
+     "n": 71,
+     "median": -0.02,
+     "rms": 0.46,
+     "max_abs": 2.66
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.68,
+     "max_abs": 3.11
+    }
+   }
+  },
+  "TW_G08": {
+   "e": {
+    "report8_minus_report7_mm": {
+     "n": 71,
+     "median": 0.0,
+     "rms": 0.59,
+     "max_abs": 4.01
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.23,
+     "max_abs": 1.28
+    }
+   },
+   "n": {
+    "report8_minus_report7_mm": {
+     "n": 71,
+     "median": -0.0,
+     "rms": 0.66,
+     "max_abs": 4.87
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.64,
+     "max_abs": 4.78
+    }
+   },
+   "u": {
+    "report8_minus_report7_mm": {
+     "n": 71,
+     "median": -0.03,
+     "rms": 0.92,
+     "max_abs": 6.72
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.59,
+     "max_abs": 2.9
+    }
+   }
+  },
+  "TW_G09": {
+   "e": {
+    "report8_minus_report7_mm": {
+     "n": 70,
+     "median": -0.0,
+     "rms": 0.67,
+     "max_abs": 3.28
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.66,
+     "max_abs": 3.06
+    }
+   },
+   "n": {
+    "report8_minus_report7_mm": {
+     "n": 70,
+     "median": 0.0,
+     "rms": 0.1,
+     "max_abs": 0.69
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.21,
+     "max_abs": 0.91
+    }
+   },
+   "u": {
+    "report8_minus_report7_mm": {
+     "n": 70,
+     "median": -0.03,
+     "rms": 0.28,
+     "max_abs": 1.48
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.83,
+     "max_abs": 5.63
+    }
+   }
+  },
+  "TW_G10": {
+   "e": {
+    "report8_minus_report7_mm": {
+     "n": 71,
+     "median": -0.0,
+     "rms": 0.61,
+     "max_abs": 2.68
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.5,
+     "max_abs": 2.85
+    }
+   },
+   "n": {
+    "report8_minus_report7_mm": {
+     "n": 71,
+     "median": 0.0,
+     "rms": 0.07,
+     "max_abs": 0.57
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.14,
+     "max_abs": 1.05
+    }
+   },
+   "u": {
+    "report8_minus_report7_mm": {
+     "n": 71,
+     "median": -0.02,
+     "rms": 0.07,
+     "max_abs": 0.26
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.38,
+     "max_abs": 2.28
+    }
+   }
+  },
+  "TW_G11": {
+   "e": {
+    "report8_minus_report7_mm": {
+     "n": 70,
+     "median": 0.0,
+     "rms": 0.42,
+     "max_abs": 2.46
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.48,
+     "max_abs": 1.57
+    }
+   },
+   "n": {
+    "report8_minus_report7_mm": {
+     "n": 70,
+     "median": 0.01,
+     "rms": 0.03,
+     "max_abs": 0.11
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.24,
+     "max_abs": 0.71
+    }
+   },
+   "u": {
+    "report8_minus_report7_mm": {
+     "n": 70,
+     "median": -0.01,
+     "rms": 0.08,
+     "max_abs": 0.22
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.81,
+     "max_abs": 3.08
+    }
+   }
+  },
+  "TW_G12A": {
+   "e": {
+    "report8_minus_report7_mm": {
+     "n": 35,
+     "median": 0.01,
+     "rms": 0.09,
+     "max_abs": 0.32
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.07,
+     "max_abs": 0.3
+    }
+   },
+   "n": {
+    "report8_minus_report7_mm": {
+     "n": 35,
+     "median": 0.0,
+     "rms": 0.12,
+     "max_abs": 0.56
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.09,
+     "max_abs": 0.39
+    }
+   },
+   "u": {
+    "report8_minus_report7_mm": {
+     "n": 35,
+     "median": 0.0,
+     "rms": 0.09,
+     "max_abs": 0.42
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.07,
+     "max_abs": 0.41
+    }
+   }
+  },
+  "TW_G13": {
+   "e": {
+    "report8_minus_report7_mm": {
+     "n": 67,
+     "median": 0.0,
+     "rms": 0.11,
+     "max_abs": 0.83
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.15,
+     "max_abs": 1.1
+    }
+   },
+   "n": {
+    "report8_minus_report7_mm": {
+     "n": 67,
+     "median": -0.0,
+     "rms": 0.03,
+     "max_abs": 0.12
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.1,
+     "max_abs": 0.49
+    }
+   },
+   "u": {
+    "report8_minus_report7_mm": {
+     "n": 67,
+     "median": -0.01,
+     "rms": 0.04,
+     "max_abs": 0.16
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.26,
+     "max_abs": 1.5
+    }
+   }
+  },
+  "TW_G15": {
+   "e": {
+    "report8_minus_report7_mm": {
+     "n": 71,
+     "median": 0.0,
+     "rms": 0.22,
+     "max_abs": 0.88
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.19,
+     "max_abs": 1.01
+    }
+   },
+   "n": {
+    "report8_minus_report7_mm": {
+     "n": 71,
+     "median": 0.0,
+     "rms": 0.08,
+     "max_abs": 0.52
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.09,
+     "max_abs": 0.37
+    }
+   },
+   "u": {
+    "report8_minus_report7_mm": {
+     "n": 71,
+     "median": -0.0,
+     "rms": 0.05,
+     "max_abs": 0.16
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.24,
+     "max_abs": 1.37
+    }
+   }
+  },
+  "TW_G16": {
+   "e": {
+    "report8_minus_report7_mm": {
+     "n": 70,
+     "median": 0.02,
+     "rms": 0.13,
+     "max_abs": 0.76
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.27,
+     "max_abs": 1.24
+    }
+   },
+   "n": {
+    "report8_minus_report7_mm": {
+     "n": 70,
+     "median": 0.0,
+     "rms": 0.04,
+     "max_abs": 0.13
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.21,
+     "max_abs": 1.16
+    }
+   },
+   "u": {
+    "report8_minus_report7_mm": {
+     "n": 70,
+     "median": -0.01,
+     "rms": 0.1,
+     "max_abs": 0.66
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.54,
+     "max_abs": 2.57
+    }
+   }
+  },
+  "TW_G17": {
+   "e": {
+    "report8_minus_report7_mm": {
+     "n": 67,
+     "median": 0.01,
+     "rms": 0.32,
+     "max_abs": 1.22
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.33,
+     "max_abs": 1.41
+    }
+   },
+   "n": {
+    "report8_minus_report7_mm": {
+     "n": 67,
+     "median": 0.01,
+     "rms": 0.05,
+     "max_abs": 0.28
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.19,
+     "max_abs": 1.18
+    }
+   },
+   "u": {
+    "report8_minus_report7_mm": {
+     "n": 67,
+     "median": -0.0,
+     "rms": 0.07,
+     "max_abs": 0.26
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.63,
+     "max_abs": 3.76
+    }
+   }
+  },
+  "TW_G18": {
+   "e": {
+    "report8_minus_report7_mm": {
+     "n": 72,
+     "median": 0.03,
+     "rms": 0.35,
+     "max_abs": 1.77
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.26,
+     "max_abs": 1.74
+    }
+   },
+   "n": {
+    "report8_minus_report7_mm": {
+     "n": 72,
+     "median": 0.0,
+     "rms": 0.03,
+     "max_abs": 0.18
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.05,
+     "max_abs": 0.33
+    }
+   },
+   "u": {
+    "report8_minus_report7_mm": {
+     "n": 72,
+     "median": -0.0,
+     "rms": 0.07,
+     "max_abs": 0.23
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.27,
+     "max_abs": 1.84
+    }
+   }
+  },
+  "TW_G19": {
+   "e": {
+    "report8_minus_report7_mm": {
+     "n": 70,
+     "median": 0.01,
+     "rms": 0.46,
+     "max_abs": 1.96
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.34,
+     "max_abs": 1.91
+    }
+   },
+   "n": {
+    "report8_minus_report7_mm": {
+     "n": 70,
+     "median": 0.0,
+     "rms": 0.03,
+     "max_abs": 0.13
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.1,
+     "max_abs": 0.91
+    }
+   },
+   "u": {
+    "report8_minus_report7_mm": {
+     "n": 70,
+     "median": -0.01,
+     "rms": 0.07,
+     "max_abs": 0.31
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.57,
+     "max_abs": 4.73
+    }
+   }
+  },
+  "TW_G20": {
+   "e": {
+    "report8_minus_report7_mm": {
+     "n": 50,
+     "median": 0.02,
+     "rms": 0.36,
+     "max_abs": 0.96
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.3,
+     "max_abs": 1.02
+    }
+   },
+   "n": {
+    "report8_minus_report7_mm": {
+     "n": 50,
+     "median": 0.0,
+     "rms": 0.02,
+     "max_abs": 0.04
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.03,
+     "max_abs": 0.08
+    }
+   },
+   "u": {
+    "report8_minus_report7_mm": {
+     "n": 50,
+     "median": -0.01,
+     "rms": 0.21,
+     "max_abs": 1.48
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.27,
+     "max_abs": 1.67
+    }
+   }
+  },
+  "TW_G21": {
+   "e": {
+    "report8_minus_report7_mm": {
+     "n": 50,
+     "median": 0.01,
+     "rms": 0.42,
+     "max_abs": 2.06
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.32,
+     "max_abs": 1.46
+    }
+   },
+   "n": {
+    "report8_minus_report7_mm": {
+     "n": 50,
+     "median": 0.01,
+     "rms": 0.12,
+     "max_abs": 0.68
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.14,
+     "max_abs": 0.8
+    }
+   },
+   "u": {
+    "report8_minus_report7_mm": {
+     "n": 50,
+     "median": -0.01,
+     "rms": 0.09,
+     "max_abs": 0.42
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.32,
+     "max_abs": 1.91
+    }
+   }
+  },
+  "TW_G24": {
+   "e": {
+    "report8_minus_report7_mm": {
+     "n": 16,
+     "median": 0.0,
+     "rms": 0.42,
+     "max_abs": 1.36
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.43,
+     "max_abs": 1.47
+    }
+   },
+   "n": {
+    "report8_minus_report7_mm": {
+     "n": 16,
+     "median": -0.01,
+     "rms": 0.54,
+     "max_abs": 2.04
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.49,
+     "max_abs": 1.85
+    }
+   },
+   "u": {
+    "report8_minus_report7_mm": {
+     "n": 16,
+     "median": -0.04,
+     "rms": 0.58,
+     "max_abs": 1.63
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 1.1,
+     "max_abs": 3.35
+    }
+   }
+  },
+  "TW_GSR17N": {
+   "e": {
+    "report8_minus_report7_mm": {
+     "n": 28,
+     "median": 0.0,
+     "rms": 0.01,
+     "max_abs": 0.03
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.53,
+     "max_abs": 1.33
+    }
+   },
+   "n": {
+    "report8_minus_report7_mm": {
+     "n": 28,
+     "median": 0.0,
+     "rms": 0.01,
+     "max_abs": 0.01
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.39,
+     "max_abs": 0.98
+    }
+   },
+   "u": {
+    "report8_minus_report7_mm": {
+     "n": 28,
+     "median": -0.0,
+     "rms": 0.01,
+     "max_abs": 0.04
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 1.85,
+     "max_abs": 5.32
+    }
+   }
+  },
+  "TW_GSR17S": {
+   "e": {
+    "report8_minus_report7_mm": {
+     "n": 29,
+     "median": 0.0,
+     "rms": 0.03,
+     "max_abs": 0.1
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.63,
+     "max_abs": 1.61
+    }
+   },
+   "n": {
+    "report8_minus_report7_mm": {
+     "n": 29,
+     "median": 0.0,
+     "rms": 0.02,
+     "max_abs": 0.06
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 0.38,
+     "max_abs": 0.8
+    }
+   },
+   "u": {
+    "report8_minus_report7_mm": {
+     "n": 29,
+     "median": -0.0,
+     "rms": 0.05,
+     "max_abs": 0.14
+    },
+    "avg7_minus_own_centred_mean_mm": {
+     "rms": 1.54,
+     "max_abs": 4.98
+    }
+   }
+  }
+ },
+ "positions": [
+  {
+   "from": "TW_G07",
+   "to": "TW_G08",
+   "chainage_diff_m": 260.0,
+   "straight_line_m": 228.5,
+   "note": "the units stand beside the track, not on it, so the straight line between two can differ from the chainage difference by tens of metres; on MSEC1263-01 Sites 7, 8, 9, 10 and 19 sit beside the pegs of their title chainage, Site 11 beside peg ~89.69 km (title 89.629 km): checked by eye on a 500 dpi render"
+  },
+  {
+   "from": "TW_G08",
+   "to": "TW_G09",
+   "chainage_diff_m": 440.0,
+   "straight_line_m": 435.1,
+   "note": "the units stand beside the track, not on it, so the straight line between two can differ from the chainage difference by tens of metres; on MSEC1263-01 Sites 7, 8, 9, 10 and 19 sit beside the pegs of their title chainage, Site 11 beside peg ~89.69 km (title 89.629 km): checked by eye on a 500 dpi render"
+  },
+  {
+   "from": "TW_G09",
+   "to": "TW_G10",
+   "chainage_diff_m": 450.0,
+   "straight_line_m": 390.6,
+   "note": "the units stand beside the track, not on it, so the straight line between two can differ from the chainage difference by tens of metres; on MSEC1263-01 Sites 7, 8, 9, 10 and 19 sit beside the pegs of their title chainage, Site 11 beside peg ~89.69 km (title 89.629 km): checked by eye on a 500 dpi render"
+  },
+  {
+   "from": "TW_G10",
+   "to": "TW_G19",
+   "chainage_diff_m": 440.0,
+   "straight_line_m": 489.7,
+   "note": "the units stand beside the track, not on it, so the straight line between two can differ from the chainage difference by tens of metres; on MSEC1263-01 Sites 7, 8, 9, 10 and 19 sit beside the pegs of their title chainage, Site 11 beside peg ~89.69 km (title 89.629 km): checked by eye on a 500 dpi render"
+  },
+  {
+   "from": "TW_G19",
+   "to": "TW_G11",
+   "chainage_diff_m": 189.0,
+   "straight_line_m": 241.8,
+   "note": "the units stand beside the track, not on it, so the straight line between two can differ from the chainage difference by tens of metres; on MSEC1263-01 Sites 7, 8, 9, 10 and 19 sit beside the pegs of their title chainage, Site 11 beside peg ~89.69 km (title 89.629 km): checked by eye on a 500 dpi render"
+  }
+ ],
+ "printed_numbers": [
+  {
+   "unit": "TW_G24",
+   "report8_text": "additional 16 mm of vertical subsidence between 1 January and 30 June 2023",
+   "digitised_mm": 20.9,
+   "dates_used": [
+    "2023-01-01",
+    "2023-06-30"
+   ],
+   "difference_mm": 4.9
+  },
+  {
+   "unit": "TW_G07",
+   "report8_text": "additional 5 mm of vertical subsidence between 1 January and 30 June 2023",
+   "digitised_mm": 6.2,
+   "dates_used": [
+    "2023-01-01",
+    "2023-06-30"
+   ],
+   "difference_mm": 1.2
+  },
+  {
+   "unit": "TW_G08",
+   "report8_text": "additional 2 mm of vertical subsidence between 1 January and 30 June 2023",
+   "digitised_mm": 3.9,
+   "dates_used": [
+    "2023-01-01",
+    "2023-06-30"
+   ],
+   "difference_mm": 1.9
+  },
+  {
+   "unit": "TW_G09",
+   "report8_text": "additional 4 mm of vertical subsidence between 1 January and 30 June 2023",
+   "digitised_mm": -0.1,
+   "dates_used": [
+    "2023-01-01",
+    "2023-06-30"
+   ],
+   "difference_mm": -4.1
+  },
+  {
+   "unit": "TW_G24",
+   "report8_text": "Site 24 'has recorded approximately 660 mm subsidence'",
+   "digitised_mm": 676.7,
+   "date_used": "2023-06-30",
+   "difference_mm": 16.7
+  },
+  {
+   "unit": "TW_G24",
+   "report8_text": "Report 7 (MSEC1263 Rev 20, plots to 15 Nov 2022): Site 24 'has recorded approximately 640 mm subsidence'",
+   "digitised_mm": 646.5,
+   "date_used": "2022-11-13",
+   "difference_mm": 6.5
+  }
+ ]
+}

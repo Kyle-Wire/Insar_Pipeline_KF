@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "insar-pipeline"
+version = "2026.10.16"
+description = "Sentinel-1 ground-motion records: phase-linked processing, OPERA DISP-S1 screening, quality assessment and client reports"
+requires-python = ">=3.11"
+# Everything with a compiled core comes from conda-forge (install/envs/insar.yml);
+# install with install/install.sh rather than pip alone.
+dependencies = []
+
+[project.scripts]
+insar = "insar_pipeline.dashboard:main"
+insar-builder = "insar_pipeline.map_builder:main"
+insar-doctor = "insar_pipeline.doctor:main"
+insar-cleanup = "insar_pipeline.scripts.cleanup:main"
+
+[tool.setuptools]
+# This folder IS the package: import insar_pipeline maps to it.
+package-dir = { "insar_pipeline" = "." }
+packages = ["insar_pipeline", "insar_pipeline.scripts"]

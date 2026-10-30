@@ -1,0 +1,28 @@
+Proprietary License
+
+Copyright (c) 2026 Kyle Wire. All rights reserved.
+
+insar_pipeline (this software and its associated documentation, the
+"Software") is the proprietary property of Kyle Wire.
+
+Kyle Wire grants the organisation to which this copy of the Software was
+provided (the "operating organisation") a non-exclusive, non-transferable,
+royalty-free licence to install, run and modify the Software for its own
+work, and to deliver the reports and data products the Software produces to
+its clients. This licence does not transfer ownership of the Software and
+does not permit copying, publishing or distributing the Software outside the
+operating organisation without prior written permission from Kyle Wire.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. Its results are a
+screening of ground movement from satellite radar, not a survey; every
+client report it produces must be reviewed and signed off by a qualified
+person before release.
+
+Third-party software and data keep their own licences and terms; see
+THIRD_PARTY.md. MintPy, MiaplPy, PyAPS3 and PySolid are GPL-3.0 and are
+installed separately into the conda environments, not included here.
+patches/miaplpy/ holds a modification of MiaplPy (GPL-3.0); how GPL-3.0
+applies to it and to this software is an open licensing question for the
+copyright holder, and is not resolved by this file.

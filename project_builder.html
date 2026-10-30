@@ -1,0 +1,747 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>InSAR Project Builder</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --bg: #f3f5f4; --panel: #ffffff; --ink: #18221f; --muted: #5b6a65; --line: #d9e0dd; --soft: #eef2f0;
+  --accent: #0f766e; --accent-ink: #ffffff; --warn: #a15c07; --bad: #b42318; --good: #13795b;
+  --area: #2563eb; --mine: #d92d20; --surface: #c026d3; --other: #64748b; --dated: #b54708; --report: #d97706; --ref: #13795b; --gnss: #7c3aed; --box: #475467;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1513; --panel: #16201d; --ink: #e5ece9; --muted: #98a8a2; --line: #2a3733; --soft: #1c2824;
+    --accent: #2dd4bf; --accent-ink: #062521; --warn: #f5b454; --bad: #f97066; --good: #4ade9f; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1513; --panel: #16201d; --ink: #e5ece9; --muted: #98a8a2; --line: #2a3733; --soft: #1c2824;
+  --accent: #2dd4bf; --accent-ink: #062521; --warn: #f5b454; --bad: #f97066; --good: #4ade9f; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 14px/1.45 var(--sans); display: grid;
+       grid-template-columns: minmax(340px, 420px) 1fr; grid-template-rows: 100%; }
+aside { background: var(--panel); border-right: 1px solid var(--line); overflow-y: auto; display: flex;
+        flex-direction: column; }
+header { padding: 16px 18px 12px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; }
+h1 { font-size: 17px; margin: 0; font-weight: 600; letter-spacing: .01em; }
+h1 small { font-weight: 400; color: var(--muted); font-size: 13px; margin-left: 6px; }
+.step { padding: 14px 18px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; }
+.step h2 { margin: 0; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .07em;
+           color: var(--muted); display: flex; align-items: center; gap: 8px; }
+.step h2 .n { font-family: var(--mono); color: var(--accent); }
+.step h2 .opt { text-transform: none; letter-spacing: 0; font-weight: 400; }
+.hint { color: var(--muted); font-size: 12.5px; margin: 0; }
+.row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+button, .btn { font: inherit; font-size: 13px; border: 1px solid var(--line); background: var(--soft); color: var(--ink);
+  padding: 5px 10px; border-radius: 6px; cursor: pointer; line-height: 1.3; }
+button:hover:not(:disabled) { border-color: var(--accent); }
+button:disabled { opacity: .45; cursor: not-allowed; }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+button.danger { color: var(--bad); }
+button.ghost { background: transparent; border-color: transparent; padding: 3px 6px; color: var(--muted); }
+button.ghost:hover { color: var(--ink); }
+input[type=text], input[type=date], input[type=number], select {
+  font: inherit; font-size: 13px; padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px;
+  background: var(--panel); color: var(--ink); min-width: 0; }
+input[type=text] { flex: 1; }
+label.inline { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+.drop { border: 1.5px dashed var(--line); border-radius: 8px; padding: 9px 10px; font-size: 12.5px; color: var(--muted);
+        display: flex; gap: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.drop.over { border-color: var(--accent); background: var(--soft); color: var(--ink); }
+.drop input[type=file] { display: none; }
+.layers { display: flex; flex-direction: column; gap: 6px; }
+.layer { display: grid; grid-template-columns: 12px 1fr auto; gap: 4px 8px; align-items: center; padding: 7px 8px;
+         border: 1px solid var(--line); border-radius: 7px; background: var(--panel); }
+.layer .sw { width: 12px; height: 12px; border-radius: 3px; }
+.layer input[type=text] { padding: 3px 6px; }
+.layer .meta { grid-column: 2 / 4; font-size: 12px; color: var(--muted); display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.empty { font-size: 12.5px; color: var(--muted); font-style: italic; }
+.mono { font-family: var(--mono); font-size: 12.5px; }
+.tracks { display: flex; flex-direction: column; gap: 4px; }
+.track { display: grid; grid-template-columns: 18px 1fr auto; gap: 6px; align-items: center; font-size: 13px;
+         padding: 4px 6px; border-radius: 6px; }
+.track:hover { background: var(--soft); }
+.track .yrs { grid-column: 2 / 4; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.note { font-size: 12.5px; padding: 8px 10px; border-radius: 7px; background: var(--soft); border-left: 3px solid var(--line); }
+.note.good { border-left-color: var(--good); } .note.warn { border-left-color: var(--warn); } .note.bad { border-left-color: var(--bad); }
+.result { display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+.result dl { display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; margin: 0; }
+.result dt { color: var(--muted); } .result dd { margin: 0; word-break: break-all; }
+ol.next { margin: 4px 0 0; padding-left: 20px; }
+kbd { font-family: var(--mono); font-size: 12px; border: 1px solid var(--line); border-bottom-width: 2px;
+      border-radius: 4px; padding: 0 4px; background: var(--soft); }
+footer { padding: 12px 18px 18px; color: var(--muted); font-size: 12px; margin-top: auto; }
+main { position: relative; }
+#map { position: absolute; inset: 0; background: var(--soft); }
+.mapbar { position: absolute; top: 10px; left: 10px; z-index: 500; display: flex; gap: 6px; flex-wrap: wrap;
+          max-width: calc(100% - 80px); }
+.mapbar > * { box-shadow: 0 1px 4px rgba(0,0,0,.18); }
+.mapbar form { display: flex; gap: 0; }
+.mapbar input { width: 240px; border-radius: 6px 0 0 6px; }
+.mapbar form button { border-radius: 0 6px 6px 0; }
+.mapbar .searchnote { flex-basis: 100%; box-shadow: none; font-size: 11.5px; color: var(--ink); background: var(--panel);
+                      border: 1px solid var(--line); border-radius: 6px; padding: 2px 7px; width: max-content; max-width: 100%; }
+.layer .lbl { grid-column: 2 / 4; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: -2px; }
+.layer input.badname { border-color: var(--bad); }
+.layer .why { grid-column: 2 / 4; font-size: 12px; color: var(--bad); }
+.layer .src { grid-column: 2 / 4; }
+.legend { position: absolute; bottom: 22px; left: 10px; z-index: 500; background: var(--panel); border: 1px solid var(--line);
+          border-radius: 7px; padding: 7px 10px; font-size: 12px; display: flex; flex-direction: column; gap: 3px; }
+.legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px;
+                       vertical-align: -1px; background: var(--c); }
+.legend .dash::before { background: none; border: 1.5px dashed var(--c); height: 7px; }
+.readout { position: absolute; bottom: 22px; right: 10px; z-index: 500; background: var(--panel); border: 1px solid var(--line);
+           border-radius: 6px; padding: 4px 8px; font: 12px var(--mono); color: var(--muted); }
+#toast { position: fixed; top: 14px; left: 50%; transform: translateX(-50%); z-index: 2000; max-width: min(560px, 90vw);
+         padding: 9px 14px; border-radius: 8px; background: var(--ink); color: var(--bg); font-size: 13px;
+         box-shadow: 0 4px 16px rgba(0,0,0,.25); }
+#toast.bad { background: var(--bad); color: #fff; }
+.spin { display: inline-block; width: 12px; height: 12px; border: 2px solid var(--line); border-top-color: var(--accent);
+        border-radius: 50%; animation: sp .8s linear infinite; vertical-align: -2px; }
+@keyframes sp { to { transform: rotate(360deg); } }
+@media (max-width: 760px) {
+  body { grid-template-columns: 1fr; grid-template-rows: 55vh auto; }
+  main { grid-row: 1; } aside { grid-row: 2; border-right: 0; }
+  .mapbar input { width: 150px; }
+}
+</style>
+</head>
+<body>
+<aside>
+  <header>
+    <h1>Project builder <small>draw it, upload it, create it</small></h1>
+    <div class="row">
+      <select id="openSel" style="flex:1"><option value="">Open an existing project…</option></select>
+      <button id="newBtn" class="ghost" title="Start over">New</button>
+    </div>
+  </header>
+
+  <section class="step">
+    <h2><span class="n">1</span> Project area</h2>
+    <p class="hint">The ground you want numbers for. Draw it, or upload the outline. The processing box adds a margin
+      (dashed) so there is ordinary farmland around it to compare against.</p>
+    <div class="row">
+      <button data-draw="rect" data-role="area">Draw rectangle</button>
+      <button data-draw="poly" data-role="area">Draw polygon</button>
+    </div>
+    <div class="drop" data-role="area"><span>Drop a shapefile, KML/KMZ, GeoJSON or GeoPackage</span>
+      <label class="btn">Upload<input type="file" multiple></label></div>
+  </section>
+
+  <section class="step">
+    <h2><span class="n">2</span> Mines and known movement <span class="opt">optional, recommended</span></h2>
+    <p class="hint">Everything here is kept out of the ramp fit (so real movement isn't removed as "atmosphere") and
+      out of the farmland it is compared with. Keep underground and surface mines apart if you have both: the report
+      then says whether a feature sits over workings or on surface-mine ground. Statewide layers are fine: only what
+      lies inside the processing box is kept.</p>
+    <div class="drop" data-role="mine" data-kind="underground"><span><b style="color:var(--mine)">Underground workings</b>: shapefile (.shp .dbf .shx .prj together) or .zip</span>
+      <label class="btn">Upload<input type="file" multiple></label></div>
+    <div class="drop" data-role="mine" data-kind="surface"><span><b style="color:var(--surface)">Surface mines</b>: pits, spoil, reclaimed ground</span>
+      <label class="btn">Upload<input type="file" multiple></label></div>
+    <div class="drop" data-role="mine" data-kind="other"><span><b style="color:var(--other)">Other known movement</b>: landfill, quarry, anything else</span>
+      <label class="btn">Upload<input type="file" multiple></label></div>
+    <div class="drop" data-role="mine" data-kind="dated"><span><b style="color:var(--dated)">Dated mined areas</b>: one polygon per panel or
+      year, with the year it was mined in the attribute table (shapefile, GeoPackage or GeoJSON). Gives the
+      panel-by-panel history of movement in the years after mining.</span>
+      <label class="btn">Upload<input type="file" multiple></label></div>
+    <div class="row"><button data-draw="poly" data-role="mine" data-kind="underground">Draw underground</button>
+      <button data-draw="poly" data-role="mine" data-kind="surface">Draw surface</button>
+      <button data-draw="poly" data-role="mine" data-kind="other">Draw other</button></div>
+  </section>
+
+  <section class="step">
+    <h2><span class="n">3</span> Extra report areas <span class="opt">optional</span></h2>
+    <p class="hint">Each gets its own numbers in the client report, beside "Full Satellite Imaging" and the project area.
+      A mine can be reported too: tick "report" on it below. Give each one the plain name the client should read
+      ("Area A1", not "area_a1_v3"): the name heads its row in the report.</p>
+    <div class="row">
+      <button data-draw="rect" data-role="report">Draw rectangle</button>
+      <button data-draw="poly" data-role="report">Draw polygon</button>
+    </div>
+    <div class="drop" data-role="report"><span>Drop an outline file</span>
+      <label class="btn">Upload<input type="file" multiple></label></div>
+  </section>
+
+  <section class="step">
+    <h2>Layers</h2>
+    <div class="layers" id="layers"><p class="empty">Nothing yet. Start with the project area.</p></div>
+  </section>
+
+  <section class="step">
+    <h2><span class="n">4</span> Reference point <span class="opt">optional</span></h2>
+    <p class="hint">A spot you know is stable (away from mines, on firm ground). Leave empty and the pipeline picks the
+      most coherent stable spot itself; the report is tied to GNSS either way.</p>
+    <div class="row">
+      <button id="refBtn">Place on map</button>
+      <span id="refVal" class="mono">none</span>
+      <button id="refClear" class="ghost" hidden>clear</button>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2><span class="n">5</span> Dates and route</h2>
+    <div class="row">
+      <input type="date" id="start" value="2016-01-01"> <span class="hint">to</span> <input type="date" id="end">
+    </div>
+    <p class="hint">The end date defaults to a week ago: ERA5 weather data (the atmospheric correction) are published
+      about 5 days after real time, and a record ending later stops at that step naming the uncorrected dates.</p>
+    <label class="inline"><input type="radio" name="route" value="miaplpy" checked> <b>Phase-linked</b> &nbsp;<span class="hint">official results · 1–2 days · ~300 GB</span></label>
+    <label class="inline"><input type="radio" name="route" value="disp"> <b>OPERA DISP-S1</b> &nbsp;<span class="hint">fast screening, not official · hours</span></label>
+    <label class="inline">Margin around the area <input type="number" id="pad" value="5" min="1" max="30" step="1" style="width:64px"> km</label>
+  </section>
+
+  <section class="step">
+    <h2><span class="n">6</span> Check the satellite archive</h2>
+    <p class="hint">Sentinel-1 passes over the area by track (with the sub-swaths that cover the processing box), OPERA
+      DISP-S1 frames, and GNSS stations within <span class="gnssR">40</span> km (shown on the map).</p>
+    <div class="row"><button id="checkBtn" class="primary" disabled>Check archive and GNSS</button><span id="checkState" class="hint"></span></div>
+    <div id="checkOut"></div>
+  </section>
+
+  <section class="step">
+    <h2><span class="n">7</span> Create the project</h2>
+    <div class="row"><input type="text" id="name" placeholder="Project name, e.g. Site B"
+      title="The report's title and the project folder. Use the plain name the client knows the site by."></div>
+    <p class="hint" id="nameHint">Every processing setting uses the production defaults.</p>
+    <div class="row"><button id="createBtn" class="primary" disabled>Create project</button></div>
+    <div id="createOut"></div>
+  </section>
+
+  <footer>Settings follow the validated Site A production run. To change one for a single project, open it in the
+    dashboard, press <kbd>s</kbd>, then <kbd>e</kbd> on the preflight screen. This page talks only to the pipeline on
+    this computer.</footer>
+</aside>
+
+<main>
+  <div id="map"></div>
+  <div class="mapbar">
+    <form id="searchForm"><input type="text" id="q" placeholder="Search a town or road"
+      title="Sends your text to OpenStreetMap: type a town or road, not a client or site name."><button>Go</button></form>
+    <select id="base" title="Background map. Credit it (bottom right) on any screenshot; Esri imagery needs an Esri licence for commercial use.">
+      <option value="usgs" selected>Aerial imagery (USGS, public domain)</option>
+      <option value="imagery">Satellite imagery (Esri: licence needed for client work)</option>
+      <option value="osm">Streets (OpenStreetMap)</option>
+      <option value="topo">Topographic (OpenTopoMap)</option>
+      <option value="grey">Light grey (Esri)</option>
+    </select>
+    <span class="searchnote">Search sends your text to OpenStreetMap: type a town or road, not a client or site name.</span>
+  </div>
+  <div class="legend">
+    <span style="--c:var(--area)">Project area</span>
+    <span style="--c:var(--mine)">Underground workings</span>
+    <span style="--c:var(--surface)">Surface mines</span>
+    <span style="--c:var(--other)">Other known movement</span>
+    <span style="--c:var(--report)">Report areas</span>
+    <span class="dash" style="--c:var(--box)">Processing box (area + margin)</span>
+    <span style="--c:var(--gnss)">GNSS station</span>
+  </div>
+  <div class="readout" id="readout">–</div>
+</main>
+<div id="toast" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const KIND = {underground: {label: 'Underground workings', color: '--mine'}, surface: {label: 'Surface mines', color: '--surface'},
+              other: {label: 'Other known movement', color: '--other'}, dated: {label: 'Dated mined areas', color: '--dated'}};
+const ROLE = {area: {label: 'Project area', color: '--area'}, mine: {label: 'Mines', color: '--mine'},
+              report: {label: 'Report area', color: '--report'}};
+const state = {layers: [], ref: null, check: null, track: null, seq: 0, existing: null, gnssR: 40, nameProblem: null};
+
+// Names the client reads (project title, every report row) - the same rules as
+// areas.client_name_problem on the server, which has the last word: 'project_zone'
+// (an uploaded file's stem) reached Site B's client report.
+const GENERIC = /^(project ?(area|zone)|area( of interest)?|aoi|polygons?|layers?|shapes?|features?|outlines?|boundary|untitled|new layer|report area|underground workings|surface mines|other known movement)( ?\d+)?$/i;
+function nameProblem(n, stems = []) {
+  n = (n || '').trim();
+  if (!n) return 'needs the name the client report should show';
+  if (n.includes(':')) return "may not contain ':' (use a dash or a comma)";
+  if (/\.(geojson|json|shp|kml|kmz|gpkg|zip|gdb|fgb)$/i.test(n)) return 'is a file name: type the name the client should read';
+  if (n.includes('_') || /^[a-z0-9]+(-[a-z0-9]+)+$/.test(n)) return 'reads like a file name: type the name the client should read';
+  if (GENERIC.test(n)) return 'is a placeholder: type the name the client should read';
+  if (!n.includes(' ') && stems.some(s => s && s.toLowerCase() === n.toLowerCase())) return "is the uploaded file's name: type the name the client should read";
+  return null;
+}
+function inReport(l) { return l.role === 'area' || l.role === 'report' || (l.role === 'mine' && l.report); }
+function reportName(l) { return l.role === 'area' ? ((l.name || '').trim() || $('name').value.trim()) : (l.name || '').trim(); }
+function layerProblem(l) {
+  // a layer reopened from a project made before mine types: Update waits for one
+  if (l.role === 'mine' && !l.kind) return 'Choose the type of this mine layer (the project saved it without one)';
+  if (l.role === 'mine' && l.kind === 'dated' && !l.year_field)
+    return l.fields ? 'Choose the attribute that holds the year mined' : 'Dated mined areas must be uploaded with their attribute table (a year per polygon)';
+  if (!inReport(l)) return null;
+  const p = nameProblem(reportName(l), state.layers.map(x => x.stem));
+  return p && `${l.role === 'area' && !(l.name || '').trim() ? 'Project name' : 'Name'} ${p}`;
+}
+
+// ------------------------------------------------------------------ map
+const map = L.map('map', {zoomControl: false, preferCanvas: true}).setView([38.33, -87.55], 10);
+L.control.zoom({position: 'topright'}).addTo(map);
+L.control.scale({imperial: true, position: 'bottomright'}).addTo(map);
+// Default = USGS National Map orthoimagery: public domain, covers the US, no key
+// (cached to zoom 16, 1:9,028; upscaled beyond). Esri World Imagery is keyless
+// here, under the Esri Master License Agreement, which needs a licence for
+// commercial work: selectable, not the default (Kyle, 5 Oct 2026). Credits are
+// each service's own text, read 5 Oct 2026 (Maxar is now Vantor).
+const bases = {
+  usgs: L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}', {maxZoom: 19, maxNativeZoom: 16, attribution: 'USDA, USGS The National Map: Orthoimagery'}),
+  imagery: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {maxZoom: 19, attribution: 'Source: Esri, Vantor, Earthstar Geographics, and the GIS User Community'}),
+  osm: L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 19, attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}),
+  topo: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {maxZoom: 17, subdomains: 'abc', attribution: '© OpenStreetMap contributors, SRTM | © OpenTopoMap (CC-BY-SA)'}),
+  grey: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {maxZoom: 16, attribution: 'Esri, HERE, Garmin, (c) OpenStreetMap contributors, and the GIS user community'}),
+};
+let base = bases.usgs.addTo(map);
+$('base').onchange = e => { map.removeLayer(base); base = bases[e.target.value].addTo(map); };
+map.on('mousemove', e => $('readout').textContent = `${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`);
+const boxLayer = L.layerGroup().addTo(map), gnssLayer = L.layerGroup().addTo(map);
+let refMarker = null;
+
+function toast(msg, bad = false, ms = 4500) {
+  const t = $('toast'); t.textContent = msg; t.className = bad ? 'bad' : ''; t.hidden = false;
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, bad ? ms * 2 : ms);
+}
+
+// the server writes its per-session token into this page; every API call carries it
+const TOKEN = (document.querySelector('meta[name="insar-token"]') || {}).content || '';
+async function api(path, body = {}) {
+  let r;
+  try {
+    r = await fetch(path, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-Insar-Token': TOKEN},
+                           body: JSON.stringify(body)});
+  } catch (e) {
+    throw new Error('The builder server is not running. Start it again with "insar builder" (or b in the dashboard).');
+  }
+  let d = {};
+  try { d = await r.json(); } catch (e) {}
+  if (r.status === 404 && !d.error) throw new Error('This server is an older version: close it and run "insar builder" again.');
+  if (!r.ok) throw new Error(d.error || `HTTP ${r.status}`);
+  return d;
+}
+
+$('searchForm').onsubmit = async e => {
+  e.preventDefault();
+  const q = $('q').value.trim(); if (!q) return;
+  try {
+    // through this computer's server, which tells OpenStreetMap who is asking
+    // (its usage policy); the text itself still goes to OpenStreetMap
+    const h = (await api('/api/geocode', {q})).hits || [];
+    if (!h.length) return toast('No place found for "' + q + '"');
+    const b = h[0].bbox;                                       // W, S, E, N
+    map.fitBounds([[b[1], b[0]], [b[3], b[2]]], {maxZoom: 13});
+    toast(h[0].name);
+  } catch (err) { toast('Place search failed: ' + err.message, true); }
+};
+
+// ------------------------------------------------------------------ layers
+function colorOf(role, kind) { return role === 'mine' && kind ? KIND[kind].color : ROLE[role].color; }
+function labelOf(role, kind) { return role === 'mine' && kind ? KIND[kind].label : ROLE[role].label; }
+function style(role, kind) { const c = css(colorOf(role, kind)); return {color: c, weight: 2, fillColor: c, fillOpacity: role === 'mine' ? .28 : .12}; }
+function nPolys(gj) { return (gj.features || []).length; }
+
+function addLayer({role, name, geojson, upload_id = null, report = false, note = '', kind = null, source = '', stem = '',
+                   fields = null, year_field = '', name_field = '', reopened = false}) {
+  if (role === 'area') state.layers.filter(l => l.role === 'area').forEach(removeLayer);
+  const id = ++state.seq;
+  // a reopened layer keeps no type when it had none (not 'other known movement')
+  kind = role === 'mine' ? (kind || (reopened ? null : 'other')) : null;
+  // the object first: Leaflet calls style() while it builds the layer
+  const layer = {id, role, kind, name, geojson, upload_id, report, note, source, stem, fields, year_field, name_field, reopened};
+  const leaflet = layer.leaflet = L.geoJSON(geojson, {style: () => style(role, layer.kind)}).addTo(map);
+  leaflet.bindTooltip(() => `${labelOf(role, layer.kind)}: ${esc(reportName(layer) || layer.name)}`, {sticky: true});
+  state.layers.push(layer);
+  if (role !== 'area') leaflet.bringToFront(); else leaflet.bringToBack();
+  changed(role === 'area');
+  return layer;
+}
+function removeLayer(l) {
+  map.removeLayer(l.leaflet);
+  state.layers = state.layers.filter(x => x !== l);
+  changed(l.role === 'area');
+}
+function areaLayer() { return state.layers.find(l => l.role === 'area'); }
+function payload(l) {
+  const base = {role: l.role, kind: l.kind, name: l.name, report: l.report, source: l.source || '',
+                ...(l.reopened ? {reopened: true} : {}),
+                ...(l.kind === 'dated' ? {year_field: l.year_field || '', name_field: l.name_field || ''} : {})};
+  return l.upload_id ? {...base, upload_id: l.upload_id} : {...base, geojson: l.geojson};
+}
+
+function renderLayers() {
+  const box = $('layers');
+  if (!state.layers.length) { box.innerHTML = '<p class="empty">Nothing yet. Start with the project area.</p>'; return; }
+  box.innerHTML = '';
+  const order = {area: 0, mine: 1, report: 2};
+  [...state.layers].sort((a, b) => order[a.role] - order[b.role]).forEach(l => {
+    const el = document.createElement('div'); el.className = 'layer';
+    const n = nPolys(l.geojson);
+    const lbl = l.role === 'area' ? 'Name in client report (blank = the project name)'
+      : l.role === 'report' ? 'Name in client report' : 'Name (in the client report when ticked below)';
+    el.innerHTML = `<span class="lbl">${lbl}</span><span class="sw" style="background:var(${colorOf(l.role, l.kind)})"></span>
+      <input type="text" class="nm" value="${esc(l.name)}" placeholder="${l.role === 'area' ? esc($('name').value.trim() || 'the project name') : 'e.g. North pit'}" title="${lbl}">
+      <span class="row" style="gap:2px"><button class="ghost" data-a="zoom" title="Zoom to">⤢</button><button class="ghost danger" data-a="del" title="Remove">✕</button></span>
+      <span class="meta">${l.role === 'mine'
+        ? `<select data-a="kind" title="Mine type">${l.kind ? '' : '<option value="" selected disabled>Choose the type…</option>'}${Object.entries(KIND).map(([k, v]) => `<option value="${k}" ${k === l.kind ? 'selected' : ''}>${v.label}</option>`).join('')}</select>`
+        : `<span>${ROLE[l.role].label}</span>`}<span>${n.toLocaleString()} polygon${n === 1 ? '' : 's'}</span>
+      ${l.upload_id ? '<span>uploaded</span>' : ''}${l.note ? `<span>${esc(l.note)}</span>` : ''}
+      ${l.role === 'mine' ? `<label class="inline"><input type="checkbox" ${l.report ? 'checked' : ''}> report its numbers</label>` : ''}</span>
+      ${l.role === 'mine' ? `<input type="text" class="src" value="${esc(l.source)}" placeholder="Source, date: e.g. Indiana DNR mine maps, 2023"
+        title="Where this layer came from and how current it is. The report credits it; left blank, the uploaded file's name and date are used.">` : ''}
+      ${l.kind === 'dated' && l.fields ? `<span class="meta">Year mined <select data-a="yf">${['', ...(l.fields.fields || [])].map(f =>
+          `<option value="${esc(f)}" ${f === l.year_field ? 'selected' : ''}>${f ? esc(f) + ((l.fields.samples || {})[f] ? ` (${esc((l.fields.samples[f] || []).join(', '))})` : '') : 'choose…'}</option>`).join('')}</select>
+        Name <select data-a="nf">${['', ...(l.fields.fields || [])].map(f =>
+          `<option value="${esc(f)}" ${f === l.name_field ? 'selected' : ''}>${f ? esc(f) : 'none'}</option>`).join('')}</select></span>` : ''}
+      <span class="why" hidden></span>`;
+    const why = el.querySelector('.why'), nm = el.querySelector('input.nm');
+    const mark = () => { const p = layerProblem(l); nm.classList.toggle('badname', !!p); why.hidden = !p; why.textContent = p || ''; };
+    l.mark = mark; mark();
+    nm.oninput = e => { l.name = e.target.value; if (l.role === 'area' && !$('name').dataset.touched) setName(l.name); mark(); updateCreate(); };
+    const src = el.querySelector('input.src'); if (src) src.oninput = e => { l.source = e.target.value; };
+    const cb = el.querySelector('input[type=checkbox]'); if (cb) cb.onchange = e => { l.report = e.target.checked; mark(); updateCreate(); };
+    const yf = el.querySelector('[data-a=yf]'); if (yf) yf.onchange = e => { l.year_field = e.target.value; mark(); updateCreate(); };
+    const nf = el.querySelector('[data-a=nf]'); if (nf) nf.onchange = e => { l.name_field = e.target.value; };
+    const ks = el.querySelector('[data-a=kind]');
+    if (ks) ks.onchange = e => { l.kind = e.target.value; l.leaflet.setStyle(style(l.role, l.kind)); renderLayers(); updateCreate(); };
+    el.querySelector('[data-a=zoom]').onclick = () => map.fitBounds(l.leaflet.getBounds(), {maxZoom: 15});
+    el.querySelector('[data-a=del]').onclick = () => removeLayer(l);
+    box.appendChild(el);
+  });
+}
+
+function processingBox() {
+  const a = areaLayer(); if (!a) return null;
+  const b = a.leaflet.getBounds(), km = Math.max(0, +$('pad').value || 5);
+  const dlat = km / 110.95, dlon = km / (111.32 * Math.cos(b.getCenter().lat * Math.PI / 180));
+  return L.latLngBounds([b.getSouth() - dlat, b.getWest() - dlon], [b.getNorth() + dlat, b.getEast() + dlon]);
+}
+function sizeKm(bounds) {
+  const c = Math.cos(bounds.getCenter().lat * Math.PI / 180);
+  return [(bounds.getEast() - bounds.getWest()) * 111.32 * c, (bounds.getNorth() - bounds.getSouth()) * 110.95];
+}
+function drawBox() {
+  boxLayer.clearLayers();
+  const pb = processingBox(); if (!pb) return;
+  // a white dash on a dark casing reads on imagery and on the pale maps alike
+  L.rectangle(pb, {color: '#101828', opacity: .55, weight: 4, fill: false, interactive: false}).addTo(boxLayer);
+  L.rectangle(pb, {color: '#ffffff', weight: 2, dashArray: '8 6', fill: false, interactive: false}).addTo(boxLayer);
+}
+
+function changed(areaChanged) {
+  renderLayers(); drawBox();
+  const a = areaLayer();
+  $('checkBtn').disabled = !a;
+  if (areaChanged) {
+    state.check = null; state.track = null; gnssLayer.clearLayers();
+    $('checkOut').innerHTML = ''; $('checkState').textContent = a ? '' : '';
+    if (a && !$('name').dataset.touched && !state.existing) setName(a.name);
+  }
+  updateCreate();
+}
+$('pad').oninput = () => { drawBox(); if (state.check) { state.check = null; state.track = null; $('checkOut').innerHTML = '<p class="hint">Margin changed: check again.</p>'; updateCreate(); } };
+['start', 'end'].forEach(i => $(i).onchange = () => { if (state.check) { state.check = null; state.track = null; $('checkOut').innerHTML = '<p class="hint">Dates changed: check again.</p>'; updateCreate(); } });
+document.querySelectorAll('input[name=route]').forEach(r => r.onchange = () => { renderCheck(); nameCheck(); updateCreate(); });
+
+// ------------------------------------------------------------------ drawing
+let drawing = null;
+document.querySelectorAll('[data-draw]').forEach(b => b.onclick = () => {
+  if (drawing) drawing.disable();
+  const role = b.dataset.role, kind = b.dataset.kind || null, opts = {shapeOptions: style(role, kind), showArea: false};
+  drawing = b.dataset.draw === 'rect' ? new L.Draw.Rectangle(map, opts) : new L.Draw.Polygon(map, {...opts, allowIntersection: false});
+  drawing.role = role; drawing.kind = kind; drawing.enable();
+  toast(b.dataset.draw === 'rect' ? 'Click and drag on the map.' : 'Click the corners; click the first point to finish.');
+});
+map.on(L.Draw.Event.CREATED, e => {
+  if (drawing && drawing.role === 'ref') { setRef(e.layer.getLatLng()); drawing = null; return; }
+  const role = drawing ? drawing.role : 'area', kind = drawing ? drawing.kind : null; drawing = null;
+  const gj = {type: 'FeatureCollection', features: [e.layer.toGeoJSON()]};
+  const count = state.layers.filter(l => l.role === role).length + 1;
+  // report and area names are typed by the user (the client reads them); a
+  // mine's name is internal unless it is reported
+  addLayer({role, kind, geojson: gj, name: role === 'area' ? (areaLayer()?.name || '')
+            : role === 'mine' ? `${KIND[kind || 'other'].label} ${count}` : ''});
+});
+
+$('refBtn').onclick = () => {
+  if (drawing) drawing.disable();
+  drawing = new L.Draw.Marker(map, {icon: L.divIcon({className: '', html: refHtml(), iconSize: [18, 18], iconAnchor: [9, 9]})});
+  drawing.role = 'ref'; drawing.enable(); toast('Click the stable spot.');
+};
+function refHtml() { return `<div style="width:18px;height:18px;border-radius:50%;background:${css('--ref')};border:3px solid #fff;box-shadow:0 0 0 1px #0006"></div>`; }
+function setRef(ll) {
+  if (refMarker) map.removeLayer(refMarker);
+  state.ref = ll ? `${ll.lat.toFixed(5)},${ll.lng.toFixed(5)}` : null;
+  refMarker = ll ? L.marker(ll, {icon: L.divIcon({className: '', html: refHtml(), iconSize: [18, 18], iconAnchor: [9, 9]}), draggable: true})
+                    .bindTooltip('Reference point').addTo(map) : null;
+  if (refMarker) refMarker.on('dragend', () => setRef(refMarker.getLatLng()));
+  $('refVal').textContent = state.ref || 'none'; $('refClear').hidden = !state.ref;
+}
+$('refClear').onclick = () => setRef(null);
+
+// ------------------------------------------------------------------ uploads
+function readB64(file) {
+  return new Promise((ok, bad) => { const r = new FileReader();
+    r.onload = () => ok(String(r.result).split(',', 2)[1] || ''); r.onerror = () => bad(r.error); r.readAsDataURL(file); });
+}
+async function upload(files, role, kind = null) {
+  files = [...files]; if (!files.length) return;
+  const exts = files.map(f => f.name.toLowerCase().split('.').pop());
+  if (exts.includes('shp') && !(exts.includes('dbf') && exts.includes('shx'))) {
+    return toast('A shapefile is several files: select the .shp, .dbf, .shx and .prj together (or zip them).', true);
+  }
+  // one upload per outline: a shapefile's parts travel together, other files each on their own
+  const groups = exts.includes('shp') ? [files] : files.map(f => [f]);
+  for (const g of groups) {
+    toast(`Reading ${g.map(f => f.name).join(', ')}…`, false, 60000);
+    try {
+      const data = await Promise.all(g.map(async f => ({name: f.name, data: await readB64(f), lastModified: f.lastModified})));
+      const d = await api('/api/outline', {files: data, kind});
+      // an uploaded area or report area does NOT take the file's name: the
+      // client reads it, so it is typed (the area falls back to the project name)
+      const l = addLayer({role, kind, name: role === 'mine' ? d.label : '', geojson: d.geojson, upload_id: d.upload_id,
+                          stem: d.stem, source: '', fields: d.fields || null,
+                          year_field: (d.fields || {}).year_guess || '', name_field: (d.fields || {}).name_guess || '',
+                          note: [`from ${d.files.find(n => n.startsWith(d.stem)) || d.stem}`, d.holes ? `${d.holes} hole${d.holes === 1 ? '' : 's'} kept` : '',
+                                 d.thinned ? 'map shows a thinned copy; the full detail is kept' : ''].filter(Boolean).join(' · ')});
+      map.fitBounds(role !== 'report' && areaLayer() ? processingBox().pad(0.05) : l.leaflet.getBounds(), {maxZoom: 15});
+      toast(`${labelOf(role, kind)}: ${d.stem} (${d.polygons.toLocaleString()} polygon${d.polygons === 1 ? '' : 's'})` +
+            (role === 'mine' ? '' : '. Type the name the client report should show.'));
+    } catch (err) { toast(err.message, true); }
+  }
+}
+document.querySelectorAll('.drop').forEach(z => {
+  const role = z.dataset.role, kind = z.dataset.kind || null, inp = z.querySelector('input[type=file]');
+  inp.onchange = () => { upload(inp.files, role, kind); inp.value = ''; };
+  z.ondragover = e => { e.preventDefault(); z.classList.add('over'); };
+  z.ondragleave = () => z.classList.remove('over');
+  z.ondrop = e => { e.preventDefault(); z.classList.remove('over'); upload(e.dataTransfer.files, role, kind); };
+});
+document.addEventListener('dragover', e => e.preventDefault());
+document.addEventListener('drop', e => e.preventDefault());
+
+// ------------------------------------------------------------------ archive
+$('checkBtn').onclick = async () => {
+  const a = areaLayer(); if (!a) return;
+  $('checkBtn').disabled = true;
+  $('checkState').innerHTML = '<span class="spin"></span> asking ASF, OPERA and the GNSS list (10–30 s)…';
+  try {
+    state.check = await api('/api/check', {area: payload(a), start: $('start').value, end: $('end').value, pad_km: +$('pad').value});
+    const t = state.check.tracks || [];
+    const best = t.find(x => x.direction === 'ASCENDING' && x.dates >= 60) || t[0];
+    state.track = best ? `${best.direction}:${best.track}` : null;
+    $('checkState').textContent = '';
+    renderCheck();
+  } catch (err) { $('checkState').textContent = ''; toast(err.message, true); }
+  $('checkBtn').disabled = false; updateCreate();
+};
+
+function renderCheck() {
+  const c = state.check, out = $('checkOut');
+  gnssLayer.clearLayers();
+  if (!c) return;
+  const route = document.querySelector('input[name=route]:checked').value;
+  let h = '';
+  if (!c.tracks.length) h += '<div class="note bad">No Sentinel-1 IW scenes over this area in those dates.</div>';
+  else {
+    h += '<div class="tracks">';
+    c.tracks.slice(0, 6).forEach(t => {
+      const v = `${t.direction}:${t.track}`, yrs = Object.entries(t.by_year).sort().map(([y, n]) => `${y.slice(2)}:${n}`).join(' ');
+      h += `<label class="track"><input type="radio" name="trk" value="${v}" ${v === state.track ? 'checked' : ''}>
+        <span><b>${t.direction === 'ASCENDING' ? 'Ascending' : 'Descending'} ${t.track}</b></span>
+        <span class="mono" style="color:${t.dates >= 60 ? 'var(--good)' : 'var(--muted)'}">${t.dates} dates</span>
+        <span class="yrs">${yrs}${t.swaths ? ` · <span style="color:${t.coverage >= 0.99 ? 'inherit' : 'var(--bad)'}">IW${t.swaths.join('+')}, ${(100 * t.coverage).toFixed(1)}% of the box</span>`
+          : t.swath_error ? ' · sub-swaths not looked up (Create looks again)' : ''}</span></label>`;
+    });
+    h += '</div>';
+  }
+  // DISP-S1 frames by track: the frame processed is the one on the CHOSEN
+  // track covering most of the processing box (granule count only breaks ties)
+  const det = c.disp_frame_detail || [];
+  if (det.length) h += `<div class="note">OPERA DISP-S1: ${det.map(d => `F${esc(d.frame)} (track ${d.track ?? '?'} ${esc(d.direction || '')}, `
+      + `${d.granules} granules, ${d.overlap_fraction == null ? '?' : Math.round(100 * d.overlap_fraction)}% of the box)`).join(', ')}</div>`;
+  else {
+    const fr = c.disp_frames || {}, frames = Object.keys(fr).filter(k => k !== 'error');
+    if (frames.length) h += `<div class="note">OPERA DISP-S1: ${frames.map(k => `F${k} (${fr[k]} granules)`).join(', ')}</div>`;
+    else h += `<div class="note ${route === 'disp' ? 'bad' : ''}">No OPERA DISP-S1 frame here${route === 'disp' ? ': use the phase-linked route' : ''}.</div>`;
+  }
+  if (route === 'disp' && det.length && state.track) {
+    const f = dispFrame();
+    h += f ? (f.overlap_fraction != null && f.overlap_fraction < 0.95
+              ? `<div class="note warn">Frame F${esc(f.frame)} covers only ${Math.round(100 * f.overlap_fraction)}% of the processing box on this track: part of the area comes back empty.</div>` : '')
+           : '<div class="note bad">No DISP-S1 frame on the chosen track: choose the track a frame is listed for.</div>';
+  }
+  const g = c.gnss || [];
+  const R = c.gnss_radius_km || state.gnssR;
+  const low = (c.tracks || []).filter(t => t.swaths && t.coverage < 0.99);
+  if (low.length) h += `<div class="note bad">${low.map(t => `Track ${t.track}`).join(', ')} cover${low.length === 1 ? 's' : ''} only part of the processing box: Create refuses those tracks. Reduce the margin or pick another track.</div>`;
+  // what the GNSS tie will USE (inside the tie radius, 3+ years over these
+  // dates), apart from what is nearby and will not be used
+  const used = g.filter(s => s.will_use), unused = g.filter(s => s.will_use === false), unknown = g.filter(s => s.will_use == null);
+  const st = s => `${esc(s.site)} ${Math.round(s.distance_km)} km`;
+  if (used.length) h += `<div class="note ${used.length >= 3 ? 'good' : 'warn'}">Used for the GNSS anchor: ${used.slice(0, 8).map(st).join(', ')}.</div>`;
+  if (unused.length) h += `<div class="note">Nearby, not used (outside ${R} km or under 3 years of data in these dates): ${unused.slice(0, 8).map(st).join(', ')}.</div>`;
+  if (unknown.length) h += `<div class="note">GNSS within ${R} km: ${unknown.slice(0, 8).map(st).join(', ')} (station spans not checked on this machine).</div>`;
+  if (c.gnss_warning) h += `<div class="note warn">${esc(c.gnss_warning)}.</div>`;
+  else if (!g.length) h += `<div class="note warn">No GNSS station within ${R} km: results stay relative to the area's own farmland.</div>`;
+  const [wk, hk] = c.size_km || [0, 0];
+  if (Math.max(wk, hk) >= 100) h += '<div class="note">Large area: the tide and ionosphere corrections switch on automatically.</div>';
+  if (c.ram && c.ram.text && c.ram.level !== 'ok') h += `<div class="note ${c.ram.level === 'bad' ? 'bad' : 'warn'}">${esc(c.ram.text)}.</div>`;
+  out.innerHTML = h;
+  out.querySelectorAll('input[name=trk]').forEach(r => r.onchange = () => { state.track = r.value; renderCheck(); updateCreate(); });
+  g.filter(s => s.lat != null).forEach(s => L.circleMarker([s.lat, s.lon], {radius: 7, color: '#fff', weight: 2,
+      fillColor: css('--gnss'), fillOpacity: s.will_use === false ? 0.35 : 1})
+    .bindTooltip(`GNSS ${esc(s.site)} · ${Math.round(s.distance_km)} km${s.will_use === false ? ' (not used)' : ''}`).addTo(gnssLayer));
+}
+// the DISP-S1 frame for the chosen track: largest share of the processing box
+function dispFrame() {
+  if (!state.check || !state.track) return null;
+  const [direction, track] = state.track.split(':');
+  const rows = (state.check.disp_frame_detail || []).filter(d => d.track === +track
+    && String(d.direction || '').toLowerCase() === direction.toLowerCase());
+  rows.sort((a, b) => ((b.overlap_fraction || 0) - (a.overlap_fraction || 0)) || (b.granules - a.granules));
+  return rows[0] || null;
+}
+
+// ------------------------------------------------------------------ create
+function setName(v) { $('name').value = (v || '').slice(0, 40); nameCheck(); }
+$('name').oninput = () => { $('name').dataset.touched = '1'; nameCheck(); state.layers.forEach(l => l.mark && l.mark()); updateCreate(); };
+let nameT = null;
+function nameCheck() {
+  clearTimeout(nameT);
+  nameT = setTimeout(async () => {
+    const n = $('name').value.trim();
+    const route = document.querySelector('input[name=route]:checked').value;
+    state.nameProblem = n ? nameProblem(n) : null;
+    if (!n) { $('nameHint').textContent = 'Every processing setting uses the production defaults.'; return; }
+    try {
+      const d = await api('/api/exists', {name: n, route});
+      state.exists = d.exists; state.nameProblem = d.name_problem ? `Project name ${d.name_problem}` : null;
+      const where = route === 'disp'
+        ? `Screening goes to its own folder <span class="mono">${esc(d.folder)}</span>, apart from any official project. `
+        : `Folder <span class="mono">${esc(d.folder)}</span>. `;
+      $('nameHint').innerHTML = state.nameProblem ? `<span style="color:var(--bad)">${esc(state.nameProblem)}</span>`
+        : d.exists
+        ? where + `Updates <span class="mono">${esc(d.exists)}</span>${d.holds && d.holds.length ? `, which holds ${esc(d.holds.join(', '))}` : ''}. The current config is kept as a backup.`
+        : where + 'Every processing setting uses the production defaults.';
+      $('createBtn').textContent = d.exists ? 'Update project' : 'Create project';
+    } catch (e) {}
+    updateCreate();
+  }, 300);
+}
+function updateCreate() {
+  const route = document.querySelector('input[name=route]:checked').value;
+  const frameOk = !!dispFrame();
+  const bad = state.layers.map(layerProblem).find(Boolean) || state.nameProblem;
+  $('createBtn').disabled = !(areaLayer() && state.check && state.track && $('name').value.trim() && (route !== 'disp' || frameOk) && !bad);
+  $('createBtn').title = !areaLayer() ? 'Add the project area first' : !state.check ? 'Check the archive first' : bad || '';
+}
+
+async function create(overwrite = false) {
+  const route = document.querySelector('input[name=route]:checked').value;
+  const [direction, track] = state.track.split(':');
+  const frame = dispFrame();
+  const body = {name: $('name').value.trim(), route, start: $('start').value, end: $('end').value, pad_km: +$('pad').value,
+                track: +track, direction, disp_frame: frame ? String(frame.frame) : '', reference: state.ref || '',
+                layers: state.layers.map(payload), overwrite};
+  $('createBtn').disabled = true;
+  $('createOut').innerHTML = '<p class="hint"><span class="spin"></span> writing the project…</p>';
+  try {
+    const d = await api('/api/create', body);
+    if (d.exists) {
+      $('createOut').innerHTML = `<div class="note warn">A project called this already exists
+        (<span class="mono">${esc(d.exists)}</span>${d.backend ? `, ${esc(d.backend)} route` : ''})${d.holds && d.holds.length
+        ? `, and its folder holds <b>${esc(d.holds.join(', '))}</b>, which the next run would reuse or replace` : ''}.
+        Replace its settings and outlines? The current config is kept as a backup beside it, so any hand edits can be
+        copied back. To keep both, cancel and choose another name.<div class="row" style="margin-top:6px">
+        <button class="primary" id="ovYes">Replace</button><button id="ovNo">Cancel</button></div></div>`;
+      $('ovYes').onclick = () => create(true);
+      $('ovNo').onclick = () => { $('createOut').innerHTML = ''; updateCreate(); };
+      return;
+    }
+    const mines = d.mine_polygons_uploaded
+      ? `${d.mine_polygons_kept.toLocaleString()} of ${d.mine_polygons_uploaded.toLocaleString()} polygons (those in the processing box)`
+      : 'none (ramp fit left off: nothing known to exclude)';
+    $('createOut').innerHTML = `<div class="result"><div class="note good"><b>${overwrite ? 'Updated' : 'Created'}.</b></div>
+      <dl><dt>Config</dt><dd class="mono">${esc(d.config)}</dd>
+      <dt>Folder</dt><dd class="mono">${esc(d.project_dir)}</dd>
+      <dt>Route</dt><dd>${esc(d.route)}</dd>
+      <dt>Title</dt><dd>${esc(d.title || '')}</dd>
+      <dt>Report</dt><dd>${d.report_areas.map(esc).join(' · ')}</dd>
+      <dt>Mines</dt><dd>${mines}${(d.mine_layers_outside_box || []).length ? `<div class="note warn">Nothing of ${esc(d.mine_layers_outside_box.join(', '))} lies in the processing box: left out.</div>` : ''}
+        ${d.dated_polygons ? `<div>${d.dated_polygons.toLocaleString()} dated mined area(s): the report gets their mining-year history.</div>` : ''}</dd>
+      ${d.far_field && d.far_field.warning ? `<dt>Farmland</dt><dd><div class="note warn">${esc(d.far_field.warning)}</div></dd>` : ''}
+      ${(d.mine_layer_sources || []).length ? `<dt>Sources</dt><dd>${d.mine_layer_sources.map(esc).join('<br>')}</dd>` : ''}
+      ${d.swaths ? `<dt>Sub-swaths</dt><dd>IW${d.swaths.join(', IW')}</dd>` : ''}
+      ${d.backup ? `<dt>Backup</dt><dd class="mono">${esc(d.backup)}</dd>` : ''}</dl>
+      <div><b>Next, in the dashboard</b> (<span class="mono">insar</span>):<ol class="next">
+        <li>The project appears in the list within a few seconds. Select it and press <kbd>Enter</kbd>.</li>
+        <li>Press <kbd>s</kbd> and choose <b>Whole pipeline</b>. The preflight checks run first.</li></ol></div></div>`;
+    state.existing = d.config; refreshProjects();
+  } catch (err) { $('createOut').innerHTML = `<div class="note bad">${esc(err.message)}</div>`; }
+  updateCreate();
+}
+$('createBtn').onclick = () => create(false);
+
+// ------------------------------------------------------------------ existing projects
+async function refreshProjects() {
+  try {
+    const d = await api('/api/projects');
+    const sel = $('openSel'), cur = sel.value;
+    sel.innerHTML = '<option value="">Open an existing project…</option>' +
+      d.projects.map(p => `<option value="${esc(p.config)}">${esc(p.name)}</option>`).join('');
+    sel.value = cur;
+  } catch (e) {}
+}
+$('openSel').onchange = async e => {
+  const cfg = e.target.value; if (!cfg) return;
+  try {
+    const d = await api('/api/project', {config: cfg});
+    reset(false);
+    state.existing = cfg;
+    // the project's own dates and margin: the form's defaults would rewrite
+    // its record window (and its processing box) on Update
+    if (d.start) $('start').value = d.start;
+    if (d.end) $('end').value = d.end;
+    if (d.pad_km) $('pad').value = d.pad_km;
+    d.layers.forEach(l => addLayer({role: l.role, kind: l.kind || null, name: l.name, geojson: l.geojson, report: !!l.report, source: l.source || '',
+                                    fields: l.fields || null, year_field: l.year_field || '', name_field: l.name_field || '',
+                                    reopened: true}));
+    if (d.reference) { const [la, lo] = d.reference.split(',').map(Number); setRef(L.latLng(la, lo)); }
+    $('name').dataset.touched = '1'; setName(d.name);
+    const b = d.bbox; if (b) map.fitBounds([[b[1], b[0]], [b[3], b[2]]]);
+    toast(`Opened ${d.name}. Change what you need, check the archive, then Update.`);
+  } catch (err) { toast(err.message, true); }
+};
+function reset(clearSel = true) {
+  [...state.layers].forEach(l => map.removeLayer(l.leaflet)); state.layers = [];
+  setRef(null); state.check = null; state.track = null; state.existing = null;
+  gnssLayer.clearLayers(); boxLayer.clearLayers();
+  $('checkOut').innerHTML = ''; $('createOut').innerHTML = ''; $('name').value = ''; delete $('name').dataset.touched;
+  // the form's default dates and margin again (an opened project set its own)
+  $('start').value = '2016-01-01'; if (state.defaultEnd) $('end').value = state.defaultEnd; $('pad').value = 5;
+  if (clearSel) $('openSel').value = '';
+  changed(true);
+}
+$('newBtn').onclick = () => reset(true);
+
+(async () => {
+  try {
+    const i = await api('/api/info');
+    $('end').value = state.defaultEnd = i.default_end || i.today;
+    if (i.gnss_radius_km) { state.gnssR = i.gnss_radius_km; document.querySelectorAll('.gnssR').forEach(e => e.textContent = i.gnss_radius_km); }
+  } catch (err) { $('end').value = state.defaultEnd = new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 10); toast(err.message, true); }
+  refreshProjects(); renderLayers(); updateCreate();
+})();
+</script>
+</body>
+</html>

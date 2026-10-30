@@ -1,0 +1,65 @@
+{
+ "polygon": "configs/experiments/context/appin_tahmoor_deforming.geojson",
+ "area_km2": 22.85,
+ "features": [
+  {
+   "name": "Tahmoor: panels S1A + angle of draw + 50 m",
+   "area_km2": 1.7
+  },
+  {
+   "name": "Tahmoor: panels W1, W2, W3, W4, LW30, LW31, LW32 + angle of draw + 50 m",
+   "area_km2": 8.24
+  },
+  {
+   "name": "Appin: panels LW901, LW902, LW903, LW904, LW905, LW707B, LW708A, LW708B, LW709 + angle of draw + 50 m",
+   "area_km2": 12.9
+  }
+ ],
+ "stations": {
+  "CA19": {
+   "inside": true,
+   "distance_m": 739.0
+  },
+  "CA07": {
+   "inside": false,
+   "distance_m": 2813.0
+  },
+  "PCTN": {
+   "inside": false,
+   "distance_m": 1195.0
+  },
+  "MENA": {
+   "inside": false,
+   "distance_m": 2353.0
+  },
+  "CRDX": {
+   "inside": false,
+   "distance_m": 16239.0
+  }
+ },
+ "approx_area_km2": 185.22,
+ "new_outside_approx_km2": 1.573,
+ "approx_outside_new_km2": 163.95,
+ "panels_not_fully_in_approx": [
+  {
+   "panel": "TS_S1A",
+   "panel_plus_draw_outside_approx_km2": 0.773
+  },
+  {
+   "panel": "AP_LW707B",
+   "panel_plus_draw_outside_approx_km2": 0.247
+  },
+  {
+   "panel": "AP_LW708B",
+   "panel_plus_draw_outside_approx_km2": 0.721
+  },
+  {
+   "panel": "AP_LW709",
+   "panel_plus_draw_outside_approx_km2": 0.077
+  }
+ ],
+ "box_area_km2": 376.3,
+ "share_of_box": 0.061,
+ "box_more_than_2km_from_polygon_km2": 248.5,
+ "approx_box_more_than_2km_km2": 74.3
+}

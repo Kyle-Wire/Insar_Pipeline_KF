@@ -1,0 +1,84 @@
+# insar_pipeline - what stays out of the repository.
+#
+# The repository holds the software only. Client project data never goes in
+# it (decision of 16 Oct 2026): it stays on the operator's machine, under the
+# projects folder (settings.py: projects_root) or in the ignored files below.
+# scripts/check_repo_clean.sh fails if any of it is tracked; CI runs it too.
+
+# ---------------------------------------------------------------- client data
+# Client project configs and report areas (site coordinates, parcel outlines):
+# every project config and every context file except the public layers
+# (the example configs left the repository on 28 Oct 2026), so a new client's files stay out without naming them here
+configs/config_*.yaml
+context/*
+!context/SOURCE.txt
+!context/cmis_*.geojson
+!context/coal_mine*.geojson
+# Client numbers pinned by the golden test (tests/test_local_fix_INT.py)
+tests/golden_client_numbers.json
+# Tests that read real client projects, configs or records: run locally only
+tests/test_local_*.py
+# The engineering log: client sites, results and coordinates
+HANDOFF.md
+# Report mock-ups and figure scripts made from client projects
+report_assets/
+# Stray per-machine files at the package root (a project's bbox and outline)
+/config.yaml
+/project_zone.geojson
+# Archived configs (machine paths, client sites); the runbook beside them stays
+configs/archive/*.yaml
+configs/archive/*.yml
+# Config backups written by the builder and the results viewer
+*.bak_*
+*.bak
+
+# ---------------------------------------------------------------- records kept locally
+# Review records and validation runs (client numbers; the source documents
+# behind the truth data are 300+ MB). Kept: the fixed validation protocols and
+# the derived truth for the public validation sites, which the experiment
+# configs and validation.py read (their sha256s are in configs/experiments/README.md).
+review_*/*
+!review_2026-10-08/protocol_*.yaml
+!review_2026-10-08/truth/
+review_2026-10-08/truth/*
+!review_2026-10-08/truth/*.csv
+!review_2026-10-08/truth/*.geojson
+!review_2026-10-08/truth/*.json
+!review_2026-10-08/truth/README.md
+!review_2026-10-08/truth/scripts/
+!review_2026-10-08/truth/checks/
+review_2026-10-08/truth/checks/*
+!review_2026-10-08/truth/checks/*.json
+# Hand-made code snapshots from before version control
+backups/
+
+# ---------------------------------------------------------------- personal / machine
+.claude/
+*:Zone.Identifier
+.netrc
+.cdsapirc
+*.env
+.env*
+
+# ---------------------------------------------------------------- build and caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+insar_pipeline_*.tar.gz
+
+# ---------------------------------------------------------------- data products (never in git)
+*.h5
+*.tif
+*.tiff
+*.kmz
+*.SAFE/
+*.zip
+*.npz
+*.gpkg
+.aider*
+
+# graphify knowledge graph (local only)
+graphify-out/

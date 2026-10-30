@@ -1,0 +1,43 @@
+# The cheap checks, on every push and pull request, and as the first gate of a
+# release (release.yml). The full test suite needs the pinned conda environment
+# (ISCE2, MintPy, GDAL, ~400 packages) and about 9 minutes: tests.yml runs it on
+# pull requests, on main and for each release.
+name: checks
+on:
+  # branches only: a release tag runs these through release.yml
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: No client data or local records in the repository
+        run: bash scripts/check_repo_clean.sh
+      # the Kleinfelder copy still builds: its wording edits apply and its code hash is
+      # this commit's (kf_export/README.md; the step runs where kf_export/ exists)
+      - name: Kleinfelder copy builds clean
+        if: hashFiles('kf_export/export.sh') != ''
+        run: bash kf_export/export.sh "$RUNNER_TEMP/kf"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: pyflakes gate (the same files as tests/test_fix_INT.py)
+        run: |
+          python -m pip install --quiet pyflakes==4.0.0
+          python -m pyflakes *.py scripts/*.py tests/*.py
+      # the results viewer's browser code (viewer_assets/): it parses, and its
+      # arithmetic passes its own small tests; the parity with the Python
+      # reference (tests/test_viewer_js_parity.py) runs in tests.yml
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: viewer scripts parse and pass their tests
+        run: |
+          for f in viewer_assets/*.js viewer_assets/tests/*.js; do node --check "$f"; done
+          node --test viewer_assets/tests/*.test.js

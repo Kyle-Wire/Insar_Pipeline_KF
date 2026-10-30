@@ -1,0 +1,9 @@
+# Keeps the GitHub Actions the workflows use up to date: a weekly pull request
+# when one has a new release. The Python and conda packages are pinned in
+# install/envs/*.yml on purpose and change only with a deliberate re-pin.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

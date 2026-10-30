@@ -1,0 +1,528 @@
+# =============================================================================
+# VALIDATION PROTOCOL - EXPERIMENT B-1 (long-term groundwater subsidence),
+# San Joaquin Valley, Corcoran station box (CA); NISAR extension at El Nido
+# =============================================================================
+# Written 8 Oct 2026 (P0.1), BEFORE any experiment data were downloaded or
+# processed. Nothing in it may be changed after the first comparison output of
+# any B-1 run exists, except through `amendments` at the end (dated, with the
+# reason), and every statistic is then reported under BOTH versions. This is
+# what stops validation turning into tuning (gaps/notes.md 5).
+# The sha256 of this file as fixed is recorded in configs/experiments/README.md.
+# Independent review, 8 Oct 2026, before any run or download: the leave-one-out
+# datum now carries one constant per calibration station (it stepped when a
+# station joined or left the set). No threshold, station role or radius changed.
+#
+# Source: review_2026-10-08/PLAN.md sections 1B, 2, 5.1-5.3, and the research
+# it cites (longterm/notes.md, longterm_check/*.log, plan/b_aoi_check.log).
+# Kyle's decisions of 8 Oct 2026: B-1 = Corcoran box with Sentinel-1 (ASC-137 =
+# B1, DES-144 = B3); El Nido for the NISAR extension later.
+#
+# Read by: the validation harness (PLAN phase 1, V1; not written yet). Field
+# names are the harness's input; prose fields say what the harness must do.
+# Units: mm, mm/yr, m, km, degrees; dates YYYY-MM-DD (UTC acquisition day).
+# =============================================================================
+
+protocol: B1
+version: 1
+fixed_on: "2026-10-08"
+status: fixed
+looked_at_before_fixing: >-
+  Only metadata (ASF burst and scene catalogue, NGL station inventory, the
+  frozen MIDAS IGS14 rates) and the summaries quoted in PLAN.md (DWR/TRE pixel
+  values at the stations, longterm_check/tre_identify.log). No InSAR product
+  of this site from this pipeline, OPERA DISP-S1 or NISAR had been read.
+question: >-
+  Are 5-year rates and non-linear time series right to <= 5 mm/yr, in LOS and
+  vertical, over irrigated farmland where the WHOLE area sinks (-40 to
+  -290 mm/yr) - the case the pipeline's farmland-relative model cannot see?
+
+# ---------------------------------------------------------------- site
+site:
+  name: "Corcoran station box, San Joaquin Valley, California"
+  aoi:
+    bbox_wsen: [-119.82, 36.08, -119.52, 36.35]       # the 6 long-record stations + 3 km, 27 x 30 km
+    crs: "EPSG:4326"
+    processed_crop: "bbox + 0.05 deg on every side (stack_bbox_margin_deg)"
+    utm_epsg: 32611
+  nisar_extension:
+    name: "El Nido - Madera"
+    bbox_wsen: [-120.320, 36.744, -120.024, 37.115]
+    why_this_box: >-
+      PLAN 1B names El Nido's live NISAR-window stations as CAMD, P307 and
+      LSJ1, but its 36.92-37.12 N box leaves LSJ1 (36.774 N) out. This is the
+      El Nido-Madera box of plan/b_aoi_check.py, which holds all three (and
+      CHOW, ended 2025-07-28). Same NISAR granules as Corcoran (ASC-34 frame
+      020, DES-114 frame 070) plus DES-42; fixed here so the NISAR test does not
+      lose a station to a box edge.
+  caveat: "Tulare Lake re-flooded in 2023 just south-west of the box; any extent inside it is UNCONFIRMED and may decorrelate the south edge (reported as coverage, not masked by hand)"
+
+window:
+  start: "2021-10-01"
+  end: "2026-09-30"
+  water_years: [2022, 2023, 2024, 2025, 2026]       # WY n = 1 Oct (n-1) .. 30 Sep n
+  nisar_window: ["2025-11-01", "2026-09-30"]
+
+# ---------------------------------------------------------------- runs
+runs:
+  B1:
+    data: "Sentinel-1 ASC-137, IW2 (137_292329..292331), phase-linked (official route)"
+    config: configs/experiments/exp_b1_corcoran_asc137.yaml
+    window: ["2021-10-01", "2026-09-30"]
+    dates_expected: 192                 # burst catalogue, 8 Oct 2026 (PLAN's 194 counted SLC scenes)
+    role: primary
+  B2:
+    data: "OPERA DISP-S1 F36542 (ASC-137) through disp_record_chain on B1's grid"
+    config: "not written yet (P0 scope is the Sentinel-1 runs)"
+    window: ["2021-10-01", "2026-03-28"]
+    role: "independent processing of the same sensor; same statistics and thresholds over its own window"
+  B3:
+    data: "Sentinel-1 DES-144, IW2 (144_308013..308015), phase-linked"
+    config: configs/experiments/exp_b3_corcoran_des144.yaml
+    window: ["2021-10-01", "2026-09-30"]
+    dates_expected: 188
+    role: "second geometry; with B1 gives Up and East (D1)"
+  B4:
+    data: "OPERA DISP-S1 F38502 (DES-144) through disp_record_chain on B3's grid"
+    config: "not written yet"
+    window: ["2021-10-01", "2026-02-14"]
+    role: "as B2"
+  B5:
+    data: "NISAR L2 GUNW PROVISIONAL only (no BETA): ASC-34 (24 pairs) + DES-114 (20) over Corcoran and El Nido; DES-42 (25) optional at El Nido"
+    config: "not written yet (needs M1, M2)"
+    window: ["2025-11-01", "2026-09-30"]
+    role: "L-band test, exploratory (PROVISIONAL, <= 11 months, chain networks)"
+
+# ---------------------------------------------------------------- truth
+truth:
+  gnss_source:
+    ngl_igs20_tenv3:
+      url_pattern: "https://geodesy.unr.edu/gps_timeseries/IGS20/tenv3/IGS20/{STA}.tenv3"
+      steps: "https://geodesy.unr.edu/NGLStationPages/steps.txt"
+    never: "gnss_validation.py's frozen midas.IGS14.txt (records end <= 2024.74); MIDAS rates (linear medians over other windows) are context only; the pipeline's own GNSS tie (gnss_tie_radius_km 0 in every B config)"
+    fetch_rule: "fetched at analysis time, used up to the window end; the file's sha256, fetch date and last epoch are written into the harness output (CRCN, LEMA, KDL1, KDL2 ended 2025-07-28 in the 8 Oct inventory; if NGL has resumed them, the resumed data are used as fetched)"
+
+  stations:
+    # spans: NGL IGS20 inventory 8 Oct 2026; years inside the window from plan/b_aoi_check.log;
+    # vU: frozen MIDAS IGS14 (context only, mostly drought years)
+    CRCN: {lat: 36.1140, lon: -119.5680, span: ["2010-09-27", "2025-07-28"], years_in_window: 3.82, midas_vU: -290.6, roles: [rate, series, calibration_pool]}
+    LEMA: {lat: 36.2920, lon: -119.7824, span: ["2005-09-11", "2025-07-28"], years_in_window: 3.82, midas_vU: -212.5, roles: [rate, series, calibration_pool]}
+    CAHA: {lat: 36.3234, lon: -119.6228, span: ["2016-01-12", "2026-09-20"], years_in_window: 4.97, midas_vU: -159.7, roles: [rate, series, calibration_pool, nisar]}
+    KDL1: {lat: 36.3196, lon: -119.5565, span: ["2020-01-01", "2025-07-28"], years_in_window: 3.82, midas_vU: -134.9, roles: [rate, series, calibration_pool]}
+    QCAP: {lat: 36.3136, lon: -119.6322, span: ["2023-02-09", "2026-09-19"], years_in_window: 3.61, midas_vU: -67.1, roles: [rate, series, calibration_pool, nisar]}
+    KDL2: {lat: 36.2186, lon: -119.6416, span: ["2023-02-21", "2025-07-28"], years_in_window: 2.43, midas_vU: -42.6, roles: [rate, series, calibration_pool]}
+    HANF: {lat: 36.2152, lon: -119.6591, span: ["2025-03-06", "2026-09-12"], years_in_window: 1.52, midas_vU: none_published, roles: [series, calibration_pool, nisar],
+           why_no_rate: "1.5 yr in the window: too short for water-year rates"}
+  station_rules:
+    rate_stations: "the 6 with >= 2 yr inside the window: CRCN, LEMA, CAHA, KDL1, QCAP, KDL2"
+    not_independent: "QCAP-CAHA are 1.4 km apart, KDL2-HANF 1.6 km: their pairs are reported but are near-duplicates"
+    calibration_vs_validation: >-
+      No station anchors or references the InSAR in any statistic in which it
+      is scored. Double differences use no calibration at all. In
+      gnss_absolute mode every station is scored only in the leave-one-out
+      fold that excludes it from the calibration.
+  station_coverage_checked: "review_2026-10-08/p0/protocol/burst_check.log (all 7 inside the processed bursts of B1 and B3)"
+
+  nisar_stations:
+    corcoran: {CAHA: "live", QCAP: "live", HANF: "live"}
+    el_nido:
+      CAMD: {lat: 36.9755, lon: -120.0792, span: ["2016-01-10", "2026-09-20"]}
+      P307: {lat: 36.9473, lon: -120.0579, span: ["2005-10-18", "2026-09-26"]}
+      LSJ1: {lat: 36.7740, lon: -120.2859, span: ["2007-08-24", "2026-09-12"]}
+      CHOW: {role: not_used, why: "ended 2025-07-28, before the NISAR window"}
+
+  dwr_tre:
+    what: "DWR / TRE-Altamira vertical displacement, 100 m, monthly 'Total since 20150613' rasters to 2026-04-01"
+    source: "https://gis.water.ca.gov/arcgisimg/rest/services/SAR?f=json (ImageServer windows over the box)"
+    stated_accuracy: "within 18 mm of cGPS at 95% (Jan 2015 - Oct 2020), https://data.cnra.ca.gov/dataset/tre-altamira-insar-subsidence"
+    independence: "Sentinel-1 based: independent of our PROCESSING, not of the sensor"
+
+  not_used:
+    usgs_extensometers: "Central Valley release ends 2018-02-01, before the window"
+
+# ---------------------------------------------------------------- InSAR sampling
+insar_input:
+  series: "the delivered time series (deliverables.timeseries_file(cfg)): mintpy/geo with ERA5 and DEM-error correction, NO deramp (configs: whole box subsides); no reprocessing in the harness"
+  rates: "fitted by the harness from that series with the model below, so both sides share one model"
+  los_convention: "LOS positive towards the satellite (MintPy): uplift positive, subsidence negative"
+
+sampling:
+  radius_m: 100
+  radius_m_nisar: 160
+  statistic: median
+  cells: "reliable cells (below) whose centre is within radius_m of the station"
+  minimum: "5 reliable posting cells AND 2 independent radar pixels (distinct radar_pixel_id); NISAR: 3 cells; otherwise the station has NO InSAR value at that epoch (reported as missing, never filled)"
+  reported_with_each_value: [n_cells, n_independent_pixels, mad_scaled_sigma_mm, iqr_mm]
+  los_vector: "per-pixel LOS unit vector (deliverables.geometry_field los_east/los_north/los_up), median over the same cells; NISAR (left-looking) from its own geometry"
+
+reliability:
+  coherence_floor: 0.4
+  definition: >-
+    Sentinel-1 phase-linked: the cell's value is finite AND its temporal
+    coherence (the product's own mask quantity, config min_temporal_coherence)
+    is >= 0.4; nothing else is filtered. DISP-S1: the record chain's mask at
+    0.4. NISAR GUNW: mean interferometric coherence over the pairs used >= 0.4
+    (temporal coherence is 1.0 by construction on a chain network).
+  sensitivity_floors: [0.3, 0.5, 0.7]          # reported beside the primary, never replacing it
+  coverage_reported: "share of box cells reliable, per epoch and over the window, by land-cover class where a class layer exists"
+
+# ---------------------------------------------------------------- referencing
+reference:
+  modes:
+    double_difference:
+      use: "primary for the rate RMSE row"
+      what: >-
+        For every pair of stations (i, j) with values at the same epochs:
+        InSAR(i) - InSAR(j) against l_i . ENU_i - l_j . ENU_j (each station's
+        GNSS projected with the LOS vector at that station). Datum-free: no
+        station calibrates anything.
+      pairs: "all pairs of the 6 rate stations (15; not independent - a station enters 5 pairs)"
+    gnss_absolute_loo:
+      use: "primary for bias, slope, correlation, time series, uncertainty calibration and the TRE comparison datum"
+      what: >-
+        For each scored station k: the InSAR LOS datum o_k(t) is estimated
+        from the calibration stations c != k by one weighted least-squares fit
+        (weights 1/sigma^2) of l_c . ENU_c(t) - InSAR(c, t) = o_k(t) + b_c over
+        every epoch t at which c has both values: one offset per epoch plus one
+        constant per calibration station (each station's GNSS origin and InSAR
+        reference differ from every other's; b of the calibration station with
+        the longest record fixed to 0). Without the b_c the datum would step
+        whenever a station joins or leaves the set (here QCAP from 2023-02-09,
+        KDL2 2023-02-21, HANF 2025-03-06; CRCN, LEMA, KDL1 and KDL2 end
+        2025-07-28). InSAR(k, t) + o_k(t) is scored against l_k . ENU_k(t);
+        k's own constant is the series offset removed below (and the rate
+        model's offset term). At least 2 calibration stations at an epoch,
+        else no value at that epoch. This replaces the pipeline's "relative to
+        farmland + regional GNSS" model, which cancels motion covering the whole
+        area (gaps/notes.md 1b).
+      variants:
+        offset_only: primary
+        offset_plus_plane: "sensitivity only: a per-epoch plane (3 parameters, with the station constants b_c of the offset-only fit) fitted to the calibration stations where >= 4 have values; reported side by side, never graded (with 5 stations it has 1-2 degrees of freedom)"
+      plate_motion: "GNSS used in IGS20 as published; the per-epoch offset absorbs the common translation; the residual from the LOS vector varying across the box is computed and reported, not removed"
+    tre_datum: "for the TRE comparison: the gnss_absolute per-epoch offset o(t) (with the station constants b_c, as above) fitted to ALL rate stations in the compared component (D1 Up against GNSS Up; LOS/cos(incidence) against GNSS Up), not leave-one-out (TRE, not GNSS, is the truth there)"
+  pipeline_reference_pixel: "whatever the run chose (stack/reference_choice.json); it cancels in every mode above and is not a result"
+
+decomposition:
+  method: "D1: per-pixel least squares for Up and East from B1 (ASC-137) and B3 (DES-144) LOS with each geometry's per-pixel LOS vector, common grid, over the common window; North not estimated and said so"
+  epochs: "changes between common epochs: each geometry interpolated linearly to monthly epochs (1st of each month) from SAR dates at most 12 days away; never different-day epochs treated as simultaneous"
+  vertical_fallback: "single-track LOS / cos(incidence), always labelled 'assumes vertical motion'"
+
+# ---------------------------------------------------------------- matching and models
+epoch_matching:
+  gnss_at_sar_date: "mean of the daily GNSS solutions within +-3 days of the SAR date (n recorded); none = no GNSS value at that epoch"
+  series_offset: "time-series statistics remove one constant offset per station (mean InSAR - GNSS difference over its matched epochs)"
+
+gnss_screening:
+  method: "the pipeline's own readers (gnss_tie.read_tenv3, screen_series): steps from steps.txt estimated as offsets; daily outliers beyond 5 robust sigma (1.4826 x MAD of residuals about the model) removed; nothing else"
+  sigma_per_epoch: "robust sigma of the daily residuals about the model over the window (not divided by sqrt(n): GNSS noise is coloured)"
+
+models:
+  rate_model: >-
+    Continuous piecewise-linear in time with hinges at 2022-10-01,
+    2023-10-01, 2024-10-01 and 2025-10-01 (water-year boundaries) + annual
+    sinusoid (sin, cos) + offset (+ the GNSS step offsets on the GNSS side),
+    least squares on the MATCHED epochs only, the same model for both series.
+    The signal is not linear (CRCN by TRE: 2021 -262, 2022 -295, 2023 +43,
+    2024 -64, 2025 -78 mm), so no single linear rate is compared.
+  compared_rates:
+    water_year: "the slope of each water-year segment, where the station has >= 0.75 yr and >= 10 matched epochs inside that water year (primary)"
+    overlap_mean: "fitted change from the first to the last matched epoch / elapsed years (secondary)"
+  rate_sigma:
+    gnss: "least-squares standard error with the residuals' lag-1 autocorrelation (effective sample size n(1-r1)/(1+r1))"
+    insar: "the same from the InSAR residuals, or the product's stated per-cell rate uncertainty if larger"
+
+# ---------------------------------------------------------------- comparisons (thresholds: PLAN 5.3, Experiment B, SJV column)
+comparisons:
+  rate_rmse_dd:
+    what: "RMSE of station-pair double-difference water-year rates (LOS), all pairs x water years where both stations qualify"
+    runs: [B1, B3, B2, B4]
+    grade: {pass: "rmse <= 5 mm/yr (OPERA DISP-S1 requirement)", marginal: "rmse <= 10 mm/yr", fail: "rmse > 10 mm/yr"}
+  rate_bias_loo:
+    what: "mean of (InSAR - GNSS) water-year rates, gnss_absolute offset-only, leave-one-out, over rate stations x water years"
+    runs: [B1, B3, B2, B4]
+    grade: {pass: "|bias| <= 2 mm/yr", marginal: "|bias| <= 5 mm/yr", fail: "|bias| > 5 mm/yr"}
+  york_slope:
+    what: "York regression of InSAR on GNSS water-year rates (leave-one-out absolute), errors in both"
+    grade: {pass: "95% CI includes 1 AND slope within 0.95-1.05", marginal: "slope within 0.9-1.1", fail: "outside 0.9-1.1"}
+  rate_correlation:
+    what: "Pearson r of InSAR and GNSS rates across stations (leave-one-out absolute; water-year rates pooled)"
+    grade: {pass: "r >= 0.98", marginal: "r >= 0.95", fail: "r < 0.95"}
+  series_rmse:
+    what: "per-station LOS time-series RMSE, leave-one-out absolute, one constant offset removed; all 7 stations"
+    row_grade_from: "the median over stations (each station's own grade is reported too)"
+    grade: {pass: "median rmse <= 18 mm (the TRE bar)", marginal: "median rmse <= 30 mm", fail: "median rmse > 30 mm"}
+  series_correlation:
+    what: "per-station Pearson r of the InSAR and GNSS LOS series, for stations whose GNSS LOS signal (robust range, p95 - p5) exceeds 10 x its daily robust sigma"
+    row_grade_from: "the median over qualifying stations"
+    grade: {pass: "r >= 0.95", marginal: "r >= 0.9", fail: "r < 0.9"}
+  uncertainty_calibration:
+    what: "share of station overlap-mean rate errors (leave-one-out) inside 1.96 x sqrt(s_insar^2 + s_gnss^2); s_insar = the pipeline's own stated 1-sigma rate uncertainty at that cell"
+    grade: {pass: ">= 90% inside (6 stations: at most 1 outside)", marginal: "at most 2 outside", fail: "more than 2 outside"}
+    also_reported: "the same share over station x water-year rates"
+  tre_vertical:
+    what: >-
+      InSAR vertical (D1 Up primary; LOS/cos(incidence) secondary, labelled)
+      against DWR/TRE vertical: cumulative change from the TRE raster of
+      2021-10-01 (or the first after it) to each later monthly raster up to
+      2026-04-01, on TRE's 100 m grid (InSAR = median of reliable cells in the
+      TRE cell, cell used when >= 50% of its posting cells are reliable;
+      InSAR interpolated to the TRE date from SAR dates at most 12 days away);
+      datum: reference.tre_datum.
+    statistic: "share of cells with |InSAR - TRE| <= 18 mm at the last common date; every month reported"
+    runs: [B1, B3, D1, B2, B4]
+    grade: {pass: ">= 90% of cells", marginal: ">= 75%", fail: "< 75%"}
+  vertical_secondary:
+    what: >-
+      PLAN 5.1 'vertical is secondary': D1 Up water-year rates and series
+      against GNSS Up, and the single-track LOS/cos(incidence) 'vertical'
+      (labelled 'assumes vertical motion') against GNSS Up; the same
+      statistics as the LOS rows, leave-one-out absolute (datum fitted in Up)
+    runs: [B1, B3, D1]
+    grade: report_only
+  vertical_only_bias:
+    what: "LOS/cos(incidence) 'vertical' minus D1 Up, at the stations and over the box (relative to |Up|)"
+    expected: "< 10% at SJV (horizontal <= ~8 mm/yr relative to the valley edge, longterm_check/horiz_check.log)"
+    grade: report_only
+  residual_variogram:
+    what: "OPERA VA2-style residual variogram on stable ground, where any exists in the box"
+    grade: "report only; expected 'no stable ground' here, and said so"
+  disp_s1:
+    what: "B2/B4 through every row above over their own windows (to 2026-03-28 / 2026-02-14)"
+
+  nisar:
+    status: "exploratory: PROVISIONAL products, <= 11 months, chain networks; validated reprocessing is due Q4 2026, so every NISAR number is provisional"
+    pair_differences:
+      what: >-
+        For every NISAR 12-day pair and every station pair (i, j) in the same
+        sub-area with GNSS at both dates: error of the InSAR LOS difference
+        change against the GNSS one, compared with the NISAR transient
+        requirement 3 (1 + sqrt(L)) mm, L = station separation in km (about
+        12.5 mm at 10 km, 19 mm at 30 km).
+      stations: {corcoran: [CAHA, QCAP, HANF], el_nido: [CAMD, P307, LSJ1]}
+      grade: {pass: ">= 70% of (pair, station pair) combinations meet it", fail: "< 70%"}
+    cumulative_window:
+      what: "LOS change from the first to the last NISAR date (GNSS within +-3 d) at each live station, gnss_absolute offset-only with the other live stations of the same sub-area as calibration (leave-one-out)"
+      grade: {pass: "|err| <= 15 mm at every station", fail: "otherwise"}
+    against_sentinel1:
+      what: "NISAR against B1/B3 over the same months, in Up (D1 on each band where both geometries exist; else LOS/cos(incidence), labelled)"
+      statistic: "share of cells with |difference| < 15 mm; share whose difference lies within 5 mm of a non-zero multiple of 27.7 mm (C-band cycle, F4)"
+      grade: report_only
+    secular_requirement: "2 mm/yr over 3 years: cannot be tested before 3 years of data"
+
+statistics_reported:
+  per: [run, geometry, route (phase-linked, DISP-S1, NISAR), reference mode, land-cover class]
+  list:
+    - "bias, RMSE, MAE, median |err| - rates and time series"
+    - "York slope with 95% CI"
+    - "Pearson r and R2: rates across stations, time series per station"
+    - "uncertainty calibration (share inside the stated 95% interval)"
+    - "valid coverage of the box"
+    - "residual variogram on stable ground where any exists"
+  confidence_intervals: "bootstrap over stations (pairs recomputed from the resampled stations), 10000 resamples, percentile 95%, seed 20261008"
+  power_statement: >-
+    6 rate stations: the 95% CI on an RMSE runs from about 0.62x to 2.45x the
+    estimate (chi-square, 5 dof). Station pairs are not independent. Every
+    statistic is reported with its bootstrap CI; epoch-level statistics add
+    power; a pass on the point estimate is never reported alone.
+
+verdict:
+  rows_graded: [rate_rmse_dd, rate_bias_loo, york_slope, rate_correlation, series_rmse, series_correlation, uncertainty_calibration, tre_vertical]
+  route_trustworthy_for_regime: "PLAN 5.3: rate_rmse_dd, rate_bias_loo and uncertainty_calibration all PASS at this site (or at Houston, protocol_B2.yaml, for the mm/yr regime)"
+  marginal: "usable with stated caveats: the client wording must carry the error figure"
+  fail: "blocks this regime (whole-area subsidence) from client reports until fixed"
+  nisar: "reported with the PLAN pass rule but labelled provisional; it does not enter the route verdict"
+
+amendments:
+  # ---------------------------------------------------------------------------
+  # Amendments of 8 Oct 2026. They were appended BEFORE any comparison output of
+  # any B-1 run existed: no exp_* project had been created, no experiment data
+  # had been downloaded, and the harness had run only on synthetic data and,
+  # with scratch protocols, on the Indiana record (HANDOFF.md, "8 Oct:
+  # validation experiments - phase 1"). They answer the decisions phase 1 put
+  # to Kyle, which Kyle made on 8 Oct 2026. Everything above `amendments:` is
+  # the text fixed on 8 Oct, byte for byte: configs/experiments/README.md
+  # records its sha256 "as first fixed", and the harness checks it. The
+  # harness applies an amendment through its `harness:` keys and also reports
+  # the protocol as first fixed (validation.json "version_1"), as the header
+  # requires. Version stays 1: protocol_B2.yaml inherits sections from it, and
+  # none of those sections changed.
+  # ---------------------------------------------------------------------------
+  - id: "2026-10-08/2"
+    date: "2026-10-08"
+    decided_by: Kyle
+    before_any_result: true
+    amends: "comparisons.york_slope and comparisons.rate_correlation: what is graded"
+    decision: >-
+      york_slope is graded on per-station water-year CHANGES: InSAR LOS change
+      against GNSS LOS change over each water year, at every scored station
+      with both (rate and series stations), all water years pooled. It uses a
+      York regression with errors in both, the same thresholds and the same
+      bootstrap. The rate-based York slope and rate_correlation are still
+      computed as written, and reported, not graded.
+    reason: >-
+      Phase 1 found that, as written, neither row can detect a scale error at
+      Corcoran (decision 2). The leave-one-out datum carries the whole box's
+      motion from the other stations' GNSS into the InSAR. Water-year rates
+      pooled across years then line up near slope 1 and r near 1 through that
+      shared motion alone. On a synthetic Corcoran-like box where the InSAR
+      read 70% of every motion, the pooled slope hid most of that scale error
+      (tests/test_p1_harness.py). No result existed.
+    method: >-
+      Water year w (models.compared_rates water years): the two SAR dates t0 <
+      t1 inside it, at least 0.75 yr apart (the water-year rule of
+      models.compared_rates), at which the most scored stations have both an
+      InSAR value and a GNSS value. Ties go to the longer span, then the
+      earlier t0. The same two dates are used for every station. Change =
+      value(t1) - value(t0), for the InSAR (the delivered series, on the run's
+      reference pixel) and for the GNSS (epoch_matching; projected with each
+      station's LOS vector). The year's mean over its stations is removed from
+      both sides before pooling. The run's reference pixel moves by the same
+      amount for every station between the same two dates, so it cancels, and
+      no station calibrates another. A year with fewer than 2 stations is left
+      out. The errors in the fit are sqrt(2) x the station's GNSS daily sigma
+      (gnss_screening) and sqrt(2) x the robust sigma of its InSAR series about
+      the protocol rate model. The 95% CI is a bootstrap over stations, as in
+      statistics_reported; each resample removes the year means again. The
+      Pearson r of the same changes is reported beside it, not graded.
+    harness:
+      york_slope_on: interval_changes
+      change_intervals: water_years
+      change_min_years: 0.75
+      change_common_mode: removed
+      rate_slope_and_correlation: report_only
+
+  - id: "2026-10-08/3"
+    date: "2026-10-08"
+    decided_by: Kyle
+    before_any_result: true
+    amends: "reference.modes.gnss_absolute_loo.variants.offset_plus_plane"
+    decision: >-
+      The plane check uses the joint fit: a per-epoch offset and plane fitted
+      together with the per-station constants (significance.gnss_datum_fit,
+      plane_method 'joint'), leave-one-out, with >= 4 calibration stations at
+      an epoch. The check is graded: rate_bias_loo, series_rmse,
+      series_correlation and uncertainty_calibration are computed again in
+      that datum, graded against the same thresholds, and reported as
+      'plane_check' beside the offset-only rows. Offset-only stays the primary
+      datum, and only it enters the route verdict, which is unchanged. The
+      two-stage plane as first written is still reported, not graded.
+    reason: >-
+      As first written, the plane takes the station constants from the
+      offset-only fit. That biases the plane when stations join or leave, and
+      at Corcoran they do: QCAP and KDL2 join in 2023, and CRCN, LEMA, KDL1
+      and KDL2 end on 2025-07-28. In significance's test a 0.5 mm/yr/km tilt
+      read 0.28 with the two-stage plane. The joint fit does not have that
+      bias (phase 1, decision 3). No result existed.
+    harness:
+      plane_check: joint_graded
+
+  - id: "2026-10-08/4"
+    date: "2026-10-08"
+    decided_by: Kyle
+    before_any_result: true
+    amends: "gnss_screening.sigma_per_epoch"
+    decision: >-
+      The GNSS daily sigma is the larger of two values. One is the robust sigma
+      (1.4826 x MAD of the daily residuals about the screening model, in the
+      compared component). The other is NGL's formal sigma: the tenv3 per-day
+      sigmas projected onto the compared component, median over the days in
+      the window. It is still not divided by sqrt(n), and it applies wherever
+      the protocol uses the daily sigma (datum weights, the series-correlation
+      signal rule, the York errors). Which of the two was used is recorded per
+      station and component in validation.json.
+    reason: >-
+      ground_truth.py (phase 1, V2) already takes the larger of the two, and
+      the protocol said robust sigma only (phase 1, decision 4). One rule
+      keeps the harness and the truth reader in step. A formal sigma above
+      the scatter means the scatter understates the noise, so the larger is
+      the conservative choice. No result existed.
+    harness:
+      gnss_daily_sigma: larger_of_robust_and_formal
+
+  - id: "2026-10-08/configs"
+    date: "2026-10-08"
+    kind: "record only: no rule, threshold, station role or radius changes"
+    before_any_result: true
+    amends: "runs.B2.config and runs.B4.config, which read 'not written yet'"
+    decision: >-
+      B2's config is configs/experiments/exp_b2_corcoran_disp_f36542.yaml
+      (OPERA DISP-S1 F36542, ASC-137, on B1's grid). B4's config is
+      configs/experiments/exp_b4_corcoran_disp_f38502.yaml (F38502, DES-144,
+      on B3's grid). Both use disp_record_chain and the windows of runs.B2
+      and runs.B4.
+    reason: >-
+      The configs were written after the protocol was fixed. The harness finds
+      a run from its config's file name.
+    harness:
+      run_configs:
+        B2: configs/experiments/exp_b2_corcoran_disp_f36542.yaml
+        B4: configs/experiments/exp_b4_corcoran_disp_f38502.yaml
+
+  # ---------------------------------------------------------------------------
+  # Record-only amendment of the phase 2/3 finishing pass (8 Oct 2026), made
+  # BEFORE any B run had started, any experiment data had been downloaded or
+  # any comparison output existed. It changes no rule, threshold, station role
+  # or radius. It was made by the finishing pass, not decided by Kyle: to undo
+  # it, delete it here.
+  # ---------------------------------------------------------------------------
+  - id: "2026-10-08/nisar-configs"
+    date: "2026-10-08"
+    kind: "record only: no rule, threshold, station role or radius changes"
+    before_any_result: true
+    amends: "runs.B5.config, which read 'not written yet (needs M1, M2)'"
+    decision: >-
+      B5 is five projects, one NISAR geometry and one box each, with the
+      window of runs.B5, on the NISAR GUNW route (nisar_backend.py,
+      PROVISIONAL only): Corcoran ASC-34
+      (configs/experiments/exp_b5a_corcoran_nisar_asc34.yaml) and DES-114
+      (exp_b5b_corcoran_nisar_des114.yaml); El Nido-Madera, the box of
+      site.nisar_extension, ASC-34 (exp_b5c_elnido_nisar_asc34.yaml), DES-114
+      (exp_b5d_elnido_nisar_des114.yaml) and the optional DES-42
+      (exp_b5e_elnido_nisar_des42.yaml). The NISAR rows stay exploratory and
+      out of the route verdict (comparisons.nisar, verdict.nisar).
+    reason: >-
+      The configs were written after the protocol was fixed (PLAN phase 3,
+      M2). The harness finds a run from its config's file name; a run of
+      several projects lists them all.
+    harness:
+      run_configs:
+        B5:
+          - configs/experiments/exp_b5a_corcoran_nisar_asc34.yaml
+          - configs/experiments/exp_b5b_corcoran_nisar_des114.yaml
+          - configs/experiments/exp_b5c_elnido_nisar_asc34.yaml
+          - configs/experiments/exp_b5d_elnido_nisar_des114.yaml
+          - configs/experiments/exp_b5e_elnido_nisar_des42.yaml
+
+  # ---------------------------------------------------------------------------
+  # Amendment of the protocol decisions of 8 Oct 2026 (HANDOFF.md, "8 Oct:
+  # validation experiments - phases 2 and 3", decision 5). Kyle delegated the
+  # decision; Claude made it for him on 8 Oct 2026, BEFORE any B run had
+  # started, any experiment data had been downloaded or any comparison output
+  # existed. Nothing above is changed.
+  # ---------------------------------------------------------------------------
+  - id: "2026-10-08/p23-5"
+    date: "2026-10-08"
+    decided_by: "Claude for Kyle (delegated 8 Oct)"
+    before_any_result: true
+    amends: "comparisons.nisar.against_sentinel1: the frame of each of its two statistics ('in Up' as first written)"
+    decision: >-
+      F4 (python -m insar_pipeline.lband) reports the row's two statistics,
+      each in its own frame, always both. (1) "share whose difference lies
+      within 5 mm of a non-zero multiple of 27.7 mm (C-band cycle)" - the
+      cycle-consistency (aliasing) test - is read in C-band LOS: the NISAR
+      change is projected into C-band's LOS under the stated vertical-motion
+      assumption (d_C = d_L x up_C / up_L per cell; from D1's L-band Up and
+      East when they are given). (2) "share of cells with |difference| < 15
+      mm" - the accuracy comparison - is read in vertical: each sensor's LOS
+      change divided by cos of its own incidence, both labelled 'assumes
+      vertical motion'. The row stays report only and outside the verdict.
+    reason: >-
+      As first written the row put both statistics "in Up" with a 27.7 mm
+      cycle, which mixes two frames: a missed C-band cycle is 27.7 mm only in
+      C-band's LOS (about 35 mm in Up at 38 deg incidence), so the aliasing
+      fingerprint must be read there, while agreement between two sensors
+      with different look sides and incidences is a statement about the
+      ground, which this protocol reads in vertical (phase 2/3 decision 5).
+      No result existed.
+    harness:
+      lband_cycle_frame: c_band_los_vertical_motion_assumed
+      lband_accuracy_frame: vertical_each_sensor_own_incidence

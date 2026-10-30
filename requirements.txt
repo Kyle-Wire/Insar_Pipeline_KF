@@ -1,0 +1,54 @@
+# Prefer conda-forge for everything with a compiled core (h5py, rasterio,
+# gdal, scipy, geopandas). pip wheels bundle their own HDF5/PROJ/GEOS and
+# will fight the conda-managed copies:
+#
+#   conda create -n insar python=3.11 -c conda-forge
+#   conda activate insar
+#   conda install -c conda-forge isce2 mintpy h5netcdf hyp3_sdk xarray
+#   pip install -r requirements.txt
+
+# --- data search and retrieval ---
+asf-search
+sentineleof            # imported as `eof`
+hyp3_sdk               # hyp3_backend.py
+dem_stitcher
+remotezip
+
+# --- remote granule reading (OPERA DISP-S1) ---
+# disp_backend.py:292 pins engine="h5netcdf" — netCDF4 will NOT substitute.
+xarray
+h5netcdf
+fsspec
+aiohttp
+h5py
+
+# --- raster / vector / projection ---
+rasterio
+geopandas
+pyproj
+shapely
+
+# --- numerics and plotting ---
+numpy
+scipy
+pandas
+matplotlib
+
+# --- misc ---
+pyyaml                 # imported as `yaml`
+
+# --- not pip-installable here; install via conda-forge (see header) ---
+# mintpy               provides smallbaselineApp.py
+# raider               tropospheric correction. DO NOT `pip install RAiDER`:
+#                      that PyPI name belongs to an unrelated web-auth
+#                      pentest tool (DigeeX/raider), which installs cleanly
+#                      and silently does nothing, because this pipeline
+#                      shells out to a `raider.py` CLI rather than importing
+#                      it. Use: conda create -n raider-env -c conda-forge raider
+#
+# ISCE2 is not pip-installable in most environments. `conda install -c
+# conda-forge isce2` sets $ISCE_HOME but does NOT put the applications on
+# PATH — confirm `which topsApp.py` resolves before running this pipeline.
+
+# --- development ---
+pytest                 # insar_pipeline/tests/

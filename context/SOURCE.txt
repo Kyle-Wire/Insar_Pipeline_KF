@@ -1,0 +1,71 @@
+Context layers in this folder: where each came from, and how current it is
+===========================================================================
+
+All are public Indiana coal-mine layers (Gibson County, Indiana). They are
+in the repository because the test suite reads them, and as an example of
+what a mine layer looks like. Client report areas made from them are client
+data and stay on the operator's machine. For a new site, get current outlines from the operator,
+the client or the state (USER_GUIDE.md, section 7) and upload them in the
+builder; do not reuse these unless the site is here.
+
+Coordinates are longitude/latitude (WGS84). Retrieval dates are the file
+dates, which match the session notes. Neither publisher's terms of use were
+recorded; check them before passing these files outside the operating organisation.
+
+
+1. Indiana Geological & Water Survey (IGWS), ArcGIS REST services, public,
+   no key. Retrieved 20-21 Sep 2026 from
+       portal.igs.indiana.edu/arcgis/rest/services/
+           Coal_Mines_Underground_Dec2016/FeatureServer/46
+           Coal_Mines_Entries_2016/FeatureServer
+           Coal_Springfield_Mines_Active_2010/FeatureServer
+
+   coal_mines_underground_dec2016.geojson
+       27 underground mine polygons, worked 1896-2015 (the layer's vintage:
+       December 2016).
+   coal_mine_active_gibson.geojson
+       Gibson County Mine (801777), Gibson County Coal LLC, active Springfield
+       seam, 25.3 km2 (the layer's vintage: 2010). This is mine 801777 only.
+       A test (tests/test_fix_L4.py) uses it: its polygon has 9 holes.
+   coal_mine_entries_2016.geojson
+       6 shaft/slope entries (2016).
+
+   LIMITATION. Every IGWS mine layer ends at December 2016 and the
+   active-seam layers are 2010/2014. The InSAR record is 2016-2026, so these
+   layers do not cover the years measured.
+
+
+2. Indiana DNR Coal Mine Information System (CMIS), annual mined-area
+   polygons. Supplied by Kyle as the CMIS web map
+   (ArcGIS item cda8ca881758439a94e427d0b3c9c3d4); its underground-mines
+   layer is
+       gisdata.in.gov/server/rest/services/Hosted/CMIS_1/FeatureServer/1
+   Retrieved 21 Sep 2026. Polygons carry mine_number, year_start and
+   year_end (the year the area was mined). This is the authoritative source
+   for which ground was mined when, through 2025.
+
+   cmis_gibson_panels.geojson
+       53 annual polygons, mined 2000-2025: mines 801777 (20), 802008 (21)
+       and 802033 (12).
+   cmis_all_panels_union.geojson
+       Despite its name, the same 53 polygons and properties as
+       cmis_gibson_panels.geojson (checked 6 Oct 2026). A config can use it as
+       deramp_exclude_geojson, the ground kept out of the ramp fit.
+   cmis_gibson_panels_named.geojson (made 5 Oct 2026)
+       cmis_gibson_panels.geojson with a mine_name property added (the
+       mines' public names; 802008 reads "Mine 802008"). Usable as a dated
+       mine layer (mined_year_geojson, mined_year_field: year_start,
+       mined_name_field: mine_name). Geometry unchanged.
+
+
+Suggested mine_layer_sources lines (the report credits them) for a config
+that uses these files. The label before the colon must be one of the
+builder's layer labels (Underground mine workings, Surface mines, Other
+known ground movement, Dated mined areas), or the report ignores the line.
+The year the outlines are mapped to is read from the rest; a date after
+"file dated", "retrieved" or "downloaded" is when the file was obtained and
+is never read as that year. The dated layer above is the first:
+
+    mine_layer_sources:
+      - "Dated mined areas: Indiana Department of Natural Resources, Coal Mine Information System (CMIS) underground mines layer, annual mined-area polygons 2000-2025, file dated 2026-09-21 (when it was downloaded)"
+      - "Underground mine workings: Indiana Geological & Water Survey, mines worked to 2015 (Dec 2016 layer), retrieved 20 Sep 2026"

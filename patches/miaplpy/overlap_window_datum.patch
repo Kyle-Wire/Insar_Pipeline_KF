@@ -1,0 +1,295 @@
+diff --git a/src/miaplpy/lib/utils.pxd b/src/miaplpy/lib/utils.pxd
+index ff36a5b..f5dbea5 100755
+--- a/src/miaplpy/lib/utils.pxd
++++ b/src/miaplpy/lib/utils.pxd
+@@ -39,7 +39,7 @@ cdef float complex[::1] squeeze_images(float complex[::1], float complex[:, ::1]
+ cdef tuple phase_linking_process_cy(float complex[:, ::1], int, bytes, bint, int)
+ cpdef tuple phase_linking_process_py(float complex[:, ::1], int, bytes, bint, int)
+ cpdef tuple sequential_phase_linking_py(float complex[:,::1], bytes, int, int)
+-cdef tuple sequential_phase_linking_cy(float complex[:,::1], bytes, int, int)
++cdef tuple sequential_phase_linking_cy(float complex[:,::1], bytes, int, int, int)
+ cdef float complex[::1] datum_connect_cy(float complex[:, ::1], float complex[::1], int)
+ cpdef float complex[::1] datum_connect_py(float complex[:, ::1], float complex[::1], int)
+ cdef float searchsorted_max(cnp.ndarray[float, ndim=1], cnp.ndarray[float, ndim=1], cnp.ndarray[float, ndim=1])
+diff --git a/src/miaplpy/lib/utils.pyx b/src/miaplpy/lib/utils.pyx
+index 61f1298..3861e63 100755
+--- a/src/miaplpy/lib/utils.pyx
++++ b/src/miaplpy/lib/utils.pyx
+@@ -602,22 +602,44 @@ cpdef tuple phase_linking_process_py(float complex[:, ::1] ccg_sample, int stepp
+ 
+ cdef inline tuple sequential_phase_linking_cy(float complex[:,::1] full_stack_complex_samples,
+                                         bytes method, int mini_stack_default_size,
+-                                        int total_num_mini_stacks):
+-    """ phase linking of each pixel sequentially and applying a datum shift at the end """
++                                        int total_num_mini_stacks, int overlap):
++    """
++    Overlapping-window sequential phase linking (patched 25 Sep 2026,
++    Kleinfelder / Site A stack).
++
++    Upstream solved mini-stack k together with the compressed images of ALL
++    previous mini-stacks and referenced the solution to the first of them, then
++    re-anchored everything with one EMI over the compressed images. On ground
++    that decorrelates within a season the compressed images share no coherence
++    (measured 0.13-0.35 between adjacent ones, noise floor beyond), so every
++    mini-stack ended up with its own random per-pixel datum: consecutive-date
++    block coherence 0.72 inside a mini-stack, 0.40 across every boundary.
++
++    Here window k holds images [k*size - overlap, (k+1)*size) and is solved on
++    its own (no compressed images). The `overlap` images at its start were also
++    estimated by the previous window, from the same data, so the datum offset
++    between the two windows is the circular mean of their phase differences on
++    those shared images. Measured on real pixels: the weakest boundaries rose
++    from 0.48-0.58 to 0.66-0.85 block coherence, inside pairs unchanged.
++    squeezed_images is returned zero-filled for interface compatibility.
++    """
+ 
+-    cdef int i, t, sstep, first_line, last_line, num_lines
+-    cdef int a1, a2, ns = full_stack_complex_samples.shape[1]
++    cdef int i, t, sstep, first_line, last_line, a, num_lines
++    cdef int ns = full_stack_complex_samples.shape[1]
+     cdef cnp.intp_t n_image = full_stack_complex_samples.shape[0]
+     cdef float complex[::1] vec_refined = np.zeros((n_image), dtype=np.complex64)
+     cdef float complex[:, ::1] mini_stack_complex_samples
+     cdef float complex[::1] res, squeezed_images_0
+-    cdef float temp_quality, quality
++    cdef float temp_quality, quality, shift
++    cdef float complex acc
+     cdef float complex[:, ::1] squeezed_images = np.zeros((total_num_mini_stacks,
+                                                            full_stack_complex_samples.shape[1]),
+                                                            dtype=np.complex64)
+ 
+     quality = 0
+     temp_quality = 0
++    if overlap < 0:
++        overlap = 0
+ 
+     for sstep in range(total_num_mini_stacks):
+ 
+@@ -626,38 +648,28 @@ cdef inline tuple sequential_phase_linking_cy(float complex[:,::1] full_stack_co
+             last_line = n_image
+         else:
+             last_line = first_line + mini_stack_default_size
+-        num_lines = last_line - first_line
+-
+-        if sstep == 0:
+-
+-            mini_stack_complex_samples = np.zeros((num_lines, ns), dtype=np.complex64)
+-
+-            for i in range(ns):
+-                for t in range(num_lines):
+-                    mini_stack_complex_samples[t, i] = full_stack_complex_samples[t, i]
+-
+-            res, squeezed_images_0, temp_quality = phase_linking_process_cy(mini_stack_complex_samples, sstep, method, True, 0)
+-            #res, squeezed_images_0 = phase_linking_process_cy(mini_stack_complex_samples, sstep, method, True, 0)
+-        else:
+-
+-            mini_stack_complex_samples = np.zeros((sstep + num_lines, ns), dtype=np.complex64)
++        a = first_line - overlap
++        if sstep == 0 or a < 0:
++            a = 0
++        num_lines = last_line - a
+ 
+-            for i in range(ns):
+-                for t in range(sstep):
+-                    mini_stack_complex_samples[t, i] = squeezed_images[t, i]
+-                for t in range(num_lines):
+-                    mini_stack_complex_samples[t + sstep, i] = full_stack_complex_samples[first_line + t, i]
+-
+-            res, squeezed_images_0, temp_quality = phase_linking_process_cy(mini_stack_complex_samples, sstep, method, True, 0)
+-            #res, squeezed_images_0 = phase_linking_process_cy(mini_stack_complex_samples, sstep, method, True, 0)
++        mini_stack_complex_samples = np.zeros((num_lines, ns), dtype=np.complex64)
++        for i in range(ns):
++            for t in range(num_lines):
++                mini_stack_complex_samples[t, i] = full_stack_complex_samples[a + t, i]
+ 
++        res, squeezed_images_0, temp_quality = phase_linking_process_cy(mini_stack_complex_samples, 0, method, True, 0)
+         quality += temp_quality
+ 
+-        for i in range(num_lines):
+-            vec_refined[first_line + i] = res[sstep + i]
++        shift = 0
++        if sstep > 0 and first_line > a:
++            acc = 0
++            for t in range(a, first_line):
++                acc = acc + cexpf(1j * (cargf(vec_refined[t]) - cargf(res[t - a])))
++            shift = cargf(acc)
+ 
+-        for i in range(squeezed_images_0.shape[0]):
+-                squeezed_images[sstep, i] = squeezed_images_0[i]
++        for t in range(first_line, last_line):
++            vec_refined[t] = res[t - a] * cexpf(1j * shift)
+ 
+     quality /= total_num_mini_stacks
+ 
+@@ -666,134 +678,33 @@ cdef inline tuple sequential_phase_linking_cy(float complex[:,::1] full_stack_co
+ 
+ cpdef tuple sequential_phase_linking_py(float complex[:,::1] full_stack_complex_samples,
+                                         bytes method, int mini_stack_default_size,
+-                                        int total_num_mini_stacks):
+-    """ phase linking of each pixel sequentially and applying a datum shift at the end """
+-
+-    cdef int i, t, sstep, first_line, last_line, num_lines
+-    cdef int a1, a2, ns = full_stack_complex_samples.shape[1]
+-    cdef cnp.intp_t n_image = full_stack_complex_samples.shape[0]
+-    cdef float complex[::1] vec_refined = np.zeros((n_image), dtype=np.complex64)
+-    cdef float complex[:, ::1] mini_stack_complex_samples
+-    cdef float complex[::1] res, squeezed_images_0
+-    cdef float  temp_quality, quality
+-    cdef float complex[:, ::1] squeezed_images = np.zeros((total_num_mini_stacks,
+-                                                           full_stack_complex_samples.shape[1]),
+-                                                           dtype=np.complex64)
+-
+-    quality = 0
+-    temp_quality = 0
+-
+-    for sstep in range(total_num_mini_stacks):
+-
+-        first_line = sstep * mini_stack_default_size
+-        if sstep == total_num_mini_stacks - 1:
+-            last_line = n_image
+-        else:
+-            last_line = first_line + mini_stack_default_size
+-        num_lines = last_line - first_line
+-
+-        if sstep == 0:
+-
+-            mini_stack_complex_samples = np.zeros((num_lines, ns), dtype=np.complex64)
+-
+-            for i in range(ns):
+-                for t in range(num_lines):
+-                    mini_stack_complex_samples[t, i] = full_stack_complex_samples[t, i]
+-
+-            res, squeezed_images_0, temp_quality = phase_linking_process_cy(mini_stack_complex_samples, sstep, method, True, 0)
+-            #res, squeezed_images_0 = phase_linking_process_cy(mini_stack_complex_samples, sstep, method, True, 0)
+-        else:
+-
+-            mini_stack_complex_samples = np.zeros((sstep + num_lines, ns), dtype=np.complex64)
+-
+-            for i in range(ns):
+-                for t in range(sstep):
+-                    mini_stack_complex_samples[t, i] = squeezed_images[t, i]
+-                for t in range(num_lines):
+-                    mini_stack_complex_samples[t + sstep, i] = full_stack_complex_samples[first_line + t, i]
+-
+-            res, squeezed_images_0, temp_quality = phase_linking_process_cy(mini_stack_complex_samples, sstep, method, True, 0)
+-            #res, squeezed_images_0 = phase_linking_process_cy(mini_stack_complex_samples, sstep, method, True, 0)
+-
+-        quality += temp_quality
+-
+-        for i in range(num_lines):
+-            vec_refined[first_line + i] = res[sstep + i]
+-
+-        for i in range(squeezed_images_0.shape[0]):
+-                squeezed_images[sstep, i] = squeezed_images_0[i]
+-
+-    quality /= total_num_mini_stacks
+-
+-    return vec_refined, squeezed_images, quality
++                                        int total_num_mini_stacks, int overlap=3):
++    """Python entry point of the overlapping-window sequential estimator (patched 25 Sep 2026)."""
++    return sequential_phase_linking_cy(full_stack_complex_samples, method, mini_stack_default_size,
++                                       total_num_mini_stacks, overlap)
+ 
+ 
+ 
+ cdef inline float complex[::1] datum_connect_cy(float complex[:, ::1] squeezed_images,
+                                         float complex[::1] vector_refined, int mini_stack_size):
+     """
+-
+-    Parameters
+-    ----------
+-    squeezed_images: a 2D matrix in format of squeezed_images * num_of_samples
+-    vector_refined: n*1 refined complex vector
+-
+-    Returns
+-    -------
+-
++    Identity (patched 25 Sep 2026). The overlapping-window estimator in
++    sequential_phase_linking_cy already places every window in one datum
++    through the images it shares with the previous window; the compressed
++    images are not coherent enough on seasonal ground to add anything
++    (measured 0.13-0.35 between adjacent mini-stacks). Kept so the callers
++    are unchanged.
+     """
+-    cdef float[::1] datum_shift
+-    cdef float complex[::1] new_vector_refined
+-    cdef int step, i, first_line, last_line
+-    cdef bytes method = b'EMI'
+-
+-    datum_shift = angmat(phase_linking_process_cy(squeezed_images, 0, method, False, 0)[0])
+-    new_vector_refined = np.zeros((vector_refined.shape[0]), dtype=np.complex64)
+-
+-    for step in range(datum_shift.shape[0]):
+-        first_line = step * mini_stack_size
+-        if step == datum_shift.shape[0] - 1:
+-            last_line = vector_refined.shape[0]
+-        else:
+-            last_line = first_line + mini_stack_size
+-
+-        for i in range(last_line - first_line):
+-            new_vector_refined[i + first_line] = vector_refined[i + first_line] * cexpf(1j * datum_shift[step])
+-
++    cdef float complex[::1] new_vector_refined = np.zeros((vector_refined.shape[0]), dtype=np.complex64)
++    cdef int i
++    for i in range(vector_refined.shape[0]):
++        new_vector_refined[i] = vector_refined[i]
+     return new_vector_refined
+ 
+ cpdef float complex[::1] datum_connect_py(float complex[:, ::1] squeezed_images,
+                                         float complex[::1] vector_refined, int mini_stack_size):
+-    """
+-
+-    Parameters
+-    ----------
+-    squeezed_images: a 2D matrix in format of squeezed_images * num_of_samples
+-    vector_refined: n*1 refined complex vector
+-
+-    Returns
+-    -------
+-
+-    """
+-    cdef float[::1] datum_shift
+-    cdef float complex[::1] new_vector_refined
+-    cdef int step, i, first_line, last_line
+-    cdef bytes method = b'EMI'
+-
+-    datum_shift = angmat(phase_linking_process_cy(squeezed_images, 0, method, False, 0)[0])
+-    new_vector_refined = np.zeros((vector_refined.shape[0]), dtype=np.complex64)
+-
+-    for step in range(datum_shift.shape[0]):
+-        first_line = step * mini_stack_size
+-        if step == datum_shift.shape[0] - 1:
+-            last_line = vector_refined.shape[0]
+-        else:
+-            last_line = first_line + mini_stack_size
+-
+-        for i in range(last_line - first_line):
+-            new_vector_refined[i + first_line] = vector_refined[i + first_line] * cexpf(1j * datum_shift[step])
+-
+-    return new_vector_refined
++    """Python entry point; same adjacent-chain datum as datum_connect_cy (patched 25 Sep 2026)."""
++    return datum_connect_cy(squeezed_images, vector_refined, mini_stack_size)
+ 
+ @cython.cdivision(False)
+ cdef float searchsorted_max(cnp.ndarray[float, ndim=1] x1, cnp.ndarray[float, ndim=1] x2, cnp.ndarray[float, ndim=1] y):
+@@ -1149,7 +1060,7 @@ def process_patch_c(cnp.ndarray[int, ndim=1] box, int range_window, int azimuth_
+                 if len(phase_linking_method) > 10 and phase_linking_method[0:10] == b'sequential':
+                     vec_refined, squeezed_images, temp_quality = sequential_phase_linking_cy(CCG, phase_linking_method,
+                                                                                default_mini_stack_size,
+-                                                                               total_num_mini_stacks)
++                                                                               total_num_mini_stacks, lag)
+ 
+                     vec_refined = datum_connect_cy(squeezed_images, vec_refined, default_mini_stack_size)
+ 
+diff --git a/src/miaplpy/version.py b/src/miaplpy/version.py
+index 5609e6f..fbca5a0 100755
+--- a/src/miaplpy/version.py
++++ b/src/miaplpy/version.py
+@@ -8,6 +8,7 @@ import collections
+ ###########################################################################
+ Tag = collections.namedtuple('Tag', 'version date')
+ release_history = (
++    Tag('0.2.1+overlapdatum', '2026-09-25'),   # Kleinfelder patch: overlapping-window datum (insar_pipeline/patches/miaplpy)
+     Tag('0.2.1', '2023-08-22'),
+     Tag('0.2.0', '2021-09-14'),
+     Tag('0.1.0', '2021-04-23'),

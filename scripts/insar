@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# The dashboard (and subcommands: insar help). Finds this machine's conda and
+# this copy of the pipeline, so it works wherever the folder was unpacked.
+B="$(conda info --base 2>/dev/null)"; B="${B:-$HOME/miniforge3}"
+set +u; source "$B/etc/profile.d/conda.sh" && conda activate insar
+export PYTHONPATH="$(cd "$(dirname "$(readlink -f "$0")")/../.." && pwd)${PYTHONPATH:+:$PYTHONPATH}"
+exec python -m insar_pipeline.dashboard "$@"

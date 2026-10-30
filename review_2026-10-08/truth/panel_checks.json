@@ -1,0 +1,637 @@
+{
+ "panels": {
+  "TW_W1": {
+   "drawing": "MSEC1019-01",
+   "measured": {
+    "sides_m": [
+     1876.1,
+     283.2,
+     1876.5,
+     283.1
+    ],
+    "length_m": 1876.5,
+    "width_m": 283.1,
+    "bearing_deg": 177.34,
+    "area_ha": 53.12
+   },
+   "printed": {
+    "length_m": 1875,
+    "width_m": 283,
+    "source": "MSEC1019 Table 1.1"
+   },
+   "length_diff_m": 1.5,
+   "width_diff_m": 0.1,
+   "second_drawing": [
+    {
+     "drawing": "MSEC1112-01",
+     "centre_offset_m": 0.0,
+     "corner_offsets_m": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  "TW_W2": {
+   "drawing": "MSEC1019-01",
+   "measured": {
+    "sides_m": [
+     1683.7,
+     283.1,
+     1683.7,
+     283.1
+    ],
+    "length_m": 1683.7,
+    "width_m": 283.1,
+    "bearing_deg": 177.33,
+    "area_ha": 47.67
+   },
+   "printed": {
+    "length_m": 1685,
+    "width_m": 283,
+    "source": "MSEC1019 Table 1.1"
+   },
+   "length_diff_m": -1.3,
+   "width_diff_m": 0.1
+  },
+  "TW_W3": {
+   "drawing": "MSEC1112-01",
+   "measured": {
+    "sides_m": [
+     1551.9,
+     283.1,
+     1551.9,
+     283.1
+    ],
+    "length_m": 1551.9,
+    "width_m": 283.1,
+    "bearing_deg": 177.33,
+    "area_ha": 43.94
+   },
+   "printed": {
+    "length_m": 1552,
+    "width_m": 283,
+    "source": "MSEC1112 Table 1.1"
+   },
+   "length_diff_m": -0.1,
+   "width_diff_m": 0.1
+  },
+  "TW_W4": {
+   "drawing": "MSEC1263-01",
+   "measured": {
+    "sides_m": [
+     721.9,
+     285.2,
+     722.1,
+     285.2
+    ],
+    "length_m": 722.1,
+    "width_m": 285.2,
+    "bearing_deg": 177.34,
+    "area_ha": 20.59
+   },
+   "printed": {
+    "length_m": 721,
+    "width_m": 285,
+    "source": "Report 7 (MSEC1263 Rev 20 summary table): length of extraction of LW W4 721 m; width 285 m (MSEC1112 Table 1.1)"
+   },
+   "length_diff_m": 1.1,
+   "width_diff_m": 0.2
+  },
+  "TW_W4_planned": {
+   "drawing": "MSEC1112-01",
+   "measured": {
+    "sides_m": [
+     1003.5,
+     285.2,
+     1003.5,
+     285.2
+    ],
+    "length_m": 1003.5,
+    "width_m": 285.2,
+    "bearing_deg": 177.34,
+    "area_ha": 28.62
+   },
+   "printed": {
+    "length_m": 1004,
+    "width_m": 285,
+    "source": "MSEC1112 Table 1.1"
+   },
+   "length_diff_m": -0.5,
+   "width_diff_m": 0.2
+  },
+  "TN_LW30": {
+   "drawing": "MSEC1112-01",
+   "measured": {
+    "sides_m": [
+     282.7,
+     2320.3,
+     283.3,
+     2320.4
+    ],
+    "length_m": 2320.4,
+    "width_m": 282.7,
+    "bearing_deg": 145.03,
+    "area_ha": 65.66
+   },
+   "printed": {
+    "length_m": 2322,
+    "width_m": 283,
+    "source": "Tahmoor 2019 Annual Review, App. 14 (GeoTerra TA35-R1A) Table 1: length 2322 m; width 283 m"
+   },
+   "length_diff_m": -1.6,
+   "width_diff_m": -0.3
+  },
+  "TN_LW31": {
+   "drawing": "MSEC1112-01",
+   "measured": {
+    "sides_m": [
+     283.0,
+     2447.4,
+     283.0,
+     2447.4
+    ],
+    "length_m": 2447.4,
+    "width_m": 283.0,
+    "bearing_deg": 145.02,
+    "area_ha": 69.27
+   },
+   "printed": {
+    "length_m": 2450,
+    "width_m": 283,
+    "source": "GeoTerra TA35-R1A Table 1: length 2450 m"
+   },
+   "length_diff_m": -2.6,
+   "width_diff_m": 0.0
+  },
+  "TN_LW32": {
+   "drawing": "MSEC1112-01",
+   "measured": {
+    "sides_m": [
+     283.0,
+     2377.7,
+     283.0,
+     2377.7
+    ],
+    "length_m": 2377.7,
+    "width_m": 283.0,
+    "bearing_deg": 145.02,
+    "area_ha": 67.3
+   },
+   "printed": {
+    "length_m": 2380,
+    "width_m": 283,
+    "source": "Tahmoor 2019 Annual Review, GeoTerra TA35-R1A section 3.1: '283m wide ... approximately 2,380m long' (its Table 1 says 2500 m)"
+   },
+   "length_diff_m": -2.3,
+   "width_diff_m": 0.0
+  },
+  "TS_S1A": {
+   "drawing": "MSEC1192-01",
+   "measured": {
+    "sides_m": [
+     283.0,
+     1711.2,
+     283.0,
+     1711.2
+    ],
+    "length_m": 1711.2,
+    "width_m": 283.0,
+    "bearing_deg": 136.32,
+    "area_ha": 48.43
+   },
+   "printed": {
+    "length_m": null,
+    "width_m": 285,
+    "source": "MSEC1192 Table 1.1: void widths 283-285 m"
+   },
+   "width_diff_m": -2.0
+  },
+  "AP_LW901": {
+   "drawing": "MSEC1050-01",
+   "measured": {
+    "sides_m": [
+     305.3,
+     2028.8,
+     305.3,
+     2029.1
+    ],
+    "length_m": 2029.1,
+    "width_m": 305.3,
+    "bearing_deg": 87.75,
+    "area_ha": 61.94
+   },
+   "printed": {
+    "length_m": 2028,
+    "width_m": 305,
+    "source": "MSEC927/1050 Table 1.2 (as extracted)"
+   },
+   "length_diff_m": 1.1,
+   "width_diff_m": 0.3,
+   "second_drawing": [
+    {
+     "drawing": "MSEC1176-01",
+     "centre_offset_m": 0.17,
+     "corner_offsets_m": [
+      0.51,
+      0.24,
+      0.03,
+      0.03
+     ]
+    }
+   ]
+  },
+  "AP_LW902": {
+   "drawing": "MSEC1050-01",
+   "measured": {
+    "sides_m": [
+     305.0,
+     2152.7,
+     305.3,
+     2152.7
+    ],
+    "length_m": 2152.7,
+    "width_m": 305.0,
+    "bearing_deg": 87.75,
+    "area_ha": 65.69
+   },
+   "printed": {
+    "length_m": 2153,
+    "width_m": 305,
+    "source": "MSEC1050 Table 1.2 (as extracted)"
+   },
+   "length_diff_m": -0.3,
+   "width_diff_m": 0.0,
+   "second_drawing": [
+    {
+     "drawing": "MSEC1176-01",
+     "centre_offset_m": 0.1,
+     "corner_offsets_m": [
+      0.24,
+      0.24,
+      0.04,
+      0.05
+     ]
+    }
+   ]
+  },
+  "AP_LW903": {
+   "drawing": "MSEC1176-01",
+   "measured": {
+    "sides_m": [
+     305.0,
+     2297.0,
+     305.1,
+     2297.3
+    ],
+    "length_m": 2297.3,
+    "width_m": 305.0,
+    "bearing_deg": 87.75,
+    "area_ha": 70.07
+   },
+   "printed": {
+    "length_m": 2297,
+    "width_m": 305,
+    "source": "MSEC1176/1285/1334 Table 1.2 (as extracted)"
+   },
+   "length_diff_m": 0.3,
+   "width_diff_m": 0.0
+  },
+  "AP_LW904": {
+   "drawing": "MSEC1285-01",
+   "measured": {
+    "sides_m": [
+     324.1,
+     2039.9,
+     324.1,
+     2039.6
+    ],
+    "length_m": 2039.9,
+    "width_m": 324.1,
+    "bearing_deg": 87.75,
+    "area_ha": 66.1
+   },
+   "printed": {
+    "length_m": 2038,
+    "width_m": 325,
+    "source": "MSEC1285 Table 1.2 (as extracted)"
+   },
+   "length_diff_m": 1.9,
+   "width_diff_m": -0.9
+  },
+  "AP_LW905": {
+   "drawing": "MSEC1334-01",
+   "measured": {
+    "sides_m": [
+     324.7,
+     857.8,
+     324.4,
+     857.8
+    ],
+    "length_m": 857.8,
+    "width_m": 324.4,
+    "bearing_deg": 87.74,
+    "area_ha": 27.84
+   },
+   "printed": {
+    "length_m": 858,
+    "width_m": 325,
+    "source": "MSEC1334 Table 1.2 (as extracted)"
+   },
+   "length_diff_m": -0.2,
+   "width_diff_m": -0.6,
+   "second_drawing": [
+    {
+     "drawing": "MSEC1285-01",
+     "centre_offset_m": 1.15,
+     "corner_offsets_m": [
+      0.82,
+      1.42,
+      1.35,
+      1.04
+     ]
+    }
+   ]
+  },
+  "AP_LW707A": {
+   "drawing": "MSEC975-01",
+   "measured": {
+    "sides_m": [
+     324.0,
+     1034.5,
+     324.0,
+     1034.5
+    ],
+    "length_m": 1034.5,
+    "width_m": 324.0,
+    "bearing_deg": 63.87,
+    "area_ha": 33.51
+   },
+   "printed": {
+    "length_m": 1035,
+    "width_m": 324,
+    "source": "MSEC1394 Table 1.2 (as extracted)"
+   },
+   "length_diff_m": -0.5,
+   "width_diff_m": 0.0
+  },
+  "AP_LW707B": {
+   "drawing": "MSEC975-01",
+   "measured": {
+    "sides_m": [
+     324.0,
+     2068.9,
+     324.1,
+     2068.4
+    ],
+    "length_m": 2068.9,
+    "width_m": 324.0,
+    "bearing_deg": 63.87,
+    "area_ha": 67.04
+   },
+   "printed": {
+    "length_m": 2070,
+    "width_m": 324,
+    "source": "MSEC1394 Table 1.2 (as extracted)"
+   },
+   "length_diff_m": -1.1,
+   "width_diff_m": 0.0
+  },
+  "AP_LW708A": {
+   "drawing": "MSEC1250-01",
+   "measured": {
+    "sides_m": [
+     324.4,
+     1200.6,
+     324.0,
+     1200.8
+    ],
+    "length_m": 1200.8,
+    "width_m": 324.0,
+    "bearing_deg": 63.87,
+    "area_ha": 38.92
+   },
+   "printed": {
+    "length_m": 1200,
+    "width_m": 324,
+    "source": "MSEC1394 Table 1.2 (as extracted)"
+   },
+   "length_diff_m": 0.8,
+   "width_diff_m": 0.0
+  },
+  "AP_LW708B": {
+   "drawing": "MSEC1250-01",
+   "measured": {
+    "sides_m": [
+     323.9,
+     2258.4,
+     324.9,
+     2258.4
+    ],
+    "length_m": 2258.4,
+    "width_m": 323.9,
+    "bearing_deg": 63.9,
+    "area_ha": 73.27
+   },
+   "printed": {
+    "length_m": 2260,
+    "width_m": 324,
+    "source": "MSEC1394 Table 1.2 (as extracted)"
+   },
+   "length_diff_m": -1.6,
+   "width_diff_m": -0.1
+  },
+  "AP_LW709": {
+   "drawing": "MSEC1394-01",
+   "measured": {
+    "sides_m": [
+     325.6,
+     2617.8,
+     324.3,
+     2617.8
+    ],
+    "length_m": 2617.8,
+    "width_m": 324.3,
+    "bearing_deg": 63.91,
+    "area_ha": 85.07
+   },
+   "printed": {
+    "length_m": 2615,
+    "width_m": 324,
+    "source": "MSEC1394 Table 1.2 (as extracted)"
+   },
+   "length_diff_m": 2.8,
+   "width_diff_m": 0.3
+  }
+ },
+ "cross_drawing_edges": {
+  "MSEC1019-01": {
+   "TN_LW30": {
+    "edges": 1,
+    "median_offset_m": 0.0
+   },
+   "TN_LW31": {
+    "edges": 1,
+    "median_offset_m": 0.0
+   },
+   "TN_LW32": {
+    "edges": 2,
+    "median_offset_m": 0.005
+   }
+  },
+  "MSEC1112-01": {
+   "TW_W1": {
+    "edges": 3,
+    "median_offset_m": 0.0
+   },
+   "TW_W2": {
+    "edges": 2,
+    "median_offset_m": 0.04
+   }
+  },
+  "MSEC1192-01": {},
+  "MSEC1050-01": {},
+  "MSEC1176-01": {
+   "AP_LW901": {
+    "edges": 1,
+    "median_offset_m": 0.01
+   },
+   "AP_LW902": {
+    "edges": 1,
+    "median_offset_m": 0.01
+   }
+  },
+  "MSEC1334-01": {
+   "AP_LW707A": {
+    "edges": 4,
+    "median_offset_m": 1.395
+   },
+   "AP_LW708A": {
+    "edges": 5,
+    "median_offset_m": 1.39
+   },
+   "AP_LW709": {
+    "edges": 5,
+    "median_offset_m": 0.98
+   },
+   "AP_LW901": {
+    "edges": 7,
+    "median_offset_m": 0.94
+   },
+   "AP_LW902": {
+    "edges": 9,
+    "median_offset_m": 0.79
+   },
+   "AP_LW903": {
+    "edges": 9,
+    "median_offset_m": 0.47
+   },
+   "AP_LW904": {
+    "edges": 5,
+    "median_offset_m": 0.76
+   }
+  },
+  "MSEC975-01": {},
+  "MSEC1250-01": {
+   "AP_LW707A": {
+    "edges": 1,
+    "median_offset_m": 0.05
+   },
+   "AP_LW707B": {
+    "edges": 1,
+    "median_offset_m": 0.03
+   },
+   "AP_LW901": {
+    "edges": 1,
+    "median_offset_m": 0.19
+   },
+   "AP_LW902": {
+    "edges": 1,
+    "median_offset_m": 0.17
+   },
+   "AP_LW903": {
+    "edges": 2,
+    "median_offset_m": 0.35
+   }
+  },
+  "MSEC1394-01": {
+   "AP_LW707A": {
+    "edges": 5,
+    "median_offset_m": 0.18
+   },
+   "AP_LW707B": {
+    "edges": 8,
+    "median_offset_m": 0.22
+   },
+   "AP_LW708A": {
+    "edges": 5,
+    "median_offset_m": 0.05
+   },
+   "AP_LW708B": {
+    "edges": 6,
+    "median_offset_m": 0.095
+   }
+  },
+  "MSEC1263-01": {
+   "TN_LW30": {
+    "edges": 1,
+    "median_offset_m": 0.1
+   },
+   "TN_LW31": {
+    "edges": 1,
+    "median_offset_m": 0.28
+   },
+   "TN_LW32": {
+    "edges": 2,
+    "median_offset_m": 0.365
+   },
+   "TW_W1": {
+    "edges": 2,
+    "median_offset_m": 0.09
+   },
+   "TW_W2": {
+    "edges": 2,
+    "median_offset_m": 0.08
+   },
+   "TW_W3": {
+    "edges": 1,
+    "median_offset_m": 0.12
+   }
+  },
+  "MSEC1285-01": {
+   "AP_LW901": {
+    "edges": 2,
+    "median_offset_m": 0.1
+   },
+   "AP_LW902": {
+    "edges": 2,
+    "median_offset_m": 0.11
+   },
+   "AP_LW903": {
+    "edges": 1,
+    "median_offset_m": 0.19
+   },
+   "AP_LW905": {
+    "edges": 2,
+    "median_offset_m": 0.79
+   }
+  }
+ },
+ "absolute": [
+  {
+   "what": "GA CEMP GNSS site CA19 'located above longwall 902' (Garthwaite & Fuhrmann 2020, GA record 144247), at 150.691241 E, 34.178878 S",
+   "inside_LW902": true,
+   "distance_to_LW902_edge_m": 106.5
+  },
+  {
+   "what": "'Picton Station' dot on MSEC1019-01 against Picton railway station on Wikipedia (34.179088 S, 150.612575 E, https://en.wikipedia.org/wiki/Picton_railway_station)",
+   "drawing_lonlat": [
+    150.6126,
+    -34.178987
+   ],
+   "offset_m": 11.4
+  }
+ ]
+}
