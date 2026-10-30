@@ -24,7 +24,7 @@ jobs:
       - name: Kleinfelder copy builds clean
         if: hashFiles('kf_export/export.sh') != ''
         run: bash kf_export/export.sh "$RUNNER_TEMP/kf"
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
       - name: pyflakes gate (the same files as tests/test_fix_INT.py)
