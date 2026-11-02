@@ -1,0 +1,338 @@
+# =============================================================================
+# VALIDATION PROTOCOL - EXPERIMENT B-2 (long-term subsidence, PRECISION test),
+# Houston SW / Katy (TX)
+# =============================================================================
+# Written 8 Oct 2026 (P0.1), BEFORE any experiment data were downloaded or
+# processed. Nothing in it may be changed after the first comparison output of
+# the B-2 run exists, except through `amendments` at the end (dated, with the
+# reason), and every statistic is then reported under BOTH versions. This is
+# what stops validation turning into tuning (gaps/notes.md 5).
+# The sha256 of this file as fixed is recorded in configs/experiments/README.md.
+#
+# Source: review_2026-10-08/PLAN.md section 1B (runner-up), 2, 5.1-5.3,
+# plan/b_aoi_check_houston.log, longterm/notes.md B2, longterm_check/*.log.
+# Kyle's decision of 8 Oct 2026: "B-2 Houston SW/Katy is run". PLAN 4.2 calls
+# the Sentinel-1 run "B-2a" and the DISP-S1 run "B-2b".
+#
+# Independent review, 8 Oct 2026, before any run or download: the leave-one-out
+# datum inherited from protocol_B1.yaml now carries per-station constants (see
+# there). No threshold, station role or radius changed.
+#
+# Everything not restated here (sampling, reliability, GNSS source and
+# screening, epoch matching, D1, statistics list, bootstrap) is EXACTLY as in
+# protocol_B1.yaml version 1, with this site's stations, box and runs.
+# Units: mm, mm/yr, m, km, degrees; dates YYYY-MM-DD (UTC acquisition day).
+# =============================================================================
+
+protocol: B2
+version: 1
+fixed_on: "2026-10-08"
+status: fixed
+inherits: {file: review_2026-10-08/protocol_B1.yaml, version: 1, sections: [insar_input, sampling, reliability, decomposition, epoch_matching, gnss_screening, statistics_reported]}
+looked_at_before_fixing: >-
+  Only metadata (ASF burst and scene catalogue, NGL station inventory, the
+  frozen MIDAS IGS14 rates) and the HGSD summary quoted in PLAN.md. No InSAR
+  product of this site from this pipeline, OPERA DISP-S1 or NISAR had been read.
+question: >-
+  Does the pipeline get mm/yr right where every station sinks at 7-20 mm/yr
+  (the regime of the Indiana deliverables), over a suburban box with a humid
+  climate - the precision test Corcoran's large signal cannot give?
+
+# ---------------------------------------------------------------- site
+site:
+  name: "Houston SW / Katy, Texas"
+  aoi:
+    bbox_wsen: [-95.864, 29.651, -95.601, 29.852]     # 25 x 22 km (plan/b_aoi_check.py)
+    crs: "EPSG:4326"
+    processed_crop: "bbox + 0.05 deg on every side (stack_bbox_margin_deg)"
+    utm_epsg: 32615
+  land_cover: "mostly suburban; rice and prairie farmland on the west edge"
+
+window:
+  start: "2021-10-01"
+  end: "2026-09-30"
+  nisar_window: ["2025-11-01", "2026-09-30"]
+
+# ---------------------------------------------------------------- runs
+runs:
+  B-2a:
+    data: "Sentinel-1 ASC-34, IW2 (034_071053..071055), phase-linked (official route)"
+    config: configs/experiments/exp_b2_houston_asc34.yaml
+    window: ["2021-10-01", "2026-09-30"]
+    dates_expected: 145                 # burst catalogue, 8 Oct 2026 (PLAN's 147 counted SLC scenes)
+    role: primary
+    why_one_geometry: "DES-143 straddles IW1+IW2 over this box (229 GB): no second Sentinel-1 geometry, so no D1 here; vertical is LOS/cos(incidence), labelled"
+  B-2b:
+    data: "OPERA DISP-S1 F08882 (ASC-34) through disp_record_chain on B-2a's grid"
+    config: "not written yet"
+    window: ["2021-10-01", "2026-02-19"]
+    role: "independent processing of the same sensor; same statistics and thresholds over its own window"
+  B-2c:
+    data: "NISAR GUNW PROVISIONAL ASC-62 (26 dates since 2025-11)"
+    config: "not written yet (needs M1, M2)"
+    role: "exploratory; the NISAR-window signal here is only ~1 cm, so it mostly measures noise"
+
+# ---------------------------------------------------------------- truth
+truth:
+  gnss_source:
+    ngl_igs20_tenv3:
+      url_pattern: "https://geodesy.unr.edu/gps_timeseries/IGS20/tenv3/IGS20/{STA}.tenv3"
+      steps: "https://geodesy.unr.edu/NGLStationPages/steps.txt"
+    never: "gnss_validation.py's frozen midas.IGS14.txt; the pipeline's own GNSS tie (gnss_tie_radius_km 0 in the config)"
+    fetch_rule: "as protocol_B1.yaml"
+    precision_note: "HoustonNet daily vertical precision 5-8 mm (https://hgsubsidence.org/wp-content/uploads/2022/07/2022_HoustonNet_Data_Processing.pdf)"
+
+  stations:
+    # spans: NGL IGS20 inventory 8 Oct 2026; years inside the window from plan/b_aoi_check_houston.log;
+    # vU: frozen MIDAS IGS14 (context only)
+    MRHK: {lat: 29.8041, lon: -95.7451, span: ["2014-05-24", "2026-09-26"], years_in_window: 4.99, midas_vU: -20.0, roles: [rate, series, calibration_pool, nisar]}
+    HPEK: {lat: 29.7549, lon: -95.7157, span: ["2014-05-24", "2024-01-31"], years_in_window: 2.33, midas_vU: -16.9, roles: [rate, series, calibration_pool]}
+    UHCR: {lat: 29.7281, lon: -95.7568, span: ["2014-02-14", "2026-09-26"], years_in_window: 4.99, midas_vU: -12.2, roles: [rate, series, calibration_pool, nisar]}
+    UHKD: {lat: 29.7242, lon: -95.7481, span: ["2018-12-20", "2025-04-26"], years_in_window: 3.57, midas_vU: -10.9, roles: [rate, series, calibration_pool]}
+    OKEK: {lat: 29.7250, lon: -95.8033, span: ["2014-07-29", "2026-09-26"], years_in_window: 4.99, midas_vU: -10.7, roles: [rate, series, calibration_pool, nisar]}
+    ALEF: {lat: 29.6918, lon: -95.6351, span: ["2014-04-04", "2026-09-26"], years_in_window: 4.99, midas_vU: -9.8, roles: [rate, series, calibration_pool, nisar]}
+    CMFB: {lat: 29.6814, lon: -95.7288, span: ["2014-05-29", "2026-09-26"], years_in_window: 4.99, midas_vU: -7.7, roles: [rate, series, calibration_pool, nisar]}
+    UHKS: {lat: 29.7243, lon: -95.7481, span: ["2018-05-30", "2025-04-27"], years_in_window: 3.57, midas_vU: -10.2, roles: [duplicate_check],
+           why: "the same site as UHKD (identical coordinates to 0.0001 deg): counted once, as UHKD (fixed here: the UHKD record is the one used); UHKS - UHKD is reported as a GNSS-only noise check"}
+    TXKY: {lat: 29.8220, lon: -95.8294, roles: [not_used], why: "record ends 2017-03-29, no data in the window"}
+  station_rules:
+    rate_stations: "7 independent sites with >= 2 yr inside the window: MRHK, HPEK, UHCR, UHKD, OKEK, ALEF, CMFB (PLAN's '8' counted UHKS and UHKD separately)"
+    not_independent: "UHCR-UHKD are 0.9 km apart: their pair is reported but is a near-duplicate"
+    calibration_vs_validation: "as protocol_B1.yaml: double differences use no calibration; in gnss_absolute mode a station is scored only in the leave-one-out fold that excludes it"
+  station_coverage_checked: "review_2026-10-08/p0/protocol/burst_check.log (all 9 listed coordinates inside the processed bursts)"
+
+  not_scored:
+    usgs_extensometers: "only 3 of the 14 Houston sites lie within 30 km, and they measure compaction above their anchors, not surface motion (longterm_check/houston_ext_dist.log): context only"
+    hgsd_rate_map: "2021-2025 GPS-rate map of the Harris-Galveston Subsidence District: context only (built from the same GNSS)"
+
+# ---------------------------------------------------------------- referencing
+reference:
+  modes:
+    double_difference: "as protocol_B1.yaml; all pairs of the 7 rate sites (21; not independent); primary for the rate RMSE row"
+    gnss_absolute_loo: "as protocol_B1.yaml, with its per-station constants b_c (HPEK ends 2024-01-31 and UHKD 2025-04-26, so the calibration set changes; offset-only primary; offset + plane sensitivity, never graded); primary for bias, slope, correlation, time series and uncertainty calibration"
+  pipeline_reference_pixel: "whatever the run chose (stack/reference_choice.json); it cancels in every mode and is not a result"
+  vertical: "no second geometry: LOS/cos(incidence), labelled 'assumes vertical motion'; GNSS Up compared with it only as the secondary vertical row"
+
+# ---------------------------------------------------------------- models
+models:
+  rate_model: "linear + annual sinusoid (sin, cos) + offset (+ GNSS step offsets), least squares on the MATCHED epochs only, the same model for both series"
+  compared_rates: "the linear rate over each station's matched epochs in the window"
+  rate_sigma: "as protocol_B1.yaml"
+
+# ---------------------------------------------------------------- comparisons (thresholds: PLAN 5.3, Experiment B, Houston column)
+comparisons:
+  rate_rmse_dd:
+    what: "RMSE of station-pair double-difference LOS rates over all pairs of rate sites"
+    runs: [B-2a, B-2b]
+    grade: {pass: "rmse <= 5 mm/yr (OPERA DISP-S1 requirement)", marginal: "rmse <= 10 mm/yr", fail: "rmse > 10 mm/yr"}
+  rate_bias_loo:
+    what: "mean of (InSAR - GNSS) LOS rates, gnss_absolute offset-only, leave-one-out, over the rate sites"
+    runs: [B-2a, B-2b]
+    grade: {pass: "|bias| <= 2 mm/yr", marginal: "|bias| <= 5 mm/yr", fail: "|bias| > 5 mm/yr"}
+  york_slope:
+    what: "York regression of InSAR on GNSS rates (leave-one-out absolute), errors in both"
+    grade: {pass: "95% CI includes 1 AND slope within 0.9-1.1", marginal: "slope within 0.8-1.2", fail: "outside 0.8-1.2"}
+  rate_correlation:
+    what: "Pearson r of InSAR and GNSS rates across the rate sites (leave-one-out absolute)"
+    grade: {pass: "r >= 0.9", marginal: "r >= 0.8", fail: "r < 0.8"}
+  series_rmse:
+    what: "per-station LOS time-series RMSE, leave-one-out absolute, one constant offset removed"
+    row_grade_from: "the median over stations (each station's own grade is reported too)"
+    grade: {pass: "median rmse <= 10 mm", marginal: "median rmse <= 15 mm", fail: "median rmse > 15 mm"}
+  series_correlation:
+    what: "per-station Pearson r of the InSAR and GNSS LOS series, for stations whose GNSS LOS signal (p95 - p5) exceeds 10 x its daily robust sigma (few may qualify at 7-20 mm/yr; the count is reported)"
+    row_grade_from: "the median over qualifying stations; no qualifying station = 'not testable', not a pass"
+    grade: {pass: "r >= 0.95", marginal: "r >= 0.9", fail: "r < 0.9"}
+  uncertainty_calibration:
+    what: "share of station rate errors (leave-one-out) inside 1.96 x sqrt(s_insar^2 + s_gnss^2); s_insar = the pipeline's own stated 1-sigma rate uncertainty at that cell"
+    grade: {pass: ">= 90% inside (7 sites: at most 1 outside)", marginal: "at most 2 outside", fail: "more than 2 outside"}
+  vertical_secondary:
+    what: "LOS/cos(incidence) rate against GNSS Up rate (labelled 'assumes vertical motion'), same statistics as above"
+    grade: report_only
+  residual_variogram:
+    what: "OPERA VA2-style residual variogram on stable ground, where any exists"
+    grade: "report only; expected 'no stable ground in the box', and said so"
+  disp_s1:
+    what: "B-2b through every row above over its own window (to 2026-02-19)"
+  nisar:
+    status: "exploratory (B-2c); signal over the NISAR window ~1 cm; pair-difference test as protocol_B1.yaml with stations MRHK, UHCR, OKEK, ALEF, CMFB; reported, does not enter the verdict"
+
+statistics_reported:
+  as: protocol_B1.yaml
+  power_statement: >-
+    7 independent rate sites: the 95% CI on an RMSE runs from about 0.64x to
+    2.2x the estimate (chi-square, 6 dof). Pairs are not independent. Every
+    statistic is reported with its bootstrap CI (over sites, 10000 resamples,
+    seed 20261008); a pass on the point estimate is never reported alone.
+
+verdict:
+  rows_graded: [rate_rmse_dd, rate_bias_loo, york_slope, rate_correlation, series_rmse, series_correlation, uncertainty_calibration]
+  route_trustworthy_for_regime: "PLAN 5.3: rate_rmse_dd, rate_bias_loo and uncertainty_calibration all PASS here: the route is then trustworthy for whole-area subsidence at the mm/yr level"
+  marginal: "usable with stated caveats: the client wording must carry the error figure"
+  fail: "blocks mm/yr whole-area subsidence wording in client reports until fixed"
+
+amendments:
+  # ---------------------------------------------------------------------------
+  # Amendments of 8 Oct 2026. They were appended BEFORE any comparison output of
+  # the B-2 runs existed: no exp_* project had been created, no experiment data
+  # had been downloaded, and the harness had run only on synthetic data and,
+  # with scratch protocols, on the Indiana record (HANDOFF.md, "8 Oct:
+  # validation experiments - phase 1"). They answer the decisions phase 1 put
+  # to Kyle, which Kyle made on 8 Oct 2026. Everything above `amendments:` is
+  # the text fixed on 8 Oct, byte for byte: configs/experiments/README.md
+  # records its sha256 "as first fixed", and the harness checks it. The
+  # harness applies an amendment through its `harness:` keys and also reports
+  # the protocol as first fixed (validation.json "version_1"), as the header
+  # requires. The sections this file inherits from protocol_B1.yaml version 1
+  # did not change. protocol_B1.yaml's amendments are not inherited, so the
+  # ones that apply here are restated below.
+  # ---------------------------------------------------------------------------
+  - id: "2026-10-08/2"
+    date: "2026-10-08"
+    decided_by: Kyle
+    before_any_result: true
+    amends: "comparisons.york_slope and comparisons.rate_correlation: what is graded"
+    decision: >-
+      york_slope is graded on per-station ANNUAL changes: InSAR LOS change
+      against GNSS LOS change over each year of the window, at every rate site
+      with both, all years pooled. It uses a York regression with errors in
+      both, the same thresholds and the same bootstrap. The rate-based York
+      slope and rate_correlation are still computed as written, and reported,
+      not graded.
+    reason: >-
+      Kyle's decision 2 (phase 1) covers both B protocols, so the scale is
+      graded the same way at both sites: on changes in which the run's
+      reference pixel cancels and no site calibrates another. In the
+      leave-one-out datum each site's rate leans towards the other sites'
+      mean GNSS rate, so the rate-based slope mixes the InSAR's scale with the
+      datum: with 7 sites, an InSAR that reads 70% of every motion gives a
+      slope of about 0.65. Annual changes also give more points: up to 35
+      (7 sites x 5 years) instead of 7 rates. No result existed.
+    method: >-
+      Years: consecutive one-year intervals from the window start
+      (2021-10-01 .. 2022-10-01, and so on to the window end). Within each
+      year, the two SAR dates t0 < t1, at least 0.75 yr apart, at which the
+      most rate sites have both an InSAR value and a GNSS value. Ties go to
+      the longer span, then the earlier t0. The same two dates are used for
+      every site. Change = value(t1) - value(t0), InSAR (the delivered series)
+      and GNSS (projected with each site's LOS vector). The year's mean over
+      its sites is removed from both sides before pooling, so the run's
+      reference pixel cancels and no site calibrates another. A year with
+      fewer than 2 sites is left out. The errors in the fit are sqrt(2) x the
+      site's GNSS daily sigma and sqrt(2) x the robust sigma of its InSAR
+      series about the protocol rate model. The 95% CI is a bootstrap over
+      sites, and each resample removes the year means again. The Pearson r
+      of the same changes is reported beside it, not graded.
+    harness:
+      york_slope_on: interval_changes
+      change_intervals: annual_from_window_start
+      change_min_years: 0.75
+      change_common_mode: removed
+      rate_slope_and_correlation: report_only
+
+  - id: "2026-10-08/3"
+    date: "2026-10-08"
+    decided_by: Kyle
+    before_any_result: true
+    amends: "reference.modes.gnss_absolute_loo, its 'offset + plane sensitivity, never graded'"
+    decision: >-
+      As protocol_B1.yaml's amendment 2026-10-08/3. The plane check uses the
+      joint fit (significance.gnss_datum_fit, plane_method 'joint',
+      leave-one-out, >= 4 calibration sites at an epoch). It is graded:
+      rate_bias_loo, series_rmse, series_correlation and
+      uncertainty_calibration are computed again in that datum against the
+      same thresholds, reported as 'plane_check'. Offset-only stays the
+      primary datum and alone enters the route verdict.
+    reason: >-
+      Here the calibration set also changes (HPEK ends 2024-01-31 and UHKD
+      2025-04-26). The two-stage plane is biased when it does, and the joint
+      fit is not. No result existed.
+    harness:
+      plane_check: joint_graded
+
+  - id: "2026-10-08/4"
+    date: "2026-10-08"
+    decided_by: Kyle
+    before_any_result: true
+    amends: "gnss_screening.sigma_per_epoch (inherited from protocol_B1.yaml version 1)"
+    decision: >-
+      As protocol_B1.yaml's amendment 2026-10-08/4. The GNSS daily sigma is
+      the larger of the robust sigma and NGL's formal sigma, projected onto the
+      compared component. Which one was used is recorded per site and
+      component.
+    reason: >-
+      ground_truth.py already takes the larger of the two (phase 1, decision
+      4). HoustonNet's stated daily vertical precision is 5-8 mm
+      (truth.gnss_source.precision_note), so the scatter about a linear model
+      may understate the noise. No result existed.
+    harness:
+      gnss_daily_sigma: larger_of_robust_and_formal
+
+  - id: "2026-10-08/configs"
+    date: "2026-10-08"
+    kind: "record only: no rule, threshold, station role or radius changes"
+    before_any_result: true
+    amends: "runs.B-2b.config, which read 'not written yet'"
+    decision: >-
+      B-2b's config is configs/experiments/exp_b2b_houston_disp_f08882.yaml.
+      It runs OPERA DISP-S1 F08882 (ASC-34) through disp_record_chain on
+      B-2a's grid, with the window of runs.B-2b.
+    reason: >-
+      The config was written after the protocol was fixed. The harness finds
+      a run from its config's file name.
+    harness:
+      run_configs:
+        B-2b: configs/experiments/exp_b2b_houston_disp_f08882.yaml
+
+  # ---------------------------------------------------------------------------
+  # Record-only amendment of the phase 2/3 finishing pass (8 Oct 2026), made
+  # BEFORE any B-2 run had started, any experiment data had been downloaded or
+  # any comparison output existed. It changes no rule, threshold, station role
+  # or radius. It was made by the finishing pass, not decided by Kyle: to undo
+  # it, delete it here.
+  # ---------------------------------------------------------------------------
+  - id: "2026-10-08/nisar-configs"
+    date: "2026-10-08"
+    kind: "record only: no rule, threshold, station role or radius changes"
+    before_any_result: true
+    amends: "runs.B-2c.config, which read 'not written yet (needs M1, M2)'"
+    decision: >-
+      B-2c's config is configs/experiments/exp_b2c_houston_nisar_asc62.yaml:
+      NISAR GUNW ASC-62 over the B-2 box, 2025-11-01 to 2026-09-30, on the
+      NISAR GUNW route (nisar_backend.py, PROVISIONAL only). It stays
+      exploratory (runs.B-2c.role).
+    reason: >-
+      The config was written after the protocol was fixed (PLAN phase 3, M2).
+      The harness finds a run from its config's file name.
+    harness:
+      run_configs:
+        B-2c: configs/experiments/exp_b2c_houston_nisar_asc62.yaml
+
+  # ---------------------------------------------------------------------------
+  # Amendment of the protocol decisions of 8 Oct 2026 (HANDOFF.md, "8 Oct:
+  # validation experiments - phases 2 and 3", decision 5). Kyle delegated the
+  # decision; Claude made it for him on 8 Oct 2026, BEFORE any B-2 run had
+  # started, any experiment data had been downloaded or any comparison output
+  # existed. Nothing above is changed.
+  # ---------------------------------------------------------------------------
+  - id: "2026-10-08/p23-5"
+    date: "2026-10-08"
+    decided_by: "Claude for Kyle (delegated 8 Oct)"
+    before_any_result: true
+    amends: "comparisons.nisar (B-2c, exploratory): F4 against B-2a"
+    decision: >-
+      As protocol_B1.yaml's amendment 2026-10-08/p23-5. F4 (python -m
+      insar_pipeline.lband, B-2c against B-2a) reports its cycle-consistency
+      (aliasing) test in C-band LOS, with the NISAR change projected into
+      C-band's LOS under the stated vertical-motion assumption, and its
+      accuracy comparison (share within 15 mm, spread) in vertical, each
+      sensor's LOS divided by cos of its own incidence, both labelled
+      'assumes vertical motion'. Both are reported; B-2c stays exploratory and
+      outside the verdict.
+    reason: >-
+      The same two frames at both B sites (phase 2/3 decision 5): a missed
+      C-band cycle is a whole cycle only in C-band's LOS, and agreement
+      between the sensors is read in vertical. No result existed.
+    harness:
+      lband_cycle_frame: c_band_los_vertical_motion_assumed
+      lband_accuracy_frame: vertical_each_sensor_own_incidence

@@ -1,0 +1,1794 @@
+{
+ "type": "FeatureCollection",
+ "_source": "Longwall panel outlines for experiment A, digitised 8 Oct 2026 (PLAN T1) from the mines' CAD drawings (vector paths) on each drawing's MGA grid; see review_2026-10-08/truth/README.md, georef_drawings.json and panel_checks.json. Coordinates WGS 84 lon/lat (converted from MGA94 zone 56). Outlines are the overall void including first workings, as the report tables give them. in_window: mined in 2017-11-01 .. 2022-12-31, or completed within the 6 months before.",
+ "crs_note": "EPSG:4326 lon/lat; mga94_corners in EPSG:28356",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "TW_W1",
+    "name": "LW W1",
+    "mine": "Tahmoor",
+    "domain": "Western Domain",
+    "mined_start": "2019-11-15",
+    "mined_end": "2020-11-06",
+    "mined_source": "Tahmoor West Reports 1-8 (gm3.au); W1 start: Tahmoor 2019 Annual Review gives both 15 and 17 Nov 2019, Report 1 and the GNSS plots start on 15 Nov 2019",
+    "window_status": "mined in the window",
+    "in_window": true,
+    "depth_of_cover_m": [
+     455,
+     535
+    ],
+    "depth_source": "MSEC1019 section 2.1 (depth of cover above LW W1-W2)",
+    "draw_distance_m": 266.7,
+    "draw_rule": "tan(26.5 deg) x the largest depth of cover over the panel (protocol A angle_of_draw)",
+    "position_sigma_m": 10.0,
+    "mga94_corners": [
+     [
+      277810.3,
+      6214559.4
+     ],
+     [
+      277723.1,
+      6216433.5
+     ],
+     [
+      278005.9,
+      6216447.1
+     ],
+     [
+      278093.1,
+      6214572.6
+     ]
+    ],
+    "measured": {
+     "sides_m": [
+      1876.1,
+      283.2,
+      1876.5,
+      283.1
+     ],
+     "length_m": 1876.5,
+     "width_m": 283.1,
+     "bearing_deg": 177.34,
+     "area_ha": 53.12
+    },
+    "provenance": {
+     "source_pdf": "tahmoor_west_EP_app_A_subsidence_predictions.pdf",
+     "source_url": "https://www.tahmoorcolliery.com.au/wp-content/uploads/sites/8/2022/10/11-app-a-subsidence-predictions.pdf",
+     "page": 200,
+     "drawing": "MSEC1019-01",
+     "drawing_title": "Western Domain Extraction Plan LW W1-W2, General Layout",
+     "drawing_date": "2019-06-07",
+     "report": "MSEC1019 Rev B (Jun 2019)",
+     "outline": "vector path, stroke #ffbf00, read from the PDF page (not rasterised)",
+     "georeference": "MGA grid lines on the drawing, values read by eye (georef_drawings.json)",
+     "dimension_check": {
+      "length_diff_m": 1.5,
+      "width_diff_m": 0.1
+     }
+    }
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       150.5889792,
+       -34.1863
+      ],
+      [
+       150.588514,
+       -34.169395
+      ],
+      [
+       150.5915835,
+       -34.1693331
+      ],
+      [
+       150.5920489,
+       -34.186242
+      ],
+      [
+       150.5889792,
+       -34.1863
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "TW_W2",
+    "name": "LW W2",
+    "mine": "Tahmoor",
+    "domain": "Western Domain",
+    "mined_start": "2020-12-07",
+    "mined_end": "2021-06-17",
+    "mined_source": "Tahmoor West Reports 1-8 (gm3.au); W1 start: Tahmoor 2019 Annual Review gives both 15 and 17 Nov 2019, Report 1 and the GNSS plots start on 15 Nov 2019",
+    "window_status": "mined in the window",
+    "in_window": true,
+    "depth_of_cover_m": [
+     455,
+     535
+    ],
+    "depth_source": "MSEC1019 section 2.1",
+    "draw_distance_m": 266.7,
+    "draw_rule": "tan(26.5 deg) x the largest depth of cover over the panel (protocol A angle_of_draw)",
+    "position_sigma_m": 10.0,
+    "mga94_corners": [
+     [
+      278124.0,
+      6214744.0
+     ],
+     [
+      278045.7,
+      6216425.9
+     ],
+     [
+      278328.5,
+      6216439.0
+     ],
+     [
+      278406.9,
+      6214757.1
+     ]
+    ],
+    "measured": {
+     "sides_m": [
+      1683.7,
+      283.1,
+      1683.7,
+      283.1
+     ],
+     "length_m": 1683.7,
+     "width_m": 283.1,
+     "bearing_deg": 177.33,
+     "area_ha": 47.67
+    },
+    "provenance": {
+     "source_pdf": "tahmoor_west_EP_app_A_subsidence_predictions.pdf",
+     "source_url": "https://www.tahmoorcolliery.com.au/wp-content/uploads/sites/8/2022/10/11-app-a-subsidence-predictions.pdf",
+     "page": 200,
+     "drawing": "MSEC1019-01",
+     "drawing_title": "Western Domain Extraction Plan LW W1-W2, General Layout",
+     "drawing_date": "2019-06-07",
+     "report": "MSEC1019 Rev B (Jun 2019)",
+     "outline": "vector path, stroke #ffbf00, read from the PDF page (not rasterised)",
+     "georeference": "MGA grid lines on the drawing, values read by eye (georef_drawings.json)",
+     "dimension_check": {
+      "length_diff_m": -1.3,
+      "width_diff_m": 0.1
+     }
+    }
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       150.5924278,
+       -34.1847037
+      ],
+      [
+       150.5920096,
+       -34.1695322
+      ],
+      [
+       150.5950786,
+       -34.1694742
+      ],
+      [
+       150.5954977,
+       -34.1846457
+      ],
+      [
+       150.5924278,
+       -34.1847037
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "TW_W3",
+    "name": "LW W3",
+    "mine": "Tahmoor",
+    "domain": "Western Domain",
+    "mined_start": "2021-09-13",
+    "mined_end": "2022-03-21",
+    "mined_source": "Tahmoor West Reports 1-8 (gm3.au); W1 start: Tahmoor 2019 Annual Review gives both 15 and 17 Nov 2019, Report 1 and the GNSS plots start on 15 Nov 2019",
+    "window_status": "mined in the window",
+    "in_window": true,
+    "depth_of_cover_m": [
+     470,
+     550
+    ],
+    "depth_source": "MSEC1112 section 2.1 (depth of cover above LW W3-W4)",
+    "draw_distance_m": 274.2,
+    "draw_rule": "tan(26.5 deg) x the largest depth of cover over the panel (protocol A angle_of_draw)",
+    "position_sigma_m": 10.0,
+    "mga94_corners": [
+     [
+      278443.7,
+      6214809.2
+     ],
+     [
+      278371.3,
+      6216359.4
+     ],
+     [
+      278654.1,
+      6216372.5
+     ],
+     [
+      278726.5,
+      6214822.3
+     ]
+    ],
+    "measured": {
+     "sides_m": [
+      1551.9,
+      283.1,
+      1551.9,
+      283.1
+     ],
+     "length_m": 1551.9,
+     "width_m": 283.1,
+     "bearing_deg": 177.33,
+     "area_ha": 43.94
+    },
+    "provenance": {
+     "source_pdf": "tahmoor_west_EP_app_A_subsidence_predictions_1.pdf",
+     "source_url": "https://www.tahmoorcolliery.com.au/wp-content/uploads/sites/8/2022/10/11-app-a-subsidence-predictions-1.pdf",
+     "page": 180,
+     "drawing": "MSEC1112-01",
+     "drawing_title": "Western Domain Extraction Plan LW W3-W4, General Layout",
+     "drawing_date": "2021-03-12",
+     "report": "MSEC1112 Rev A (Mar 2021)",
+     "outline": "vector path, stroke #ffbf00, read from the PDF page (not rasterised)",
+     "georeference": "MGA grid lines on the drawing, values read by eye (georef_drawings.json)",
+     "dimension_check": {
+      "length_diff_m": -0.1,
+      "width_diff_m": 0.1
+     }
+    }
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       150.5959103,
+       -34.1841842
+      ],
+      [
+       150.595522,
+       -34.1702005
+      ],
+      [
+       150.5985911,
+       -34.1701423
+      ],
+      [
+       150.5989802,
+       -34.184126
+      ],
+      [
+       150.5959103,
+       -34.1841842
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "TW_W4",
+    "name": "LW W4 (as mined, 721 m of extraction)",
+    "mine": "Tahmoor",
+    "domain": "Western Domain",
+    "mined_start": "2022-05-16",
+    "mined_end": "2022-09-13",
+    "mined_source": "Tahmoor West Reports 1-8 (gm3.au); W1 start: Tahmoor 2019 Annual Review gives both 15 and 17 Nov 2019, Report 1 and the GNSS plots start on 15 Nov 2019",
+    "window_status": "mined in the window",
+    "in_window": true,
+    "depth_of_cover_m": [
+     470,
+     550
+    ],
+    "depth_source": "MSEC1112 section 2.1",
+    "draw_distance_m": 274.2,
+    "draw_rule": "tan(26.5 deg) x the largest depth of cover over the panel (protocol A angle_of_draw)",
+    "position_sigma_m": 10.0,
+    "mga94_corners": [
+     [
+      278770.2,
+      6214824.4
+     ],
+     [
+      278736.6,
+      6215545.5
+     ],
+     [
+      279021.5,
+      6215559.0
+     ],
+     [
+      279055.1,
+      6214837.6
+     ]
+    ],
+    "measured": {
+     "sides_m": [
+      721.9,
+      285.2,
+      722.1,
+      285.2
+     ],
+     "length_m": 722.1,
+     "width_m": 285.2,
+     "bearing_deg": 177.34,
+     "area_ha": 20.59
+    },
+    "provenance": {
+     "source_pdf": "tahmoor_west_report_8.pdf",
+     "source_url": "https://gm3.au/wp-content/uploads/2026/09/Report-8-\u2013-1-January-2023-to-30-June-2023-for-Longwalls-West-1-to-West-4.pdf",
+     "page": 88,
+     "drawing": "MSEC1263-01",
+     "drawing_title": "Tahmoor North Western Domain Monitoring LW W4, General Layout (Rev 21)",
+     "drawing_date": "2023-08-23",
+     "report": "MSEC1263 Rev 21, in Tahmoor West Report 8",
+     "outline": "vector path, stroke #ffbf00, read from the PDF page (not rasterised)",
+     "georeference": "affine fit to panels read on gridded drawings (georef_drawings.json)",
+     "dimension_check": {
+      "length_diff_m": 1.1,
+      "width_diff_m": 0.2
+     }
+    },
+    "note": "LW W4 was planned at 1004 m (MSEC1112-01) and stopped after 721 m of extraction; this outline is the as-mined one from the monitoring report drawing of Aug 2023. The planned outline is kept as TW_W4_planned (not used for the deforming area)."
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       150.5994542,
+       -34.184117
+      ],
+      [
+       150.5992744,
+       -34.1776124
+      ],
+      [
+       150.6023669,
+       -34.1775507
+      ],
+      [
+       150.6025467,
+       -34.1840579
+      ],
+      [
+       150.5994542,
+       -34.184117
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "TW_W4_planned",
+    "name": "LW W4 (planned, not fully mined)",
+    "mine": "Tahmoor",
+    "domain": "Western Domain",
+    "mined_start": null,
+    "mined_end": null,
+    "mined_source": "planned only; see TW_W4",
+    "window_status": "planned outline, superseded",
+    "in_window": false,
+    "depth_of_cover_m": [
+     470,
+     550
+    ],
+    "depth_source": "MSEC1112 section 2.1",
+    "draw_distance_m": 274.2,
+    "draw_rule": "tan(26.5 deg) x the largest depth of cover over the panel (protocol A angle_of_draw)",
+    "position_sigma_m": 10.0,
+    "mga94_corners": [
+     [
+      278770.1,
+      6214824.5
+     ],
+     [
+      278723.5,
+      6215826.9
+     ],
+     [
+      279008.5,
+      6215840.0
+     ],
+     [
+      279055.0,
+      6214837.6
+     ]
+    ],
+    "measured": {
+     "sides_m": [
+      1003.5,
+      285.2,
+      1003.5,
+      285.2
+     ],
+     "length_m": 1003.5,
+     "width_m": 285.2,
+     "bearing_deg": 177.34,
+     "area_ha": 28.62
+    },
+    "provenance": {
+     "source_pdf": "tahmoor_west_EP_app_A_subsidence_predictions_1.pdf",
+     "source_url": "https://www.tahmoorcolliery.com.au/wp-content/uploads/sites/8/2022/10/11-app-a-subsidence-predictions-1.pdf",
+     "page": 180,
+     "drawing": "MSEC1112-01",
+     "drawing_title": "Western Domain Extraction Plan LW W3-W4, General Layout",
+     "drawing_date": "2021-03-12",
+     "report": "MSEC1112 Rev A (Mar 2021)",
+     "outline": "vector path, stroke #ffbf00, read from the PDF page (not rasterised)",
+     "georeference": "MGA grid lines on the drawing, values read by eye (georef_drawings.json)",
+     "dimension_check": {
+      "length_diff_m": -0.5,
+      "width_diff_m": 0.2
+     }
+    }
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       150.5994536,
+       -34.1841162
+      ],
+      [
+       150.5992045,
+       -34.1750738
+      ],
+      [
+       150.6022968,
+       -34.1750161
+      ],
+      [
+       150.6025462,
+       -34.1840584
+      ],
+      [
+       150.5994536,
+       -34.1841162
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "TN_LW30",
+    "name": "LW30",
+    "mine": "Tahmoor",
+    "domain": "Tahmoor North",
+    "mined_start": "2016-06-20",
+    "mined_end": "2017-05-15",
+    "mined_source": "GeoTerra TA35-R1A Table 1 (Tahmoor 2019 Annual Review)",
+    "window_status": "settling in the window (completed within 6 months before it)",
+    "in_window": true,
+    "depth_of_cover_m": [
+     425,
+     490
+    ],
+    "depth_source": "GeoTerra TA35-R1A Table 1 (Tahmoor 2019 Annual Review)",
+    "draw_distance_m": 244.3,
+    "draw_rule": "tan(26.5 deg) x the largest depth of cover over the panel (protocol A angle_of_draw)",
+    "position_sigma_m": 10.0,
+    "mga94_corners": [
+     [
+      277912.4,
+      6213927.4
+     ],
+     [
+      278143.9,
+      6214089.6
+     ],
+     [
+      279474.2,
+      6212188.4
+     ],
+     [
+      279242.2,
+      6212025.9
+     ]
+    ],
+    "measured": {
+     "sides_m": [
+      282.7,
+      2320.3,
+      283.3,
+      2320.4
+     ],
+     "length_m": 2320.4,
+     "width_m": 282.7,
+     "bearing_deg": 145.03,
+     "area_ha": 65.66
+    },
+    "provenance": {
+     "source_pdf": "tahmoor_west_EP_app_A_subsidence_predictions_1.pdf",
+     "source_url": "https://www.tahmoorcolliery.com.au/wp-content/uploads/sites/8/2022/10/11-app-a-subsidence-predictions-1.pdf",
+     "page": 180,
+     "drawing": "MSEC1112-01",
+     "drawing_title": "Western Domain Extraction Plan LW W3-W4, General Layout",
+     "drawing_date": "2021-03-12",
+     "report": "MSEC1112 Rev A (Mar 2021)",
+     "outline": "vector path, stroke #dcdcdc, read from the PDF page (not rasterised)",
+     "georeference": "MGA grid lines on the drawing, values read by eye (georef_drawings.json)",
+     "dimension_check": {
+      "length_diff_m": -1.6,
+      "width_diff_m": -0.3
+     }
+    }
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       150.5899232,
+       -34.1920165
+      ],
+      [
+       150.592476,
+       -34.1906049
+      ],
+      [
+       150.6064158,
+       -34.2080179
+      ],
+      [
+       150.6038581,
+       -34.2094335
+      ],
+      [
+       150.5899232,
+       -34.1920165
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "TN_LW31",
+    "name": "LW31",
+    "mine": "Tahmoor",
+    "domain": "Tahmoor North",
+    "mined_start": "2017-06-28",
+    "mined_end": "2018-08-17",
+    "mined_source": "GeoTerra TA35-R1A Table 1 (Tahmoor 2019 Annual Review)",
+    "window_status": "mined in the window",
+    "in_window": true,
+    "depth_of_cover_m": [
+     450,
+     500
+    ],
+    "depth_source": "GeoTerra TA35-R1A Table 1",
+    "draw_distance_m": 249.3,
+    "draw_rule": "tan(26.5 deg) x the largest depth of cover over the panel (protocol A angle_of_draw)",
+    "position_sigma_m": 10.0,
+    "mga94_corners": [
+     [
+      278139.7,
+      6214163.7
+     ],
+     [
+      278371.7,
+      6214325.8
+     ],
+     [
+      279774.8,
+      6212320.5
+     ],
+     [
+      279542.8,
+      6212158.4
+     ]
+    ],
+    "measured": {
+     "sides_m": [
+      283.0,
+      2447.4,
+      283.0,
+      2447.4
+     ],
+     "length_m": 2447.4,
+     "width_m": 283.0,
+     "bearing_deg": 145.02,
+     "area_ha": 69.27
+    },
+    "provenance": {
+     "source_pdf": "tahmoor_west_EP_app_A_subsidence_predictions_1.pdf",
+     "source_url": "https://www.tahmoorcolliery.com.au/wp-content/uploads/sites/8/2022/10/11-app-a-subsidence-predictions-1.pdf",
+     "page": 180,
+     "drawing": "MSEC1112-01",
+     "drawing_title": "Western Domain Extraction Plan LW W3-W4, General Layout",
+     "drawing_date": "2021-03-12",
+     "report": "MSEC1112 Rev A (Mar 2021)",
+     "outline": "vector path, stroke #dcdcdc, read from the PDF page (not rasterised)",
+     "georeference": "MGA grid lines on the drawing, values read by eye (georef_drawings.json)",
+     "dimension_check": {
+      "length_diff_m": -2.6,
+      "width_diff_m": 0.0
+     }
+    }
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       150.5924492,
+       -34.1899365
+      ],
+      [
+       150.5950063,
+       -34.1885249
+      ],
+      [
+       150.6097096,
+       -34.2068915
+      ],
+      [
+       150.6071522,
+       -34.2083034
+      ],
+      [
+       150.5924492,
+       -34.1899365
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "TN_LW32",
+    "name": "LW32",
+    "mine": "Tahmoor",
+    "domain": "Tahmoor North",
+    "mined_start": "2018-10-29",
+    "mined_end": "2019-09-26",
+    "mined_source": "GeoTerra TA35-R1A Table 1; the Annual Review text gives completion on 22 and on 25 Sep 2019",
+    "window_status": "mined in the window",
+    "in_window": true,
+    "depth_of_cover_m": [
+     450,
+     500
+    ],
+    "depth_source": "GeoTerra TA35-R1A Table 1",
+    "draw_distance_m": 249.3,
+    "draw_rule": "tan(26.5 deg) x the largest depth of cover over the panel (protocol A angle_of_draw)",
+    "position_sigma_m": 10.0,
+    "mga94_corners": [
+     [
+      278403.5,
+      6214348.2
+     ],
+     [
+      278635.5,
+      6214510.4
+     ],
+     [
+      279998.7,
+      6212562.2
+     ],
+     [
+      279766.7,
+      6212400.1
+     ]
+    ],
+    "measured": {
+     "sides_m": [
+      283.0,
+      2377.7,
+      283.0,
+      2377.7
+     ],
+     "length_m": 2377.7,
+     "width_m": 283.0,
+     "bearing_deg": 145.02,
+     "area_ha": 67.3
+    },
+    "provenance": {
+     "source_pdf": "tahmoor_west_EP_app_A_subsidence_predictions_1.pdf",
+     "source_url": "https://www.tahmoorcolliery.com.au/wp-content/uploads/sites/8/2022/10/11-app-a-subsidence-predictions-1.pdf",
+     "page": 180,
+     "drawing": "MSEC1112-01",
+     "drawing_title": "Western Domain Extraction Plan LW W3-W4, General Layout",
+     "drawing_date": "2021-03-12",
+     "report": "MSEC1112 Rev A (Mar 2021)",
+     "outline": "vector path, stroke #dcdcdc, read from the PDF page (not rasterised)",
+     "georeference": "MGA grid lines on the drawing, values read by eye (georef_drawings.json)",
+     "dimension_check": {
+      "length_diff_m": -2.3,
+      "width_diff_m": 0.0
+     }
+    }
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       150.5953564,
+       -34.1883295
+      ],
+      [
+       150.5979134,
+       -34.1869179
+      ],
+      [
+       150.6121999,
+       -34.2047607
+      ],
+      [
+       150.6096426,
+       -34.2061726
+      ],
+      [
+       150.5953564,
+       -34.1883295
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "TS_S1A",
+    "name": "LW S1A",
+    "mine": "Tahmoor",
+    "domain": "Tahmoor South",
+    "mined_start": "2022-10-18",
+    "mined_end": "2023-07-04",
+    "mined_source": "review_2026-10-08/longwall/notes.md 3.2 (Tahmoor South reports)",
+    "window_status": "mined in the window",
+    "in_window": true,
+    "depth_of_cover_m": [
+     365,
+     410
+    ],
+    "depth_source": "MSEC1192 section 1.2: 365-410 m over LW S1A-S6A, deepest over S1A",
+    "draw_distance_m": 204.4,
+    "draw_rule": "tan(26.5 deg) x the largest depth of cover over the panel (protocol A angle_of_draw)",
+    "position_sigma_m": 10.0,
+    "mga94_corners": [
+     [
+      276546.7,
+      6207047.5
+     ],
+     [
+      276751.3,
+      6207243.0
+     ],
+     [
+      277933.2,
+      6206005.4
+     ],
+     [
+      277728.6,
+      6205810.0
+     ]
+    ],
+    "measured": {
+     "sides_m": [
+      283.0,
+      1711.2,
+      283.0,
+      1711.2
+     ],
+     "length_m": 1711.2,
+     "width_m": 283.0,
+     "bearing_deg": 136.32,
+     "area_ha": 48.43
+    },
+    "provenance": {
+     "source_pdf": "tahmoor_MSEC1192_south_EP_S1A-S6A_RevA.pdf",
+     "source_url": "https://gm3.au/wp-content/uploads/2026/10/MSEC1192-Tahmoor-South-Extraction-Plan-for-LW-S1A-S6A-Rev-A-Final-compressed_Redacted.pdf",
+     "page": 245,
+     "drawing": "MSEC1192-01",
+     "drawing_title": "Tahmoor South Project Extraction Plan LW S1A to LW S6A, General Layout",
+     "drawing_date": "2022-05-12",
+     "report": "MSEC1192 Rev A (May 2022)",
+     "outline": "vector path, stroke #ffbf00, read from the PDF page (not rasterised)",
+     "georeference": "MGA grid lines on the drawing, values read by eye (georef_drawings.json)",
+     "dimension_check": {
+      "width_diff_m": -2.0
+     }
+    },
+    "note": "Planned outline (May 2022); S1A started on 18 Oct 2022, inside A's window."
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       150.5733368,
+       -34.2537159
+      ],
+      [
+       150.575608,
+       -34.2519987
+      ],
+      [
+       150.5881142,
+       -34.2634027
+      ],
+      [
+       150.5858429,
+       -34.2651201
+      ],
+      [
+       150.5733368,
+       -34.2537159
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "AP_LW901",
+    "name": "LW901",
+    "mine": "Appin",
+    "domain": "Area 9",
+    "mined_start": "2016-01-19",
+    "mined_end": "2017-09-08",
+    "mined_source": "MSEC927 Table 1.1 (LW901 End of Panel report)",
+    "window_status": "settling in the window (completed within 6 months before it)",
+    "in_window": true,
+    "depth_of_cover_m": [
+     485,
+     540
+    ],
+    "depth_source": "MSEC927 (LW901 End of Panel) section 1",
+    "draw_distance_m": 269.2,
+    "draw_rule": "tan(26.5 deg) x the largest depth of cover over the panel (protocol A angle_of_draw)",
+    "position_sigma_m": 10.0,
+    "mga94_corners": [
+     [
+      286879.7,
+      6215038.3
+     ],
+     [
+      286867.7,
+      6215343.3
+     ],
+     [
+      288895.0,
+      6215423.0
+     ],
+     [
+      288907.2,
+      6215117.9
+     ]
+    ],
+    "measured": {
+     "sides_m": [
+      305.3,
+      2028.8,
+      305.3,
+      2029.1
+     ],
+     "length_m": 2029.1,
+     "width_m": 305.3,
+     "bearing_deg": 87.75,
+     "area_ha": 61.94
+    },
+    "provenance": {
+     "source_pdf": "appin_MSEC1050_LW902_EoP_report_RevA.pdf",
+     "source_url": "https://gm3.au/wp-content/uploads/2024/07/Attachment-B-MSEC1050-Appin-LW902-End-of-Panel-Report-Rev.-A.pdf",
+     "page": 32,
+     "drawing": "MSEC1050-01",
+     "drawing_title": "Illawarra Coal, Appin Colliery Area 9, General Layout & Monitoring (LW902)",
+     "drawing_date": "2019-07-16",
+     "report": "MSEC1050 Rev A (LW902 End of Panel)",
+     "outline": "vector path, stroke #808080, read from the PDF page (not rasterised)",
+     "georeference": "MGA grid lines on the drawing, values read by eye (georef_drawings.json)",
+     "dimension_check": {
+      "length_diff_m": 1.1,
+      "width_diff_m": 0.3
+     }
+    }
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       150.6874378,
+       -34.1838791
+      ],
+      [
+       150.6873838,
+       -34.1811276
+      ],
+      [
+       150.7093847,
+       -34.1808225
+      ],
+      [
+       150.7094422,
+       -34.1835741
+      ],
+      [
+       150.6874378,
+       -34.1838791
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "AP_LW902",
+    "name": "LW902",
+    "mine": "Appin",
+    "domain": "Area 9",
+    "mined_start": "2018-05-12",
+    "mined_end": "2019-04-03",
+    "mined_source": "LW902 End of Panel Summary Report; drawing MSEC1050-01 labels",
+    "window_status": "mined in the window",
+    "in_window": true,
+    "depth_of_cover_m": [
+     510,
+     590
+    ],
+    "depth_source": "MSEC1050 section 1",
+    "draw_distance_m": 294.2,
+    "draw_rule": "tan(26.5 deg) x the largest depth of cover over the panel (protocol A angle_of_draw)",
+    "position_sigma_m": 10.0,
+    "mga94_corners": [
+     [
+      286842.9,
+      6215387.5
+     ],
+     [
+      286831.0,
+      6215692.3
+     ],
+     [
+      288982.1,
+      6215777.0
+     ],
+     [
+      288994.0,
+      6215471.9
+     ]
+    ],
+    "measured": {
+     "sides_m": [
+      305.0,
+      2152.7,
+      305.3,
+      2152.7
+     ],
+     "length_m": 2152.7,
+     "width_m": 305.0,
+     "bearing_deg": 87.75,
+     "area_ha": 65.69
+    },
+    "provenance": {
+     "source_pdf": "appin_MSEC1050_LW902_EoP_report_RevA.pdf",
+     "source_url": "https://gm3.au/wp-content/uploads/2024/07/Attachment-B-MSEC1050-Appin-LW902-End-of-Panel-Report-Rev.-A.pdf",
+     "page": 32,
+     "drawing": "MSEC1050-01",
+     "drawing_title": "Illawarra Coal, Appin Colliery Area 9, General Layout & Monitoring (LW902)",
+     "drawing_date": "2019-07-16",
+     "report": "MSEC1050 Rev A (LW902 End of Panel)",
+     "outline": "vector path, stroke #ffbf00, read from the PDF page (not rasterised)",
+     "georeference": "MGA grid lines on the drawing, values read by eye (georef_drawings.json)",
+     "dimension_check": {
+      "length_diff_m": -0.3,
+      "width_diff_m": 0.0
+     }
+    }
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       150.6871249,
+       -34.1807244
+      ],
+      [
+       150.6870709,
+       -34.1779753
+      ],
+      [
+       150.7104147,
+       -34.1776499
+      ],
+      [
+       150.7104695,
+       -34.1804014
+      ],
+      [
+       150.6871249,
+       -34.1807244
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "AP_LW903",
+    "name": "LW903",
+    "mine": "Appin",
+    "domain": "Area 9",
+    "mined_start": "2019-11-01",
+    "mined_end": "2021-04-07",
+    "mined_source": "LW903 End of Panel Report",
+    "window_status": "mined in the window",
+    "in_window": true,
+    "depth_of_cover_m": [
+     510,
+     630
+    ],
+    "depth_source": "MSEC1176 section 1",
+    "draw_distance_m": 314.1,
+    "draw_rule": "tan(26.5 deg) x the largest depth of cover over the panel (protocol A angle_of_draw)",
+    "position_sigma_m": 10.0,
+    "mga94_corners": [
+     [
+      286711.9,
+      6215732.8
+     ],
+     [
+      286700.0,
+      6216037.6
+     ],
+     [
+      288995.2,
+      6216127.8
+     ],
+     [
+      289007.4,
+      6215823.0
+     ]
+    ],
+    "measured": {
+     "sides_m": [
+      305.0,
+      2297.0,
+      305.1,
+      2297.3
+     ],
+     "length_m": 2297.3,
+     "width_m": 305.0,
+     "bearing_deg": 87.75,
+     "area_ha": 70.07
+    },
+    "provenance": {
+     "source_pdf": "appin_LW903_EoP_monitoring_review.pdf",
+     "source_url": "https://gm3.au/wp-content/uploads/2024/07/Attachment-B-End-of-Panel-Subsidence-Monitoring-Review-Report-for-Appin-Longwall-903.pdf",
+     "page": 37,
+     "drawing": "MSEC1176-01",
+     "drawing_title": "Illawarra Metallurgical Coal, Appin Colliery LW903, Ground Monitoring Lines",
+     "drawing_date": "2021-07-21",
+     "report": "MSEC1176 (LW903 End of Panel monitoring review)",
+     "outline": "vector path, stroke #ffbf00, read from the PDF page (not rasterised)",
+     "georeference": "MGA grid lines on the drawing, values read by eye (georef_drawings.json)",
+     "dimension_check": {
+      "length_diff_m": 0.3,
+      "width_diff_m": 0.0
+     }
+    }
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       150.6857899,
+       -34.1775862
+      ],
+      [
+       150.6857359,
+       -34.1748371
+      ],
+      [
+       150.7106431,
+       -34.174491
+      ],
+      [
+       150.7107009,
+       -34.1772403
+      ],
+      [
+       150.6857899,
+       -34.1775862
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "AP_LW904",
+    "name": "LW904",
+    "mine": "Appin",
+    "domain": "Area 9",
+    "mined_start": "2021-05-20",
+    "mined_end": "2022-08-09",
+    "mined_source": "LW904 End of Panel Summary Report",
+    "window_status": "mined in the window",
+    "in_window": true,
+    "depth_of_cover_m": [
+     535,
+     630
+    ],
+    "depth_source": "MSEC1285 section 1",
+    "draw_distance_m": 314.1,
+    "draw_rule": "tan(26.5 deg) x the largest depth of cover over the panel (protocol A angle_of_draw)",
+    "position_sigma_m": 10.0,
+    "mga94_corners": [
+     [
+      286619.9,
+      6216079.7
+     ],
+     [
+      286606.8,
+      6216403.5
+     ],
+     [
+      288645.2,
+      6216483.6
+     ],
+     [
+      288657.9,
+      6216159.8
+     ]
+    ],
+    "measured": {
+     "sides_m": [
+      324.1,
+      2039.9,
+      324.1,
+      2039.6
+     ],
+     "length_m": 2039.9,
+     "width_m": 324.1,
+     "bearing_deg": 87.75,
+     "area_ha": 66.1
+    },
+    "provenance": {
+     "source_pdf": "appin_LW904_EoP_monitoring_review.pdf",
+     "source_url": "https://gm3.au/wp-content/uploads/2024/07/Attachment-B-Appin-LW904-Subsidence-Monitoring-Review.pdf",
+     "page": 39,
+     "drawing": "MSEC1285-01",
+     "drawing_title": "Illawarra Metallurgical Coal, Appin Colliery LW904, Ground Monitoring Lines",
+     "drawing_date": "2022-12-15",
+     "report": "MSEC1285 (LW904 End of Panel monitoring review)",
+     "outline": "vector path, stroke #ffbf00, read from the PDF page (not rasterised)",
+     "georeference": "affine fit to panels read on gridded drawings (georef_drawings.json)",
+     "dimension_check": {
+      "length_diff_m": 1.9,
+      "width_diff_m": -0.9
+     }
+    }
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       150.6848774,
+       -34.1744414
+      ],
+      [
+       150.6848157,
+       -34.1715208
+      ],
+      [
+       150.7069344,
+       -34.1712142
+      ],
+      [
+       150.7069934,
+       -34.1741348
+      ],
+      [
+       150.6848774,
+       -34.1744414
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "AP_LW905",
+    "name": "LW905",
+    "mine": "Appin",
+    "domain": "Area 9",
+    "mined_start": "2022-09-25",
+    "mined_end": "2023-02-28",
+    "mined_source": "review_2026-10-08/longwall/notes.md 3.1; drawing MSEC1334-01 labels",
+    "window_status": "mined in the window",
+    "in_window": true,
+    "depth_of_cover_m": [
+     585,
+     715
+    ],
+    "depth_source": "MSEC1334 section 1",
+    "draw_distance_m": 356.5,
+    "draw_rule": "tan(26.5 deg) x the largest depth of cover over the panel (protocol A angle_of_draw)",
+    "position_sigma_m": 10.0,
+    "mga94_corners": [
+     [
+      287421.1,
+      6216492.0
+     ],
+     [
+      287408.4,
+      6216816.4
+     ],
+     [
+      288265.6,
+      6216850.0
+     ],
+     [
+      288278.3,
+      6216525.9
+     ]
+    ],
+    "measured": {
+     "sides_m": [
+      324.7,
+      857.8,
+      324.4,
+      857.8
+     ],
+     "length_m": 857.8,
+     "width_m": 324.4,
+     "bearing_deg": 87.74,
+     "area_ha": 27.84
+    },
+    "provenance": {
+     "source_pdf": "appin_LW905_EoP_monitoring_review.pdf",
+     "source_url": "https://gm3.au/wp-content/uploads/2024/07/Attachment-B-Appin-LW905-Subsidence-Monitoring-Review.pdf",
+     "page": 41,
+     "drawing": "MSEC1334-01",
+     "drawing_title": "Illawarra Metallurgical Coal, Appin Colliery LW905, Ground Monitoring Lines",
+     "drawing_date": "2023-06-15",
+     "report": "MSEC1334 (LW905 End of Panel monitoring review)",
+     "outline": "vector path, stroke #ffbf00, read from the PDF page (not rasterised)",
+     "georeference": "MGA grid lines on the drawing, values read by eye (georef_drawings.json)",
+     "dimension_check": {
+      "length_diff_m": -0.2,
+      "width_diff_m": -0.6
+     }
+    }
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       150.6936656,
+       -34.1708897
+      ],
+      [
+       150.6936075,
+       -34.1679636
+      ],
+      [
+       150.7029083,
+       -34.1678355
+      ],
+      [
+       150.7029668,
+       -34.1707588
+      ],
+      [
+       150.6936656,
+       -34.1708897
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "AP_LW707A",
+    "name": "LW707A",
+    "mine": "Appin",
+    "domain": "Area 7",
+    "mined_start": "2016-01-07",
+    "mined_end": "2016-08-18",
+    "mined_source": "drawing MSEC975-01 labels (start 7-Jan-2016, finish 18-Aug-2016)",
+    "window_status": "outside the window",
+    "in_window": false,
+    "depth_of_cover_m": [
+     475,
+     600
+    ],
+    "depth_source": "MSEC975 section 1 (LW707A-B)",
+    "draw_distance_m": 299.1,
+    "draw_rule": "tan(26.5 deg) x the largest depth of cover over the panel (protocol A angle_of_draw)",
+    "position_sigma_m": 10.0,
+    "mga94_corners": [
+     [
+      289190.2,
+      6216695.6
+     ],
+     [
+      289047.5,
+      6216986.5
+     ],
+     [
+      289976.2,
+      6217442.0
+     ],
+     [
+      290118.9,
+      6217151.2
+     ]
+    ],
+    "measured": {
+     "sides_m": [
+      324.0,
+      1034.5,
+      324.0,
+      1034.5
+     ],
+     "length_m": 1034.5,
+     "width_m": 324.0,
+     "bearing_deg": 63.87,
+     "area_ha": 33.51
+    },
+    "provenance": {
+     "source_pdf": "appin_LW707_monitoring_report.pdf",
+     "source_url": "https://gm3.au/wp-content/uploads/2024/07/Attachment-B-7-Longwall-707-Subsidence-Monitoring-Report.pdf",
+     "page": 51,
+     "drawing": "MSEC975-01",
+     "drawing_title": "Illawarra Coal, LW707 End of Panel, General Layout and Monitoring Lines",
+     "drawing_date": "2018-10-11",
+     "report": "MSEC975 (LW707 subsidence monitoring report)",
+     "outline": "vector path, stroke #ffbf00, read from the PDF page (not rasterised)",
+     "georeference": "MGA grid lines on the drawing, values read by eye (georef_drawings.json)",
+     "dimension_check": {
+      "length_diff_m": -0.5,
+      "width_diff_m": 0.0
+     }
+    }
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       150.7128946,
+       -34.1694142
+      ],
+      [
+       150.7114185,
+       -34.1667642
+      ],
+      [
+       150.7215978,
+       -34.1628465
+      ],
+      [
+       150.7230741,
+       -34.1654962
+      ],
+      [
+       150.7128946,
+       -34.1694142
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "AP_LW707B",
+    "name": "LW707B",
+    "mine": "Appin",
+    "domain": "Area 7",
+    "mined_start": "2016-09-26",
+    "mined_end": "2018-06-19",
+    "mined_source": "drawing MSEC975-01 labels (start 26-Sep-2016, finish 19-Jun-2018)",
+    "window_status": "mined in the window",
+    "in_window": true,
+    "depth_of_cover_m": [
+     475,
+     600
+    ],
+    "depth_source": "MSEC975 section 1 (LW707A-B)",
+    "draw_distance_m": 299.1,
+    "draw_rule": "tan(26.5 deg) x the largest depth of cover over the panel (protocol A angle_of_draw)",
+    "position_sigma_m": 10.0,
+    "mga94_corners": [
+     [
+      290327.2,
+      6217253.2
+     ],
+     [
+      290184.5,
+      6217544.0
+     ],
+     [
+      292042.0,
+      6218455.1
+     ],
+     [
+      292184.3,
+      6218163.9
+     ]
+    ],
+    "measured": {
+     "sides_m": [
+      324.0,
+      2068.9,
+      324.1,
+      2068.4
+     ],
+     "length_m": 2068.9,
+     "width_m": 324.0,
+     "bearing_deg": 63.87,
+     "area_ha": 67.04
+    },
+    "provenance": {
+     "source_pdf": "appin_LW707_monitoring_report.pdf",
+     "source_url": "https://gm3.au/wp-content/uploads/2024/07/Attachment-B-7-Longwall-707-Subsidence-Monitoring-Report.pdf",
+     "page": 51,
+     "drawing": "MSEC975-01",
+     "drawing_title": "Illawarra Coal, LW707 End of Panel, General Layout and Monitoring Lines",
+     "drawing_date": "2018-10-11",
+     "report": "MSEC975 (LW707 subsidence monitoring report)",
+     "outline": "vector path, stroke #ffbf00, read from the PDF page (not rasterised)",
+     "georeference": "MGA grid lines on the drawing, values read by eye (georef_drawings.json)",
+     "dimension_check": {
+      "length_diff_m": -1.1,
+      "width_diff_m": 0.0
+     }
+    }
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       150.7253567,
+       -34.1646188
+      ],
+      [
+       150.7238803,
+       -34.1619689
+      ],
+      [
+       150.7442357,
+       -34.1541306
+      ],
+      [
+       150.7457077,
+       -34.1567837
+      ],
+      [
+       150.7253567,
+       -34.1646188
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "AP_LW708A",
+    "name": "LW708A",
+    "mine": "Appin",
+    "domain": "Area 7",
+    "mined_start": "2019-04-02",
+    "mined_end": "2022-01-03",
+    "mined_source": "LW708 End of Panel Summary Report (LW708A+B together: 2 Apr 2019 - 3 Jan 2022)",
+    "window_status": "mined in the window",
+    "in_window": true,
+    "depth_of_cover_m": [
+     515,
+     620
+    ],
+    "depth_source": "MSEC1250 section 1 (LW708A-B)",
+    "draw_distance_m": 309.1,
+    "draw_rule": "tan(26.5 deg) x the largest depth of cover over the panel (protocol A angle_of_draw)",
+    "position_sigma_m": 10.0,
+    "mga94_corners": [
+     [
+      288907.1,
+      6216967.4
+     ],
+     [
+      288764.4,
+      6217258.7
+     ],
+     [
+      289842.5,
+      6217787.0
+     ],
+     [
+      289985.2,
+      6217496.2
+     ]
+    ],
+    "measured": {
+     "sides_m": [
+      324.4,
+      1200.6,
+      324.0,
+      1200.8
+     ],
+     "length_m": 1200.8,
+     "width_m": 324.0,
+     "bearing_deg": 63.87,
+     "area_ha": 38.92
+    },
+    "provenance": {
+     "source_pdf": "appin_LW708_subsidence_assessment.pdf",
+     "source_url": "https://gm3.au/wp-content/uploads/2024/07/Attachment-D-LW708-Subsidence-Assessment.pdf",
+     "page": 44,
+     "drawing": "MSEC1250-01",
+     "drawing_title": "Illawarra Metallurgical Coal, LW708 End of Panel, General Layout and Monitoring Lines",
+     "drawing_date": "2022-04-28",
+     "report": "MSEC1250 (LW708 subsidence assessment)",
+     "outline": "vector path, stroke #ffbf00, read from the PDF page (not rasterised)",
+     "georeference": "MGA grid lines on the drawing, values read by eye (georef_drawings.json)",
+     "dimension_check": {
+      "length_diff_m": 0.8,
+      "width_diff_m": 0.0
+     }
+    }
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       150.7098915,
+       -34.1669075
+      ],
+      [
+       150.7084157,
+       -34.1642537
+      ],
+      [
+       150.7202318,
+       -34.1597102
+      ],
+      [
+       150.721708,
+       -34.1623599
+      ],
+      [
+       150.7098915,
+       -34.1669075
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "AP_LW708B",
+    "name": "LW708B",
+    "mine": "Appin",
+    "domain": "Area 7",
+    "mined_start": "2019-04-02",
+    "mined_end": "2022-01-03",
+    "mined_source": "LW708 End of Panel Summary Report (LW708A+B together: 2 Apr 2019 - 3 Jan 2022)",
+    "window_status": "mined in the window",
+    "in_window": true,
+    "depth_of_cover_m": [
+     515,
+     620
+    ],
+    "depth_source": "MSEC1250 section 1 (LW708A-B)",
+    "draw_distance_m": 309.1,
+    "draw_rule": "tan(26.5 deg) x the largest depth of cover over the panel (protocol A angle_of_draw)",
+    "position_sigma_m": 10.0,
+    "mga94_corners": [
+     [
+      290129.1,
+      6217566.9
+     ],
+     [
+      289986.5,
+      6217857.7
+     ],
+     [
+      292014.1,
+      6218852.3
+     ],
+     [
+      292157.1,
+      6218560.6
+     ]
+    ],
+    "measured": {
+     "sides_m": [
+      323.9,
+      2258.4,
+      324.9,
+      2258.4
+     ],
+     "length_m": 2258.4,
+     "width_m": 323.9,
+     "bearing_deg": 63.9,
+     "area_ha": 73.27
+    },
+    "provenance": {
+     "source_pdf": "appin_LW708_subsidence_assessment.pdf",
+     "source_url": "https://gm3.au/wp-content/uploads/2024/07/Attachment-D-LW708-Subsidence-Assessment.pdf",
+     "page": 44,
+     "drawing": "MSEC1250-01",
+     "drawing_title": "Illawarra Metallurgical Coal, LW708 End of Panel, General Layout and Monitoring Lines",
+     "drawing_date": "2022-04-28",
+     "report": "MSEC1250 (LW708 subsidence assessment)",
+     "outline": "vector path, stroke #ffbf00, read from the PDF page (not rasterised)",
+     "georeference": "MGA grid lines on the drawing, values read by eye (georef_drawings.json)",
+     "dimension_check": {
+      "length_diff_m": -1.6,
+      "width_diff_m": -0.1
+     }
+    }
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       150.7232852,
+       -34.1617518
+      ],
+      [
+       150.7218093,
+       -34.1591021
+      ],
+      [
+       150.7440276,
+       -34.1505461
+      ],
+      [
+       150.7455086,
+       -34.1532033
+      ],
+      [
+       150.7232852,
+       -34.1617518
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "AP_LW709",
+    "name": "LW709",
+    "mine": "Appin",
+    "domain": "Area 7",
+    "mined_start": "2022-02-22",
+    "mined_end": "2023-10-08",
+    "mined_source": "drawing MSEC1394-01 labels (start 22-Feb-2022, end 8-Oct-2023)",
+    "window_status": "mined in the window",
+    "in_window": true,
+    "depth_of_cover_m": [
+     530,
+     615
+    ],
+    "depth_source": "MSEC1394 section 1",
+    "draw_distance_m": 306.6,
+    "draw_rule": "tan(26.5 deg) x the largest depth of cover over the panel (protocol A angle_of_draw)",
+    "position_sigma_m": 10.0,
+    "mga94_corners": [
+     [
+      288626.0,
+      6217240.7
+     ],
+     [
+      288482.8,
+      6217533.2
+     ],
+     [
+      290834.0,
+      6218684.3
+     ],
+     [
+      290976.5,
+      6218393.0
+     ]
+    ],
+    "measured": {
+     "sides_m": [
+      325.6,
+      2617.8,
+      324.3,
+      2617.8
+     ],
+     "length_m": 2617.8,
+     "width_m": 324.3,
+     "bearing_deg": 63.91,
+     "area_ha": 85.07
+    },
+    "provenance": {
+     "source_pdf": "appin_LW709_subsidence_assessment.pdf",
+     "source_url": "https://gm3.au/wp-content/uploads/2024/07/attachment-c-longwall-709-subsidence-assessment.pdf",
+     "page": 46,
+     "drawing": "MSEC1394-01",
+     "drawing_title": "Appin Colliery, End of Panel LW709, Ground Monitoring Lines",
+     "drawing_date": "2024-01-23",
+     "report": "MSEC1394 (LW709 subsidence assessment)",
+     "outline": "vector path, stroke #ffbf00, read from the PDF page (not rasterised)",
+     "georeference": "MGA grid lines on the drawing, values read by eye (georef_drawings.json)",
+     "dimension_check": {
+      "length_diff_m": 2.8,
+      "width_diff_m": 0.3
+     }
+    }
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       150.7069106,
+       -34.1643874
+      ],
+      [
+       150.70543,
+       -34.1617228
+      ],
+      [
+       150.7311958,
+       -34.1518237
+      ],
+      [
+       150.7326709,
+       -34.1544774
+      ],
+      [
+       150.7069106,
+       -34.1643874
+      ]
+     ]
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,312 @@
+{
+ "appin_APNSVY00237_LW709-711_905_EP_variation_approved_plan_MGA2020.pdf": {
+  "url": "https://gm3.au/wp-content/uploads/2025/02/APNSVY00237-LWs-709-711-and-LW905-Extraction-Plan-VARIATION-Approved-Plan-MGA2020-signed.pdf",
+  "bytes": 932169,
+  "sha256": "37f00f6858ade082754053ac5431d8f241891fc6cb2bacc1e58fd2f534a661a5",
+  "retrieved": "2026-10-08",
+  "url_check_2026_10_08": {
+   "http": "200",
+   "content_length": 932169,
+   "same_size": true
+  }
+ },
+ "appin_APNSVY00238_LW709-711_905_EP_variation_plan2_surface_features_MGA2020.pdf": {
+  "url": "https://gm3.au/wp-content/uploads/2025/02/APNSVY00238-LWs-709-711-and-LW905-Extraction-Plan-VARIATION-Plan-2-Surface-Features-MGA2020.pdf",
+  "bytes": 2716470,
+  "sha256": "55d60d577cceca8db56b683268f5090695597b9676310ab866ba0fe27b3caad6",
+  "retrieved": "2026-10-08",
+  "url_check_2026_10_08": {
+   "http": "200",
+   "content_length": 2716470,
+   "same_size": true
+  }
+ },
+ "appin_APNSVY00250_LW709-711_905_EP_variation_plan3_geology_MGA2020.pdf": {
+  "url": "https://gm3.au/wp-content/uploads/2025/02/APNSVY00250-LWs-709-711-and-LW905-Extraction-Plan-VARIATION-Plan-3-Geology-MGA2020.pdf",
+  "bytes": 1931011,
+  "sha256": "cc250b9a4c464f78b55cc9fdea71f0e5fcf2f5ac42f48445c887348fcdee68ae",
+  "retrieved": "2026-10-08",
+  "url_check_2026_10_08": {
+   "http": "200",
+   "content_length": 1931011,
+   "same_size": true
+  }
+ },
+ "appin_LW707_monitoring_report.pdf": {
+  "url": "https://gm3.au/wp-content/uploads/2024/07/Attachment-B-7-Longwall-707-Subsidence-Monitoring-Report.pdf",
+  "bytes": 8604742,
+  "sha256": "ed2f88f441a3ba902d5ef756faba60af7563cc6d0a5f41594d7968f119441690",
+  "retrieved": "2026-10-08",
+  "url_check_2026_10_08": {
+   "http": "200",
+   "content_length": 8604742,
+   "same_size": true
+  }
+ },
+ "appin_LW708_EoP_summary.pdf": {
+  "url": "https://gm3.au/wp-content/uploads/2024/07/Appin-Longwall-708-End-of-Panel-Summary-Report.pdf",
+  "bytes": 10058910,
+  "sha256": "8fc0f0dbb9755d565c9bc9392d2ec661b176fd203f4e04bf88169302359f3b05",
+  "retrieved": "2026-10-08",
+  "url_check_2026_10_08": {
+   "http": "200",
+   "content_length": 10058910,
+   "same_size": true
+  }
+ },
+ "appin_LW708_subsidence_assessment.pdf": {
+  "url": "https://gm3.au/wp-content/uploads/2024/07/Attachment-D-LW708-Subsidence-Assessment.pdf",
+  "bytes": 8661124,
+  "sha256": "16b2407ceb3a808e68f803af9d4dc9a8d33ee578f45f7f90e4b803e5d776d726",
+  "retrieved": "2026-10-08",
+  "url_check_2026_10_08": {
+   "http": "200",
+   "content_length": 8661124,
+   "same_size": true
+  }
+ },
+ "appin_LW709_subsidence_assessment.pdf": {
+  "url": "https://gm3.au/wp-content/uploads/2024/07/attachment-c-longwall-709-subsidence-assessment.pdf",
+  "bytes": 6086729,
+  "sha256": "3a870eb2e642dfdf42551545de5e3538c4631212e965b071afaf7ec10c29fe83",
+  "retrieved": "2026-10-08",
+  "url_check_2026_10_08": {
+   "http": "200",
+   "content_length": 6086729,
+   "same_size": true
+  }
+ },
+ "appin_LW901_MSEC_EoP_report.pdf": {
+  "url": "https://gm3.au/wp-content/uploads/2024/07/Attachment-B-Longwall-901-MSEC-End-of-Panel-Report.pdf",
+  "bytes": 7539191,
+  "sha256": "36739f236a7fd7149ffb7aab55ae1ee9eeccaf9ccdd6fbd1eacb2e42fdaa1a1f",
+  "retrieved": "2026-10-08",
+  "url_check_2026_10_08": {
+   "http": "200",
+   "content_length": 7539191,
+   "same_size": true
+  }
+ },
+ "appin_LW902_EoP_summary.pdf": {
+  "url": "https://gm3.au/wp-content/uploads/2024/07/LW902_EOP_Summary_Report.pdf",
+  "bytes": 6889676,
+  "sha256": "2e46a125cc85901f4b0f11f6d36a06ff2293b8fdfc9bec003c4916a281c3cfbb",
+  "retrieved": "2026-10-08",
+  "url_check_2026_10_08": {
+   "http": "200",
+   "content_length": 6889676,
+   "same_size": true
+  }
+ },
+ "appin_LW903_EoP_monitoring_review.pdf": {
+  "url": "https://gm3.au/wp-content/uploads/2024/07/Attachment-B-End-of-Panel-Subsidence-Monitoring-Review-Report-for-Appin-Longwall-903.pdf",
+  "bytes": 7974182,
+  "sha256": "2ae3bd527276feb9ce19936abacbb177b32479a39466da41a267176c355cf5c5",
+  "retrieved": "2026-10-08",
+  "url_check_2026_10_08": {
+   "http": "200",
+   "content_length": 7974182,
+   "same_size": true
+  }
+ },
+ "appin_LW903_EoP_report.pdf": {
+  "url": "https://gm3.au/wp-content/uploads/2024/07/Appin-Longwall-903-End-of-Panel-Report.pdf",
+  "bytes": 3042601,
+  "sha256": "7d31e9e786bfd8c0550676516a483cfa4df1fc35d22fd5bc6daff54fbe5b1f89",
+  "retrieved": "2026-10-08",
+  "url_check_2026_10_08": {
+   "http": "200",
+   "content_length": 3042601,
+   "same_size": true
+  }
+ },
+ "appin_LW904_EoP_monitoring_review.pdf": {
+  "url": "https://gm3.au/wp-content/uploads/2024/07/Attachment-B-Appin-LW904-Subsidence-Monitoring-Review.pdf",
+  "bytes": 10567467,
+  "sha256": "c285b2f87a6d20d9caa6c60774f63cbf3f32fb9694a387331be680fe1b5221ef",
+  "retrieved": "2026-10-08",
+  "url_check_2026_10_08": {
+   "http": "200",
+   "content_length": 10567467,
+   "same_size": true
+  }
+ },
+ "appin_LW904_EoP_summary.pdf": {
+  "url": "https://gm3.au/wp-content/uploads/2024/07/Appin-LW904-End-of-Panel-Summary-Report.pdf",
+  "bytes": 2895791,
+  "sha256": "5cd71bab4c1625a77cc1e1f1b304c6ddfd58ffe1f6b9ab20a3da3c0bbe4386a2",
+  "retrieved": "2026-10-08",
+  "url_check_2026_10_08": {
+   "http": "200",
+   "content_length": 2895791,
+   "same_size": true
+  }
+ },
+ "appin_LW905_EoP_monitoring_review.pdf": {
+  "url": "https://gm3.au/wp-content/uploads/2024/07/Attachment-B-Appin-LW905-Subsidence-Monitoring-Review.pdf",
+  "bytes": 10482494,
+  "sha256": "078bdbc41f2364b4800cab7c835ee9dd051fc05d2233799ef0c06022d19b0115",
+  "retrieved": "2026-10-08",
+  "url_check_2026_10_08": {
+   "http": "200",
+   "content_length": 10482494,
+   "same_size": true
+  }
+ },
+ "appin_MSEC1050_LW902_EoP_report_RevA.pdf": {
+  "url": "https://gm3.au/wp-content/uploads/2024/07/Attachment-B-MSEC1050-Appin-LW902-End-of-Panel-Report-Rev.-A.pdf",
+  "bytes": 5076299,
+  "sha256": "33c14eb67f7b53acce32ff5f39110d5a733e54c44d804c0f3811c866f5739211",
+  "retrieved": "2026-10-08",
+  "url_check_2026_10_08": {
+   "http": "200",
+   "content_length": 5076299,
+   "same_size": true
+  }
+ },
+ "appin_area9_LW901-904_extraction_plan.pdf": {
+  "url": "https://gm3.au/wp-content/uploads/2024/06/appin-area-9-longwalls-901-904-extraction-plan.pdf",
+  "bytes": 2255314,
+  "sha256": "7eae707581b168a597f7708091a99cc500527f6e0b85310031b14781eaad6283",
+  "retrieved": "2026-10-08",
+  "url_check_2026_10_08": {
+   "http": "200",
+   "content_length": 2255314,
+   "same_size": true
+  }
+ },
+ "tahmoor_MSEC1192_south_EP_S1A-S6A_RevA.pdf": {
+  "url": "https://gm3.au/wp-content/uploads/2026/10/MSEC1192-Tahmoor-South-Extraction-Plan-for-LW-S1A-S6A-Rev-A-Final-compressed_Redacted.pdf",
+  "bytes": 27939790,
+  "sha256": "3079310728b786641f44ed8909060ac51018280aa0f10f8a8f713d2a2c1904d2",
+  "retrieved": "2026-10-08",
+  "url_check_2026_10_08": {
+   "http": "200",
+   "content_length": 27939790,
+   "same_size": true
+  }
+ },
+ "tahmoor_annual_review_2019.pdf": {
+  "url": "https://gm3.au/wp-content/uploads/2026/09/Annual-Review-Report-–-Tahmoor-–-2019.pdf",
+  "bytes": 28664819,
+  "sha256": "99c93fe01d400ea98cffd8525ee5bef232259fb1a59bd15a9e554f81ab270674",
+  "retrieved": "2026-10-08",
+  "url_check_2026_10_08": {
+   "http": "200",
+   "content_length": 28664819,
+   "same_size": true
+  }
+ },
+ "tahmoor_west_EP_app_A_subsidence_predictions.pdf": {
+  "url": "https://www.tahmoorcolliery.com.au/wp-content/uploads/sites/8/2022/10/11-app-a-subsidence-predictions.pdf",
+  "bytes": 25376337,
+  "sha256": "114babfcf6d63292bfe0b798b094998ec14bb9b8353bacbb8d63ea2ca01d21c0",
+  "retrieved": "2026-10-08",
+  "note": "MSEC1019 Rev B (Jun 2019), Appendix A of the Tahmoor Western Domain LW W1-W2 Extraction Plan. Found by web search at the tahmoorcolliery.com.au URL; that URL answered 404 to a HEAD request on 8 Oct 2026 after the file was fetched, so the copy here is identified by its content (title page) and sha256.",
+  "url_check_2026_10_08": {
+   "http": "404",
+   "content_length": null,
+   "same_size": null
+  }
+ },
+ "tahmoor_west_EP_app_A_subsidence_predictions_1.pdf": {
+  "url": "https://www.tahmoorcolliery.com.au/wp-content/uploads/sites/8/2022/10/11-app-a-subsidence-predictions-1.pdf",
+  "bytes": 22288681,
+  "sha256": "7695b16c8923505d7d254572e575c46fb8d2fcfd35824016a325e7b7421d371f",
+  "retrieved": "2026-10-08",
+  "note": "MSEC1112 Rev A (Mar 2021), Appendix A of the Tahmoor Western Domain LW W3-W4 Extraction Plan (TAH-HSEC-326, Aug 2021 Ver2). Same remark as MSEC1019 about the URL.",
+  "url_check_2026_10_08": {
+   "http": "404",
+   "content_length": null,
+   "same_size": null
+  }
+ },
+ "tahmoor_west_report_1.pdf": {
+  "url": "https://gm3.au/wp-content/uploads/2026/09/Report-1-–-15-November-2019-to-5-May-2020-for-Longwalls-West-1-and-West-2.pdf",
+  "bytes": 4765339,
+  "sha256": "57531f970462eb7032ae813215f5baee4560428f2a0edd04034ac8f90743568c",
+  "retrieved": "2026-10-08",
+  "url_check_2026_10_08": {
+   "http": "200",
+   "content_length": 4765339,
+   "same_size": true
+  }
+ },
+ "tahmoor_west_report_2.pdf": {
+  "url": "https://gm3.au/wp-content/uploads/2026/09/Report-2-–-8-April-2020-to-6-November-2020-for-Longwalls-West-1-and-West-2.pdf",
+  "bytes": 4937294,
+  "sha256": "ce1311029b1dd9956ba86d8405e8109853d8bd570c6d7258a5f50c7ecfecd9c1",
+  "retrieved": "2026-10-08",
+  "url_check_2026_10_08": {
+   "http": "200",
+   "content_length": 4937294,
+   "same_size": true
+  }
+ },
+ "tahmoor_west_report_3.pdf": {
+  "url": "https://gm3.au/wp-content/uploads/2026/09/Report-3-–-13-October-2020-to-21-April-2021-for-Longwalls-West-1-and-West-2.pdf",
+  "bytes": 7327651,
+  "sha256": "4b7e049eb67f48cd60f459a18bd1739efc4bc39c3fbfabafeaea64f53162fb59",
+  "retrieved": "2026-10-08",
+  "url_check_2026_10_08": {
+   "http": "200",
+   "content_length": 7327651,
+   "same_size": true
+  }
+ },
+ "tahmoor_west_report_4.pdf": {
+  "url": "https://gm3.au/wp-content/uploads/2026/09/Report-4-–-1-April-2021-to-20-October-2021-for-Longwalls-West-1-to-West-4.pdf",
+  "bytes": 6439985,
+  "sha256": "9a980b6625b690b555a6c853799c4a7b780d3cc7a55059b238a93862ab18f820",
+  "retrieved": "2026-10-08",
+  "url_check_2026_10_08": {
+   "http": "200",
+   "content_length": 6439985,
+   "same_size": true
+  }
+ },
+ "tahmoor_west_report_5.pdf": {
+  "url": "https://gm3.au/wp-content/uploads/2026/09/Report-5-–-1-October-2021-to-15-May-2022-for-Longwalls-West-1-to-West-4.pdf",
+  "bytes": 34382475,
+  "sha256": "39f137488e41e91fdde082dd97fa95715e74e1edb29cb135d3c3766640ab4bd2",
+  "retrieved": "2026-10-08",
+  "url_check_2026_10_08": {
+   "http": "200",
+   "content_length": 34382475,
+   "same_size": true
+  }
+ },
+ "tahmoor_west_report_6.pdf": {
+  "url": "https://gm3.au/wp-content/uploads/2026/09/Report-6-–-25-March-2022-to-18-November-2022-for-Longwalls-West-1-to-West-4.pdf",
+  "bytes": 4868477,
+  "sha256": "5f4bf7490e6c6bb5028681829a8e31ae938ea00662c48c0244beaa16921a4153",
+  "retrieved": "2026-10-08",
+  "url_check_2026_10_08": {
+   "http": "200",
+   "content_length": 4868477,
+   "same_size": true
+  }
+ },
+ "tahmoor_west_report_7.pdf": {
+  "url": "https://gm3.au/wp-content/uploads/2026/09/Report-7-–-1-January-2022-to-31-December-2022-for-Longwalls-West-1-to-West-4.pdf",
+  "bytes": 33516579,
+  "sha256": "2cd5e1240d251e06003b24f2e769e241d769e60bd845b9c60553efa621694728",
+  "retrieved": "2026-10-08",
+  "url_check_2026_10_08": {
+   "http": "200",
+   "content_length": 33516579,
+   "same_size": true
+  }
+ },
+ "tahmoor_west_report_8.pdf": {
+  "url": "https://gm3.au/wp-content/uploads/2026/09/Report-8-–-1-January-2023-to-30-June-2023-for-Longwalls-West-1-to-West-4.pdf",
+  "bytes": 21897057,
+  "sha256": "30f7532f980c217872eba7a071aa88f7ed204383a24c1dbaa98973b43f93073d",
+  "retrieved": "2026-10-08",
+  "url_check_2026_10_08": {
+   "http": "200",
+   "content_length": 21897057,
+   "same_size": true
+  }
+ }
+}

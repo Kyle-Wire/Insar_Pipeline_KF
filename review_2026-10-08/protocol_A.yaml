@@ -1,0 +1,767 @@
+# =============================================================================
+# VALIDATION PROTOCOL - EXPERIMENT A (longwall), Appin LW902 + Tahmoor West, NSW
+# =============================================================================
+# Written 8 Oct 2026 (P0.1), BEFORE any experiment data were downloaded or
+# processed. Nothing in it may be changed after the first comparison output of
+# any A run exists, except through `amendments` at the end (dated, with the
+# reason), and every statistic is then reported under BOTH versions. This is
+# what stops validation turning into tuning (gaps/notes.md 5).
+# The sha256 of this file as fixed is recorded in configs/experiments/README.md.
+# Independent review, 8 Oct 2026, before any run or download: the coherence
+# part of the F2 flag is a LOCAL hole (scene-wide low coherence flagged nearly
+# everything), the flagged share is reported beside the honest-or-flagged row,
+# the Tahmoor West reference is stated per component, A3's LW903 start date is
+# defined. No threshold, station role or radius changed.
+#
+# Source: review_2026-10-08/PLAN.md sections 1A, 2, 5.1-5.3, and the research
+# it cites (longwall/notes.md, longwall_check/*.out|*.log). Kyle's decisions of
+# 8 Oct 2026: A = Appin LW902 + Tahmoor West box, DES-147 = A1, ASC-9 = A3;
+# the Tahmoor West GNSS plots will be digitised (phase 2, T1).
+#
+# Read by: the validation harness (PLAN phase 1, V1; not written yet). Field
+# names are the harness's input; prose fields say what the harness must do.
+# Units: mm, mm/yr, m, km, degrees; dates YYYY-MM-DD (UTC acquisition day).
+# =============================================================================
+
+protocol: A
+version: 1
+fixed_on: "2026-10-08"
+status: fixed
+looked_at_before_fixing: >-
+  Only metadata (ASF burst and scene catalogue, NGL station inventory) and the
+  published truth summaries quoted in PLAN.md (GA CEMP report figures, end-of-
+  panel report maxima, Tahmoor Report 8 maxima). No InSAR product of this site
+  from this pipeline, OPERA DISP-S1 or NISAR had been read.
+question: >-
+  Is the cumulative displacement over a longwall panel right, and where C-band
+  aliases, does the pipeline FLAG it (mask or aliasing flag) instead of
+  reporting a wrong number? The honest-or-flagged test (unflagged-failure
+  rate) matters more than the peak ratio.
+
+# ---------------------------------------------------------------- site
+site:
+  name: "Appin Areas 7/9 + Tahmoor West, Southern Coalfield, NSW"
+  aoi:
+    bbox_wsen: [150.55, -34.30, 150.78, -34.14]      # 21 x 18 km
+    crs: "EPSG:4326"
+    processed_crop: "bbox + 0.05 deg on every side (stack_bbox_margin_deg); harness may sample anywhere in it"
+    utm_epsg: 32756                                   # WGS 84 / UTM 56S, for metric distances
+  deforming_area_approx: configs/experiments/context/appin_tahmoor_deforming_APPROX.geojson
+  deforming_area_note: >-
+    APPROXIMATE hand-drawn envelopes (panels + angle of draw + outline
+    uncertainty) used by the RUN for the deramp exclusion, far field and
+    reference-pixel rule only. Every panel-based statistic below (stable ring,
+    panel coverage, peak ratio lines) uses the outlines digitised in T1 from the
+    Extraction Plan drawings, not these envelopes.
+  angle_of_draw:
+    degrees: 26.5                                     # NSW Southern Coalfield convention (20 mm limit)
+    draw_distance: "0.5 x depth of cover at the panel; 300 m where the depth is not stated (depth 490-600 m at Appin)"
+
+window:
+  start: "2017-11-01"
+  end: "2022-12-31"
+  note: "A1 window. A3 (ASC-9) starts 2019-11-01: ASC-9 exists only from 2019-04-07."
+
+# ---------------------------------------------------------------- runs
+runs:
+  A1:
+    data: "Sentinel-1 DES-147, IW1+IW2 (147_314881/314882), phase-linked (official route)"
+    config: configs/experiments/exp_a1_appin_des147.yaml
+    window: ["2017-11-01", "2022-12-31"]
+    dates_expected: 143
+    role: primary
+  A1b:
+    data: "A1 re-linked with smaller MiaplPy windows (PLAN F3), before A1's level-2 cleanup"
+    config: "not written yet (phase 2)"
+    role: "sensitivity: does a smaller phase-linking support recover the flanks"
+  A2:
+    data: "OPERA DISP-S1 F39360 (DES-147) through disp_record_chain on A1's grid"
+    config: "not written yet (P0 scope is the Sentinel-1 runs)"
+    window: ["2017-11-01", "2022-12-31"]
+    role: "independent processing of the same sensor; same statistics and thresholds as A1"
+    caveat: "372-day hole 2020-12-30 .. 2022-01-06: any comparison spanning it is reported 'not covered', never filled"
+  A3:
+    data: "Sentinel-1 ASC-9, IW1 (009_019119..019121), phase-linked"
+    config: configs/experiments/exp_a3_appin_asc9.yaml
+    window: ["2019-11-01", "2022-12-31"]
+    dates_expected: 96
+    role: "second geometry; with A1 gives Up and East (D1) over 2019-11-01 .. 2022-12-31"
+  A4:
+    data: "Sentinel-1 DES-147, 2025-07-01 .. 2026-10-08 (LW711)"
+    config: "not written yet"
+    role: "exploratory C-band partner for A5; no truth exists yet"
+  A5:
+    data: "NISAR GUNW PROVISIONAL ASC-167, ASC-95, DES-16 from 2026-06-20"
+    config: "not written yet (needs M1, M2)"
+    role: "exploratory only (C-vs-L consistency and aliasing, F4); NO pass/fail"
+
+# ---------------------------------------------------------------- truth
+truth:
+  gnss_sources:
+    ga_cemp_xlsx:
+      url: "https://d28rz98at9flks.cloudfront.net/144247/144247_01_0.xlsx"
+      content: "daily cumulative E/N/U for the 23 CEMP GPS sites, 2016-07-04 .. 2019-07-13, with uncertainties; CA19 1-sigma Up ~17 mm"
+      use: "primary for CA19 and, if present in the file (UNCONFIRMED until read), CA07"
+    ngl_igs20_tenv3:
+      url_pattern: "https://geodesy.unr.edu/gps_timeseries/IGS20/tenv3/IGS20/{STA}.tenv3"
+      steps: "https://geodesy.unr.edu/NGLStationPages/steps.txt"
+      use: "PCTN, MENA, CRDX; CA07 if not in the GA file; CA19 secondary (sparser: gaps of 58, 90, 89 and 511 days)"
+    never: "gnss_validation.py's frozen midas.IGS14.txt; the pipeline's own GNSS tie (gnss_tie_radius_km 0 in every A config)"
+    fetch_rule: "fetched at analysis time; the file's sha256 and fetch date are written into the harness output"
+    same_source_rule: >-
+      A GNSS-GNSS double difference uses ONE source for both stations: GA's
+      and NGL's E/N are in different reference frames and differ by plate
+      motion (PLAN 6.1; ~+18 E / +53 N mm/yr at the stable NGL stations in
+      IGS20). Mixed-source E/N differences are not formed. Vertical-only
+      truth (the digitised Tahmoor West units, survey lines) is referenced
+      with CA07's NGL Up change: Up does not depend on the horizontal frame.
+      Horizontal digitised truth (only if the PDFs carry it) is in the mine's
+      local frame, so CA07's horizontal change there is its NGL change minus
+      its own linear rate over its whole record (plate motion at a stable
+      station), never its raw IGS20 change.
+
+  stations:
+    # role: reference = the datum of the primary statistic (a calibration
+    # station; never scored); reference_check = alternative datum, reported as
+    # sensitivity; validation = scored; null_test = compared with zero motion (reported).
+    CA19: {lat: -34.178878, lon: 150.691241, role: validation, where: "over Appin LW902 (GA)", in: bbox,
+           record: "GA 2016-07-04..2019-07-13 (922 epochs; 91-day outage 2018-07-19..2018-10-18); NGL 2016.51..2020.74"}
+    CA07: {lat: -34.2216, lon: 150.6392, role: reference, distance_to_CA19_km: 6.7, in: bbox,
+           record: "NGL 2016-07-04..2026-09-26, MIDAS IGS14 vU -1.6 +- 0.6 mm/yr"}
+    PCTN: {lat: -34.1576, lon: 150.6052, role: [reference_check, null_test], distance_to_CA19_km: 8.3, in: bbox,
+           record: "NGL 2016-01-20..2026-09-26, MIDAS IGS14 vU -2.5 +- 0.7 mm/yr"}
+    MENA: {lat: -34.1261, lon: 150.7438, role: [reference_check, null_test], distance_to_CA19_km: 7.6, in: crop_margin,
+           record: "NGL 2010-11-15..2026-09-26, MIDAS IGS14 vU -1.5 +- 0.6 mm/yr"}
+    CRDX: {lat: -34.3248, lon: 150.7676, role: null_test, in: crop_margin,
+           record: "NGL 2011-12-20..2026-09-26, MIDAS IGS14 vU -1.1 +- 0.6 mm/yr"}
+    CA10: {lat: -34.0719, lon: 150.7602, role: not_used, why: "outside the processed crop"}
+    CMDN: {lat: -34.0463, lon: 150.6915, role: not_used, why: "outside the processed crop"}
+  station_coverage_checked: "review_2026-10-08/p0/protocol/burst_check.log (all used stations lie inside the processed bursts of A1 and A3)"
+
+  tahmoor_west_units:
+    what: "17 continuous GNSS units above and beside W3-W4 (Reports 1-8, MSEC plots), 15 Nov 2019 .. 30 Jun 2023"
+    role: validation
+    ids: "assigned when digitised (T1); all 17 are validation, none calibrates or references anything"
+    digitising: >-
+      Each plot digitised twice, independently; digitising error = RMS of the
+      two passes (at least the plot's half-gridline), added in quadrature to the
+      truth sigma. Horizontal components only if the PDFs carry them
+      (UNCONFIRMED); otherwise vertical only.
+    output: "CSV: id, lat, lon, date, up_mm[, east_mm, north_mm], sigma_mm, source_report, page"
+
+  end_of_panel_maxima:
+    role: "lower bound and peak-ratio check only (survey-LINE maxima, not panel peaks: LW902's line read 263 mm while CA19 sank ~340 mm)"
+    panels_in_window:
+      # complete inside the run's window; maxima from the EoP reports at https://gm3.au/appin-mine/
+      LW902: {mined: ["2018-05-12", "2019-04-03"], max_mm: 263, runs: [A1]}
+      LW903: {mined: ["2019-11-01", "2021-04-07"], max_mm: 432, runs: [A1, A3]}
+      LW904: {mined: ["2021-05-20", "2022-08-09"], max_mm: 649, runs: [A1, A3]}
+      LW708: {mined: ["2019-04-02", "2022-01-03"], max_mm: {ARTC_rail_line: 990, M31_west_line: 813}, runs: [A1]}
+    excluded:
+      LW905: "2022-09-25 .. 2023-02-28, ends after the window"
+      LW709: "2022-02-22 .. 2023-10-08, ends after the window"
+      LW707: "no line maxima in the public report"
+    survey_lines: "digitised in T1 from the Extraction Plan / EoP drawings (polyline per line)"
+
+  tahmoor_west_peak:
+    value_mm: 897
+    where: "LW W1-W4 crossline after W4 (Report 8); tilt 9.8 mm/m"
+    role: "report only: C-band is expected to underestimate (UPV benchmark)"
+
+# ---------------------------------------------------------------- InSAR sampling
+insar_input:
+  series: "the delivered time series (deliverables.timeseries_file(cfg)), i.e. mintpy/geo with ERA5, deramp (outside the polygon) and DEM-error correction; no reprocessing in the harness"
+  rates: "fitted by the harness from that series with the model below (never the pipeline's velocity file, so both sides share one model)"
+  los_convention: "LOS positive towards the satellite (MintPy): uplift positive, subsidence negative"
+
+sampling:
+  radius_m: 100                      # Sentinel-1 runs
+  radius_m_nisar: 160                # NISAR 80 m posting (exploratory runs only)
+  statistic: median
+  cells: "reliable cells (below) whose centre is within radius_m of the point"
+  minimum: "5 reliable posting cells AND 2 independent radar pixels (distinct radar_pixel_id); otherwise the point has NO InSAR value at that epoch (reported as missing, never filled or interpolated across)"
+  reported_with_each_value: [n_cells, n_independent_pixels, mad_scaled_sigma_mm, iqr_mm]
+  los_vector: "per-pixel LOS unit vector (deliverables.geometry_field los_east/los_north/los_up), median over the same cells"
+  lines: "survey lines: reliable cells within 100 m of the polyline, in 50 m bins along it"
+
+reliability:
+  coherence_floor: 0.4
+  definition: >-
+    A cell is reliable at an epoch when its value in the delivered series is
+    finite AND its temporal coherence (the product's own mask quantity, config
+    min_temporal_coherence) is >= 0.4. Nothing else is filtered. DISP-S1 (A2):
+    the record chain's mask at the same 0.4.
+  sensitivity_floors: [0.3, 0.5, 0.7]          # reported beside the primary, never replacing it
+  coverage_reported: "share of AOI cells and of T1 panel cells (panels mined in the window) that are reliable, per epoch and over the window"
+
+# ---------------------------------------------------------------- referencing
+reference:
+  primary:
+    method: double_difference
+    station: CA07
+    formula: >-
+      d_insar(P, t1, t0) = [InSAR(P,t1) - InSAR(P,t0)] - [InSAR(CA07,t1) - InSAR(CA07,t0)];
+      d_gnss(P, t1, t0) = l(P) . { [ENU(P,t1) - ENU(P,t0)] - [ENU(CA07,t1) - ENU(CA07,t0)] },
+      l(P) = LOS unit vector at P. Plate motion and the GNSS frame cancel in the
+      station difference; the InSAR datum (whatever pixel the run chose) cancels
+      in the InSAR difference.
+    source_order: ["GA xlsx CA19 - GA xlsx CA07", "NGL CA19 - NGL CA07 (if CA07 is not in the GA file)"]
+    fallback_if_unusable: >-
+      CA07 is unusable when it has an InSAR value at fewer than 80% of the
+      compared epochs (sampling minimum above) or its GNSS is missing at the
+      epochs needed. Then PCTN, then MENA, in that order, decided on this
+      count alone before any InSAR-GNSS difference is computed.
+  sensitivity:
+    - "same, with PCTN as the reference station"
+    - "same, with MENA as the reference station"
+  null_test: "PCTN, MENA and CRDX double-differenced to CA07: expected 0 within the stated uncertainty (reported in comparisons.stable_stations)"
+  never: "no validation point (CA19, the Tahmoor W units, survey lines) is used to reference, anchor or calibrate the InSAR"
+
+decomposition:
+  method: "D1: per-pixel least squares for Up and East from A1 (DES-147) and A3 (ASC-9) LOS with each geometry's per-pixel LOS vector, on a common grid, over 2019-11-01 .. 2022-12-31; North not estimated and said so"
+  epochs: "changes between common date pairs: each geometry interpolated linearly to the comparison epochs from SAR dates at most 12 days away; never epochs of different days treated as simultaneous"
+  vertical_fallback: "single-track LOS / cos(incidence), always labelled 'assumes vertical motion'"
+
+# ---------------------------------------------------------------- matching and models
+epoch_matching:
+  gnss_at_sar_date: "mean of the daily GNSS solutions within +-3 days of the SAR date (n recorded); none in the window = no GNSS value at that epoch"
+  survey_epochs: "InSAR interpolated linearly to the survey/digitised epoch between SAR dates at most 24 days apart; otherwise no value"
+
+gnss_screening:
+  method: "the pipeline's own readers (gnss_tie.read_tenv3, screen_series): equipment/earthquake steps from steps.txt estimated as offsets; daily outliers beyond 5 robust sigma (1.4826 x MAD of residuals about the model) removed; nothing else"
+  sigma_per_epoch: "robust sigma of the daily residuals about the model over the window (not divided by sqrt(n): GNSS noise is coloured); GA xlsx: its stated sigma if larger"
+
+models:
+  event_change: "cumulative change between two dates; no rate model is assumed over a panel event"
+  stable_ground_rate: "linear + annual (sin, cos) + offset, least squares on the matched epochs (A1 window for A1; A3 window for A3)"
+
+# ---------------------------------------------------------------- comparisons (thresholds: PLAN 5.3, Experiment A)
+comparisons:
+  ca19_lw902:
+    what: "CA19 cumulative LOS change over LW902, double-differenced to CA07"
+    epochs: "t0 = last A1 date <= 2018-05-12 with a GA epoch within +-3 d; t1 = first A1 date >= 2019-04-03 with a GA epoch within +-3 d"
+    truth_summary: "GA dU -326 mm, dE +33, dN -156 over 2018-05-12 .. 2019-04-03 (longwall_check/ga_ca19_gaps.out); projected to LOS by the harness"
+    runs: [A1, A2]
+    grade:
+      pass: "|err| <= max(30 mm, 0.10 x |truth|)"
+      marginal: "|err| <= 0.20 x |truth|"
+      fail: "|err| > 0.20 x |truth|"
+  ca19_outage:
+    what: "CA19 cumulative LOS change across the GNSS outage 2018-07-19 .. 2018-10-18 (the aliasing-prone months; GA dU -242 mm)"
+    epochs: "t0 = last A1 date <= 2018-07-19 with a GA epoch within +-3 d; t1 = first A1 date >= 2018-10-18 with a GA epoch within +-3 d"
+    runs: [A1, A2]
+    grade: {pass: "|err| <= max(30 mm, 0.10 x |truth|)", marginal: "|err| <= 0.20 x |truth|", fail: "|err| > 0.20 x |truth|"}
+  ca19_series:
+    what: "CA19 matched-epoch LOS series, double-differenced to CA07, one constant offset (the mean difference) removed"
+    epochs: "every A1 date in 2017-11-01 .. 2019-07-13 with a GA epoch within +-3 d (38 have a same-day GA epoch)"
+    statistic: rmse_after_offset
+    runs: [A1, A2]
+    grade: {pass: "rmse <= 25 mm", marginal: "rmse <= 40 mm", fail: "rmse > 40 mm"}
+    note: "GA's per-epoch 1-sigma Up is ~17 mm, so 25 mm is near the truth's own noise"
+  tahmoor_w_units:
+    what: "17 digitised Tahmoor West units: cumulative change from each unit's first epoch on/after 2019-11-15 to every later digitised epoch up to 2022-12-31; Up from D1 where A3 covers the interval, else LOS/cos(incidence) labelled"
+    reference: "CA07 double difference: CA07's NGL Up change over the same dates is subtracted from each unit's Up change (truth.gnss_sources.same_source_rule)"
+    cells: "unflagged cells only (flag definition below); flagged and masked points go to the unflagged-failure row; no unflagged unit-epoch at all = 'not testable', never a pass"
+    statistic: rmse
+    runs: [A1, A3, D1]
+    grade: {pass: "rmse <= 30 mm", marginal: "rmse <= 60 mm", fail: "rmse > 60 mm"}
+  appin_peak_ratio:
+    what: "InSAR peak / end-of-panel line maximum, per panel and line in truth.end_of_panel_maxima.panels_in_window"
+    insar_peak: "vertical change between the last SAR date before the panel start and the first after its end, along the digitised survey line (100 m buffer, 50 m bins); peak = 5th percentile of the binned values (robust minimum). Exception: A3's window starts 2019-11-01, the day LW903 started, so for A3/D1 at LW903 the start date is A3's first date (2019-11-09; 8 days into a panel under 490-600 m cover, stated beside the ratio)"
+    vertical: "D1 Up where A3 covers the whole panel window (LW903, LW904); else LOS/cos(incidence) labelled"
+    note: "line maxima are lower bounds: a ratio above 1 is reported, not a failure"
+    runs: [A1, A3, D1]
+    grade: {pass: "ratio >= 0.8", marginal: "0.6 <= ratio < 0.8", fail: "ratio < 0.6"}
+    gentle_tilts_only: "Appin final tilts 1-5 mm/m"
+  tahmoor_w_peak_ratio:
+    what: "InSAR peak over W1-W4 / 897 mm"
+    grade: report_only
+  unflagged_failure_rate:
+    what: >-
+      Share of all A truth comparisons (each CA19 change and matched epoch,
+      each Tahmoor W unit-epoch, each EoP line maximum) whose error exceeds
+      max(30 mm, 0.20 x |truth|) AND whose cell is neither masked (no reliable
+      value) nor flagged. A masked or flagged point is honest, whatever its error.
+    flag_definition: >-
+      Fixed now, implemented by F2 (quality_aliasing_risk.tif): a point is
+      flagged for a comparison interval when, in any exported interferogram
+      spanning part of that interval, its cell's wrapped-phase gradient exceeds
+      0.5 cycle per look cell OR its cell lies in a coherence hole: pair
+      coherence below the 0.4 floor while the median pair coherence of the
+      reliable cells 1-3 km around it in the same interferogram is >= 0.4
+      (PLAN F2 'coherence hole over the panel': decorrelation local to moving
+      ground). Low coherence across the whole scene (a summer or wet-season
+      pair) is not a flag; over a months-long interval it would flag nearly
+      every rural cell and make this row pass by flagging everything. Until F2
+      exists the row is also computed with the old quality_too_fast_to_measure
+      flag, labelled 'lower bound, unwrapped velocity' - that version does not
+      grade.
+    reported_beside_it: "share of the comparisons that are flagged, share masked, and the share of flagged ones whose error is within max(30 mm, 0.20 x |truth|) (the flag's false alarms): a flag that covers most points makes this row uninformative, and the reader must see it"
+    runs: [A1, A3, A2]
+    grade: {pass: "rate <= 0.10", marginal: "rate <= 0.25", fail: "rate > 0.25"}
+  stable_ring:
+    what: "cells 1-3 km outside every T1 panel outline + draw distance (panels mined or settling in the window), inside the processed crop"
+    rate: "InSAR rate relative to CA07 (model stable_ground_rate)"
+    statistics:
+      share_beyond: "share of reliable ring cells with |rate| > 1.96 x the product's stated 1-sigma rate uncertainty for that cell"
+      rmse_vs_zero: "RMS of the ring cells' rates"
+    runs: [A1, A3]
+    grade:
+      pass: "share_beyond <= 0.05 AND rmse_vs_zero <= 5 mm/yr"
+      marginal: "share_beyond <= 0.10"
+      fail: "share_beyond > 0.10"
+  stable_stations:
+    what: "PCTN, MENA, CRDX double-differenced to CA07: LOS rate (stable_ground_rate model) and cumulative change over the window, against their GNSS"
+    grade: report_only
+  decomposition:
+    what: "Up and East at the Tahmoor W units over 2019-11-01 .. 2022-12-31"
+    grade: "Up: the tahmoor_w_units thresholds; East: the same thresholds if the PDFs carry East (UNCONFIRMED), else report only"
+  vertical_secondary:
+    what: >-
+      PLAN 5.1 'vertical is secondary': D1 Up against GNSS / digitised Up
+      where A3 exists (2019-11 onward), and the single-track LOS/cos(incidence)
+      'vertical' (labelled 'assumes vertical motion') against GA dU at CA19
+      over LW902 (-326 mm; CA19 also moved ~210 mm sideways, so this row
+      measures the vertical-only assumption's bias over a flank)
+    grade: report_only
+  vertical_only_bias:
+    what: "LOS/cos(incidence) 'vertical' minus D1 Up at every truth point and over the panels"
+    grade: report_only
+
+statistics_reported:
+  per: [run, geometry, route (phase-linked, DISP-S1, NISAR), reference station, land-cover class]
+  list:
+    - "bias (mean signed error), RMSE, MAE, median |err|"
+    - "York regression slope with 95% CI (errors in both)"
+    - "Pearson r and R2 (InSAR against truth: across points; per point over time)"
+    - "uncertainty calibration: share of errors inside the pipeline's own stated 95% interval combined with the truth's (1.96 x sqrt(s_insar^2 + s_truth^2)); a quantity for which the deliverable states no uncertainty is reported 'not stated'"
+    - "valid coverage of AOI cells and panel cells"
+    - "InSAR peak / ground peak; unflagged-failure rate; stable-ring false-positive share"
+  confidence_intervals: "bootstrap over truth points (resampling points; epochs resampled within points), 10000 resamples, percentile 95%, seed 20261008"
+  power_statement: >-
+    A has ONE GNSS station over a panel (CA19), so its rows rest on epochs of
+    one point and on 17 digitised units that are not independent (one panel
+    group). Every statistic is reported with its CI; a point estimate never
+    stands alone.
+
+verdict:
+  rows_graded: [ca19_lw902, ca19_outage, ca19_series, tahmoor_w_units, appin_peak_ratio, unflagged_failure_rate, stable_ring]
+  route_trustworthy_for_longwall: >-
+    PLAN 5.3 ("passes rate RMSE, bias and uncertainty calibration; for
+    longwall also the unflagged-failure criterion"), read for A's event
+    quantities as: accuracy = ca19_lw902 AND tahmoor_w_units PASS (ca19_series
+    is the precision row); bias = |mean signed error| over the CA19 and
+    Tahmoor W comparisons <= 30 mm (P0.1 choice: PLAN has no A bias row; 30 mm
+    is the absolute part of the A PASS bounds); uncertainty calibration =
+    >= 90% of those errors inside the stated 95% interval; AND
+    unflagged_failure_rate PASS. The honest-or-flagged row matters more than
+    the peak ratio.
+  marginal: "usable with stated caveats: the client wording must carry the error figure"
+  fail: "blocks longwall wording in client reports until fixed"
+  nisar: "A5 is exploratory: no verdict (no NISAR-era truth exists)"
+
+amendments:
+  # ---------------------------------------------------------------------------
+  # Amendments of 8 Oct 2026. They were appended BEFORE any comparison output of
+  # any A run existed: no exp_* project had been created, no experiment data had
+  # been downloaded, and the harness had run only on synthetic data and, with
+  # scratch protocols, on the Indiana record (HANDOFF.md, "8 Oct: validation
+  # experiments - phase 1"). They answer the decisions phase 1 put to Kyle,
+  # which Kyle made on 8 Oct 2026. Everything above `amendments:` is the text
+  # fixed on 8 Oct, byte for byte: configs/experiments/README.md records its
+  # sha256 "as first fixed", and the harness checks it. The harness applies an
+  # amendment through its `harness:` keys and also reports the protocol as
+  # first fixed (validation.json "version_1"), as the header requires.
+  # ---------------------------------------------------------------------------
+  - id: "2026-10-08/1"
+    date: "2026-10-08"
+    decided_by: Kyle
+    before_any_result: true
+    amends: "verdict.route_trustworthy_for_longwall, its 'stated 95% interval' of an event change"
+    decision: >-
+      The 95% interval of an InSAR displacement change (the CA19 event changes
+      and the Tahmoor West unit-epoch changes) is computed by the harness from
+      stable ground. The uncertainty-calibration part of the route rule is
+      then graded on it.
+    reason: >-
+      As first fixed, the route verdict could never read 'trustworthy'. Its
+      uncertainty-calibration part needs the pipeline's stated 95% interval
+      for each change, and the deliverables state an uncertainty for rates
+      only, never for a change between two dates, so that part could only
+      read 'not stated' (phase 1, decision 1). No result existed.
+    method: >-
+      For a comparison of point P over the dates (t0, t1), double-differenced
+      to the reference station R: s_insar = 1.4826 x median |d(Q)| over stable
+      placements Q, where d(Q) is the same double-differenced change,
+      [InSAR(Q,t1) - InSAR(Q,t0)] - [InSAR(R,t1) - InSAR(R,t0)]. It uses the
+      same dates, the same quantity (LOS for CA19; LOS / cos(incidence) at Q
+      for the digitised units, interpolated to the survey epochs exactly as
+      the units are) and the protocol's sampling (median of the reliable cells
+      within 100 m, at least 5 cells and 2 independent radar pixels, coherence
+      floor 0.4). The spread is taken about zero, not about its median: stable
+      ground should not move, so a shift of all stable ground against R is
+      error too. Placements are the centres of non-overlapping discs on a
+      square grid, spacing the larger of 2 x radius and sqrt(area / 300) (at
+      most about 300 discs), over the stable ground: the stable ring of
+      comparisons.stable_ring (1-3 km outside every T1 panel outline + draw
+      distance) once the T1 outlines exist; until then the reference area
+      (cells more than the run's deramp_buffer_m, 2 km, from its
+      deramp-exclusion polygon). Both inside the processed crop, leaving out
+      discs within 2 x radius of R or of any truth point. Only placements whose
+      distance to R is 0.5-2 x P's own distance to R are used, because
+      atmospheric noise grows with separation; with fewer than 30 there, all
+      placements are used, and this is recorded. With fewer than 30 placements
+      holding a value at both dates, the interval is 'not stated' for that
+      comparison. s_truth for GNSS is sqrt(2 s_P^2 + 2 s_R^2), with the daily
+      sigmas of gnss_screening. For a digitised unit it is sqrt(s_t0^2 +
+      s_t1^2 + 2 s_R,up^2): the file's sigma, which carries the digitising
+      error, and R's GNSS Up. A comparison is inside when |err| <= 1.96 x
+      sqrt(s_insar^2 + s_truth^2). The route part passes when >= 90% of the
+      comparisons that have an interval are inside (the rule's own figure);
+      otherwise it fails. If no comparison has an interval, it is 'not
+      testable'. The comparisons are the ones the route's bias part uses (CA19
+      event changes and Tahmoor West unit epochs with a value); s_insar,
+      s_truth, the placements used and the distance band are written per
+      comparison.
+    harness:
+      event_change_sigma: stable_ground
+      stable_spread: robust_about_zero
+      stable_max_placements: 300
+      stable_min_placements: 30
+      stable_distance_band: [0.5, 2.0]
+      stable_ring_km: [1.0, 3.0]
+      uncertainty_share_pass: 0.90
+
+  - id: "2026-10-08/4"
+    date: "2026-10-08"
+    decided_by: Kyle
+    before_any_result: true
+    amends: "gnss_screening.sigma_per_epoch"
+    decision: >-
+      The GNSS daily sigma is the larger of two values. One is the robust sigma
+      (1.4826 x MAD of the daily residuals about the screening model, in the
+      compared component). The other is the source's formal sigma: the
+      per-day sigmas of the NGL tenv3 or the GA xlsx, projected onto the
+      compared component, median over the days in the window. It is still not
+      divided by sqrt(n). Which of the two was used is recorded per station and
+      component in validation.json.
+    reason: >-
+      ground_truth.py (phase 1, V2) already takes the larger of the two. The
+      protocol said robust sigma only, and the larger only for GA (phase 1,
+      decision 4). One rule for every source keeps the harness and the truth
+      reader in step. A formal sigma above the scatter means the scatter
+      understates the noise, so the larger is the conservative choice. No
+      result existed.
+    harness:
+      gnss_daily_sigma: larger_of_robust_and_formal
+
+  - id: "2026-10-08/6"
+    date: "2026-10-08"
+    decided_by: Kyle
+    before_any_result: true
+    amends: "reference.primary.fallback_if_unusable, its 'compared epochs'"
+    decision: >-
+      In a run where no matched-series row has a date, the compared epochs of
+      the reference station's coverage rule are the run's own SAR dates inside
+      its window. This covers A3 and D1, which start in 2019-11, after CA19's
+      GA record ends on 2019-07-13. The 80% rule and the order (CA07, then
+      PCTN, then MENA) are unchanged.
+    reason: >-
+      This confirms the harness's reading (phase 1, decision 6). As first
+      written, the rule names only the epochs compared at CA19, and A3 has
+      none, so A3 and its Tahmoor West units would get no datum at all. No
+      result existed.
+    harness:
+      reference_epochs_without_series_row: run_dates_in_window
+
+  - id: "2026-10-08/configs"
+    date: "2026-10-08"
+    kind: "record only: no rule, threshold, station role or radius changes"
+    before_any_result: true
+    amends: "runs.A2.config, which read 'not written yet'"
+    decision: >-
+      A2's config is configs/experiments/exp_a2_appin_disp_f39360.yaml. It runs
+      OPERA DISP-S1 F39360 (DES-147) through disp_record_chain on A1's grid,
+      with the window of runs.A2.
+    reason: >-
+      The config was written after the protocol was fixed. The harness finds a
+      run from its config's file name.
+    harness:
+      run_configs:
+        A2: configs/experiments/exp_a2_appin_disp_f39360.yaml
+
+  # ---------------------------------------------------------------------------
+  # Record-only amendments of the phase 2/3 finishing pass (8 Oct 2026), made
+  # BEFORE any A run had started, any experiment data had been downloaded or
+  # any comparison output existed. They change no rule, threshold, station role
+  # or radius. They were made by the finishing pass, not decided by Kyle: to
+  # undo one, delete it here and put the configs back as its text says.
+  # ---------------------------------------------------------------------------
+  - id: "2026-10-08/a-deramp-polygon"
+    date: "2026-10-08"
+    kind: "record only: no rule, threshold, station role or radius changes"
+    before_any_result: true
+    amends: "site.deforming_area_approx, the polygon the A runs keep out of the deramp fit, far field and reference-pixel rule"
+    decision: >-
+      The A1, A2 and A3 configs name
+      configs/experiments/context/appin_tahmoor_deforming.geojson as their
+      deramp_exclude_geojson instead of the APPROX envelopes. It is built by
+      the APPROX file's rule from the panel outlines digitised in T1
+      (review_2026-10-08/truth/panels.geojson): every panel mined, or
+      completed in the six months before the window and so still settling, in
+      2017-11-01 .. 2022-12-31, buffered by its angle of draw (tan 26.5 deg x
+      its depth of cover) plus 50 m. The runs add deramp_buffer_m (2 km) as
+      before. The APPROX file is kept. Every panel-based statistic already
+      used the T1 outlines, so no graded quantity changes.
+    reason: >-
+      The T1 outlines were digitised on 8 Oct 2026, before any A run had
+      started, so using them is a choice of run design, not a re-run. The
+      hand-drawn envelopes missed part of LW S1A and LW708B themselves and
+      excluded about 185 km2 against 23 km2; with the digitised polygon the
+      deramp fits on 85% of the processed crop instead of 59%, with 21-29% in
+      each quadrant (review_2026-10-08/truth/README.md). To undo: delete this
+      amendment and point the three configs' deramp_exclude_geojson back at
+      context/appin_tahmoor_deforming_APPROX.geojson.
+    harness:
+      run_deramp_polygon:
+        A1: configs/experiments/context/appin_tahmoor_deforming.geojson
+        A2: configs/experiments/context/appin_tahmoor_deforming.geojson
+        A3: configs/experiments/context/appin_tahmoor_deforming.geojson
+
+  - id: "2026-10-08/nisar-configs"
+    date: "2026-10-08"
+    kind: "record only: no rule, threshold, station role or radius changes"
+    before_any_result: true
+    amends: "runs.A5.config, which read 'not written yet (needs M1, M2)'"
+    decision: >-
+      A5 is three projects, one NISAR geometry each, over the A box from
+      2026-06-01 to 2026-10-08, on the NISAR GUNW route (nisar_backend.py,
+      PROVISIONAL only): configs/experiments/exp_a5a_appin_nisar_asc167.yaml
+      (ASC-167), exp_a5b_appin_nisar_asc95.yaml (ASC-95) and
+      exp_a5c_appin_nisar_des16.yaml (DES-16). A5 stays exploratory with no
+      verdict (runs.A5.role, verdict.nisar). runs.A5 states no window, so the
+      harness reads A5 over the protocol's window and finds no truth there;
+      A5's own test is F4 (python -m insar_pipeline.lband against A4).
+    reason: >-
+      The configs were written after the protocol was fixed (PLAN phase 3,
+      M2). The harness finds a run from its config's file name; a run of
+      several projects lists them all.
+    harness:
+      run_configs:
+        A5:
+          - configs/experiments/exp_a5a_appin_nisar_asc167.yaml
+          - configs/experiments/exp_a5b_appin_nisar_asc95.yaml
+          - configs/experiments/exp_a5c_appin_nisar_des16.yaml
+
+  # ---------------------------------------------------------------------------
+  # Amendments of the protocol decisions of 8 Oct 2026 (HANDOFF.md, "8 Oct:
+  # validation experiments - phases 2 and 3", decisions 1, 2, 4, 5, 6 and 7).
+  # Kyle delegated these decisions; Claude made them for him on 8 Oct 2026,
+  # BEFORE any A run had started, any experiment data had been downloaded or
+  # any comparison output existed. Nothing above is changed. Ids follow the
+  # decision numbers there (p23-N).
+  # ---------------------------------------------------------------------------
+  - id: "2026-10-08/p23-1"
+    date: "2026-10-08"
+    decided_by: "Claude for Kyle (delegated 8 Oct)"
+    before_any_result: true
+    amends: "truth.tahmoor_west_units.digitising, its 'at least the plot's half-gridline'"
+    decision: >-
+      The digitising error of each Tahmoor West unit-epoch, per component, is
+      sqrt(r^2 + w^2 + c^2). r is the measured digitising repeatability: the
+      RMS of pass A minus pass B over the unit's listed epochs. w is half the
+      plotted line width in data units: half the stroke width of the 7-day
+      average curve that was read (pt) times the value axis's mm per pt. c is
+      the axis-calibration residual at that point: the value axis's RMS at its
+      labelled ticks, in quadrature with the date axis's RMS (days) times the
+      curve's slope at the epoch (mm per day). This replaces the half-gridline
+      floor. The truth sigma is still sqrt(digitising error^2 + the unit's own
+      daily scatter^2). The CSV keeps the floor's figures (half_gridline_*,
+      sigma_*_as_first_fixed_mm) for the protocol as first fixed.
+    reason: >-
+      Read as written, the floor set the digitising error to 10-50 mm (half of
+      20-100 mm gridlines) against a measured 0.1-1.0 mm. The figures are
+      vector drawings: every plotted value is a vertex, read exactly, so the
+      gridline spacing does not limit the reading; the drawn line, the axis
+      calibration and the two passes' disagreement do. With the floor the
+      units' 95% interval was about 30-140 mm, so the uncertainty part of the
+      route rule (amendment 2026-10-08/1), where the units far outnumber
+      CA19's 2 event changes, would pass almost whatever the InSAR did (phase
+      2/3 decision 1). Measured on the 17 figures (truth/ rebuilt 8 Oct 2026;
+      the values, dates, positions and every other file are byte for byte as
+      before): the 7-day line is 0.504 pt wide in every figure, half of it
+      0.15-1.33 mm; calibration 0.00-0.51 mm; digitising error 0.25-1.57 mm;
+      Up sigma 2.2-4.1 mm (median 3.2; it was 10.2-50.1). No result existed.
+    harness:
+      digitised_sigma: hypot_repeatability_line_calibration
+
+  - id: "2026-10-08/p23-2"
+    date: "2026-10-08"
+    decided_by: "Claude for Kyle (delegated 8 Oct)"
+    before_any_result: true
+    amends: "comparisons.unflagged_failure_rate: the coherence hole of flag_definition, and the row's grade"
+    decision: >-
+      (a) The coherence hole is relative to the ground around it, not an
+      absolute low. A cell is in a hole in an interferogram when its pair
+      coherence, averaged over the 3 x 3 look cells centred on it, is at most
+      2/pi (0.637) of the median pair coherence of the reliable cells 1-3 km
+      around it in the same interferogram, where at least 10 such cells exist
+      and their median is at least 0.4. The stated margin: the cell kept at
+      most 64% of its ring's coherence. The gradient part of the flag is
+      unchanged; as F2 measures it (over 3 x 3 look cells, counted only where
+      the gradient is consistent, >= 0.7, or pure noise's 99.9th percentile
+      with few looks; both chosen on Francisco still ground before any A data)
+      it is stricter than the words "per look cell", and is stated here.
+      (b) The row can pass only if the flag is selective. On the stable-ground
+      placements of amendment 2026-10-08/1 (the stable ring; the reference
+      area without the T1 outlines), the share of placements the flag marks,
+      taken over the row's own intervals, must be at most 20%: each
+      comparison that is not masked contributes the share of placements
+      flagged for its interval (a placement is flagged as a point is, when at
+      least half of its reliable cells are), and the shares are averaged over
+      the comparisons, as the row counts them. Above 20% the row reads 'flag
+      not selective' and fails, whatever its rate. When the share cannot be
+      measured the row cannot pass or be marginal (not testable); a failing
+      rate still fails. The share, the limit and the truth points' own flagged
+      share are reported beside the row.
+    reason: >-
+      As first worded the hole was any cell below 0.4 while the ring's median
+      reached 0.4. On Francisco farmland (2019, 81 pairs, read only) it
+      flagged 19% of the crop per pair and 93% over the year, so the row could
+      pass by flagging nearly everything (phase 2/3 decision 2). 2/pi =
+      sinc(1/2): a phase ramp of half a cycle across a look cell, the
+      protocol's own aliasing limit, multiplies the cell's coherence by 0.64,
+      so a cell that kept less lost at least what that gradient costs,
+      whatever the season's level; the 3 x 3 average is the support of the
+      gradient test. The ring must itself reach 0.4, as first written, so a
+      scene-wide low flags nothing. The 20% limit: a flag blind to where the
+      errors are marks a share f of the comparisons at random and so lowers
+      the unflagged-failure rate by the factor (1 - f) by itself. At f = 0.20
+      it can bring a rate of at most 0.125 to the 0.10 pass and of at most
+      0.3125 to the 0.25 marginal bound, a shift of 0.025 at the pass bound,
+      below the row's own sampling uncertainty (binomial 95% half-width about
+      0.04 at a rate of 0.10 over 200 comparisons). Stable ground has nothing
+      to alias, so the share flagged there is the flag's false-alarm rate. The
+      ratio and the limit were fixed before the Francisco figures were
+      computed. On Francisco 2019 (read only, review_2026-10-08/protdec/) the
+      amended hole flags a median 9.4% of the crop per pair (was 19%), 23% per
+      interval between consecutive dates (was 48%) and 67% over the year (was
+      93%): on farmland like Francisco's the flag is still not selective at
+      this limit, and the row would say so. No result existed.
+    harness:
+      coherence_hole: relative_to_ring
+      coherence_hole_ratio: 0.6366
+      coherence_hole_block_look_cells: 3
+      flag_selectivity_max_stable_share: 0.20
+
+  - id: "2026-10-08/p23-4"
+    date: "2026-10-08"
+    decided_by: "Claude for Kyle (delegated 8 Oct)"
+    before_any_result: true
+    amends: "truth.tahmoor_west_units and comparisons.tahmoor_w_units, for unit TW_G13 (Site 13)"
+    decision: >-
+      Site 13's rows dated on or after 2022-03-28 are scored as a separate
+      unit, TW_G13b, with its own datum: its first epoch on or after that date
+      (2022-04-01) is its zero, as any unit's first epoch is. No change that
+      spans the gap is ever formed: TW_G13's rows before the gap keep their
+      own datum, and TW_G13b's never refer to them. Both are validation
+      points.
+    reason: >-
+      Report 8's Fig. G13 says the unit was disturbed in early January 2022,
+      relocated on 28 March 2022 and its "results normalised"; its record has
+      no data from 10 January to 29 March 2022. MSEC joined the later values
+      to the earlier ones, so movement during the 11-week gap is not measured,
+      and a change across it would compare the InSAR with that join, not with
+      the ground (phase 2/3 decision 4). The split keeps the 18 rows after the
+      relocation inside the window (2022-04-01 .. 2022-12-15) without bridging
+      the gap. The CSV gives the relocated position for both (the only circle
+      drawn); how far the unit moved is not stated. No result existed.
+    harness:
+      unit_splits:
+        - {id: TW_G13, from: "2022-03-28", as: TW_G13b}
+
+  - id: "2026-10-08/p23-5"
+    date: "2026-10-08"
+    decided_by: "Claude for Kyle (delegated 8 Oct)"
+    before_any_result: true
+    amends: "runs.A5.role ('C-vs-L consistency and aliasing, F4'): the frames of F4's two statistics"
+    decision: >-
+      F4 (python -m insar_pipeline.lband) reports two statistics, each in its
+      own frame, always both. (1) The cycle-consistency (aliasing) test stays
+      in C-band LOS: the NISAR change is projected into C-band's LOS under the
+      stated vertical-motion assumption (d_C = d_L x up_C / up_L per cell; from
+      D1's L-band Up and East when they are given), and a whole-cycle
+      difference is one within 5 mm of a non-zero multiple of C-band's half
+      wavelength (27.7 mm). (2) The accuracy comparison (the share of cells
+      whose difference is below 15 mm, and its spread) is in vertical: each
+      sensor's LOS change divided by cos of its own incidence, both labelled
+      'assumes vertical motion'. A5 stays exploratory, with no verdict.
+    reason: >-
+      A missed C-band cycle is a whole cycle only in C-band's LOS (27.7 mm
+      there is 27.7 / up_C, about 35 mm, in Up), so the aliasing fingerprint
+      must be read there. Agreement between two sensors with different look
+      sides and incidences is a statement about the ground, which the
+      protocols read in vertical. Reporting both keeps each statistic in the
+      frame where it means something (phase 2/3 decision 5). No result
+      existed.
+    harness:
+      lband_cycle_frame: c_band_los_vertical_motion_assumed
+      lband_accuracy_frame: vertical_each_sensor_own_incidence
+
+  - id: "2026-10-08/p23-6"
+    date: "2026-10-08"
+    decided_by: "Claude for Kyle (delegated 8 Oct)"
+    before_any_result: true
+    amends: "verdict.route_trustworthy_for_longwall and comparisons.unflagged_failure_rate, for run A2"
+    decision: >-
+      A2 (OPERA DISP-S1 through disp_record_chain) gets an accuracy verdict
+      only: the route rule read without its honest-or-flagged part and
+      without the rows the protocol does not run on A2 (tahmoor_w_units runs
+      on A1, A3 and D1), that is ca19_lw902 PASS, with bias and uncertainty
+      calibration read as for A1. It is labelled "honesty not assessable
+      (OPERA unwraps its own pairs; no per-pair aliasing record)". A2's
+      unflagged_failure_rate row is computed and reported under that label,
+      not graded. A2's verdict never reads 'trustworthy for longwall'.
+    reason: >-
+      OPERA unwraps its own interferograms, so F2, which measures each pair
+      before snaphu, has no record for A2, and the honest-or-flagged row could
+      use only the old lower-bound flag, which does not grade: A2 could never
+      reach a verdict (phase 2/3 decision 6). Its accuracy against CA19 is
+      still worth one, as long as it says what it does not cover. No result
+      existed.
+    harness:
+      accuracy_only_verdict:
+        A2: "honesty not assessable (OPERA unwraps its own pairs; no per-pair aliasing record)"
+
+  - id: "2026-10-08/p23-7"
+    date: "2026-10-08"
+    decided_by: "Claude for Kyle (delegated 8 Oct)"
+    kind: "record only: no rule, threshold, station role or radius changes"
+    before_any_result: true
+    amends: "nothing: it states readings the harness already makes where the protocol is silent"
+    decision: >-
+      Where the protocol is silent the harness reads it so: (a) a matched
+      epoch of ca19_series is flagged over the whole series' span, because its
+      error is a residual after one offset fitted over every compared epoch;
+      (b) appin_peak_ratio reads the lowest panel-line's grade: every
+      panel-line must pass; (c) in the honest-or-flagged row a line maximum's
+      error is the InSAR peak's shortfall against it (0 when the InSAR is
+      deeper), because line maxima are lower bounds; (d) the peaks
+      (appin_peak_ratio, tahmoor_w_peak_ratio) use LOS / cos(incidence),
+      labelled, double-differenced to the reference station, not D1 Up, even
+      at LW903 and LW904 where D1 exists (D1 Up is not read along lines); (e)
+      the Tahmoor West peak is the deepest robust value over the run's whole
+      window inside every outline named W1..W4, the planned W4 outline
+      (TW_W4_planned) included, not over each panel's own dates; (f) GA's
+      formal sigma (amendment 2026-10-08/4) is the median of its stated daily
+      sigmas in the window; (g) without the per-pair aliasing record, the
+      whole-record quality_aliasing_risk.tif stands in for the per-interval
+      flag and still grades, with a warning, as in phase 1.
+    reason: >-
+      Phase 2/3 decision 7: the groups' readings are accepted and recorded, so
+      that the protocol states them. No result existed.
+    harness:
+      readings_recorded: [matched_epoch_flag_over_series_span, appin_row_lowest_panel_line,
+                          line_max_error_is_shortfall, peaks_los_over_cos_incidence,
+                          tahmoor_peak_over_run_window_all_w_outlines, ga_formal_sigma_median_stated,
+                          whole_record_tif_fallback_grades_with_warning]

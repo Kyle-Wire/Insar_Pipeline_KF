@@ -1,0 +1,58 @@
+# The Python packages insar_pipeline imports directly, pinned to the versions in
+# install/envs/insar.yml (checked 2 Nov 2026, readiness review DEP-01).
+#
+# This is a reference list, NOT the install source. Install with
+# install/install.sh, which builds the five conda environments from the full
+# resolved exports in install/envs/ (insar, miaplpy, burst2safe, raider-env,
+# dolphin; every package, transitive ones included). Several packages here have
+# a compiled core (GDAL, h5py, rasterio, geopandas, scipy) and must come from
+# conda-forge: pip wheels bundle their own HDF5 / PROJ / GEOS and fight the
+# conda copies. ISCE2 and MintPy are conda-only.
+#
+# The complete list of every package in every environment, with package URLs,
+# ships in each release as SBOM.cdx.json (scripts/make_sbom.py).
+#
+# Import name in brackets where it differs from the package name.
+
+# --- processing (conda-forge only) ---
+isce2==2.6.5               # [isce, isceobj, unwrap]
+mintpy==1.6.4
+gdal==3.10.3               # [osgeo]
+
+# --- data search and retrieval ---
+asf_search==13.1.0
+sentineleof==0.13.0        # [eof]
+hyp3_sdk==7.7.8
+dem-stitcher==3.2.0        # [dem_stitcher]
+cdsapi==0.7.7
+requests==2.34.2
+aiohttp==3.14.3
+fsspec==2026.7.0
+xarray==2026.7.0
+
+# --- arrays, rasters, vectors ---
+numpy==1.26.4
+scipy==1.17.1
+pandas==3.0.5
+h5py==3.16.0
+rasterio==1.4.4
+affine==3.0.1
+geopandas==1.1.4
+pyogrio==0.13.0
+shapely==2.1.2
+pyproj==3.7.2
+pyarrow==22.0.0
+
+# --- outputs and interface ---
+matplotlib-base==3.11.2    # [matplotlib]
+pillow==12.3.0             # [PIL]
+openpyxl==3.1.5
+pyyaml==6.0.3              # [yaml]
+rich==15.0.0
+textual==8.2.8
+
+# --- tests ---
+pytest==9.1.1
+
+# Optional: defusedxml (areas.py uses it for KML when installed; without it the
+# built-in DOCTYPE/ENTITY refusal applies). Not in the environments.

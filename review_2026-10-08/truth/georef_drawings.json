@@ -1,0 +1,980 @@
+{
+ "MSEC1019-01": {
+  "pdf": "tahmoor_west_EP_app_A_subsidence_predictions.pdf",
+  "url": "https://www.tahmoorcolliery.com.au/wp-content/uploads/sites/8/2022/10/11-app-a-subsidence-predictions.pdf",
+  "page": 200,
+  "title": "Western Domain Extraction Plan LW W1-W2, General Layout",
+  "drawing_date": "2019-06-07",
+  "scale": "1:20000",
+  "report": "MSEC1019 Rev B (Jun 2019)",
+  "datum": "MGA zone 56, converted as GDA94 (EPSG:28356)",
+  "labels": "grid labels are glyph outlines; each line's value was read by eye from a zoomed render (page coordinate -> value listed)",
+  "georef": {
+   "kind": "grid parallel to the page",
+   "east_from_page": "x",
+   "east": {
+    "a": 276318.37425910257,
+    "b_m_per_pt": 7.056167090036578,
+    "rms_m": 0.0,
+    "lines": 7,
+    "first_last": [
+     [
+      96.6,
+      277000.0
+     ],
+     [
+      521.76,
+      280000.0
+     ]
+    ]
+   },
+   "north": {
+    "a": 6217608.216264811,
+    "b_m_per_pt": -7.0553524155742275,
+    "rms_m": 0.105,
+    "lines": 11,
+    "first_last": [
+     [
+      86.22,
+      6217000.0
+     ],
+     [
+      794.88,
+      6212000.0
+     ]
+    ]
+   },
+   "scale_m_per_pt": 7.0558
+  },
+  "grid_lines": {
+   "east": [
+    [
+     96.6,
+     277000.0
+    ],
+    [
+     167.46,
+     277500.0
+    ],
+    [
+     238.32,
+     278000.0
+    ],
+    [
+     309.18,
+     278500.0
+    ],
+    [
+     380.04,
+     279000.0
+    ],
+    [
+     450.9,
+     279500.0
+    ],
+    [
+     521.76,
+     280000.0
+    ]
+   ],
+   "north": [
+    [
+     86.22,
+     6217000.0
+    ],
+    [
+     157.08,
+     6216500.0
+    ],
+    [
+     227.94,
+     6216000.0
+    ],
+    [
+     298.8,
+     6215500.0
+    ],
+    [
+     369.66,
+     6215000.0
+    ],
+    [
+     440.52,
+     6214500.0
+    ],
+    [
+     511.44,
+     6214000.0
+    ],
+    [
+     582.3,
+     6213500.0
+    ],
+    [
+     653.16,
+     6213000.0
+    ],
+    [
+     724.02,
+     6212500.0
+    ],
+    [
+     794.88,
+     6212000.0
+    ]
+   ]
+  }
+ },
+ "MSEC1112-01": {
+  "pdf": "tahmoor_west_EP_app_A_subsidence_predictions_1.pdf",
+  "url": "https://www.tahmoorcolliery.com.au/wp-content/uploads/sites/8/2022/10/11-app-a-subsidence-predictions-1.pdf",
+  "page": 180,
+  "title": "Western Domain Extraction Plan LW W3-W4, General Layout",
+  "drawing_date": "2021-03-12",
+  "scale": "1:20000",
+  "report": "MSEC1112 Rev A (Mar 2021)",
+  "datum": "MGA zone 56, converted as GDA94 (EPSG:28356)",
+  "labels": "grid labels are glyph outlines; each line's value was read by eye from a zoomed render (page coordinate -> value listed)",
+  "georef": {
+   "kind": "grid parallel to the page",
+   "east_from_page": "x",
+   "east": {
+    "a": 276318.37425910257,
+    "b_m_per_pt": 7.056167090036578,
+    "rms_m": 0.0,
+    "lines": 7,
+    "first_last": [
+     [
+      96.6,
+      277000.0
+     ],
+     [
+      521.76,
+      280000.0
+     ]
+    ]
+   },
+   "north": {
+    "a": 6217608.216264811,
+    "b_m_per_pt": -7.0553524155742275,
+    "rms_m": 0.105,
+    "lines": 11,
+    "first_last": [
+     [
+      86.22,
+      6217000.0
+     ],
+     [
+      794.88,
+      6212000.0
+     ]
+    ]
+   },
+   "scale_m_per_pt": 7.0558
+  },
+  "grid_lines": {
+   "east": [
+    [
+     96.6,
+     277000.0
+    ],
+    [
+     167.46,
+     277500.0
+    ],
+    [
+     238.32,
+     278000.0
+    ],
+    [
+     309.18,
+     278500.0
+    ],
+    [
+     380.04,
+     279000.0
+    ],
+    [
+     450.9,
+     279500.0
+    ],
+    [
+     521.76,
+     280000.0
+    ]
+   ],
+   "north": [
+    [
+     86.22,
+     6217000.0
+    ],
+    [
+     157.08,
+     6216500.0
+    ],
+    [
+     227.94,
+     6216000.0
+    ],
+    [
+     298.8,
+     6215500.0
+    ],
+    [
+     369.66,
+     6215000.0
+    ],
+    [
+     440.52,
+     6214500.0
+    ],
+    [
+     511.44,
+     6214000.0
+    ],
+    [
+     582.3,
+     6213500.0
+    ],
+    [
+     653.16,
+     6213000.0
+    ],
+    [
+     724.02,
+     6212500.0
+    ],
+    [
+     794.88,
+     6212000.0
+    ]
+   ]
+  }
+ },
+ "MSEC1192-01": {
+  "pdf": "tahmoor_MSEC1192_south_EP_S1A-S6A_RevA.pdf",
+  "url": "https://gm3.au/wp-content/uploads/2026/10/MSEC1192-Tahmoor-South-Extraction-Plan-for-LW-S1A-S6A-Rev-A-Final-compressed_Redacted.pdf",
+  "page": 245,
+  "title": "Tahmoor South Project Extraction Plan LW S1A to LW S6A, General Layout",
+  "drawing_date": "2022-05-12",
+  "scale": "as shown",
+  "report": "MSEC1192 Rev A (May 2022)",
+  "datum": "MGA zone 56, converted as GDA94 (EPSG:28356)",
+  "labels": "grid labels are glyph outlines; each line's value was read by eye from a zoomed render (page coordinate -> value listed)",
+  "georef": {
+   "kind": "grid parallel to the page",
+   "east_from_page": "x",
+   "east": {
+    "a": 273905.68593651,
+    "b_m_per_pt": 11.759863463608372,
+    "rms_m": 0.166,
+    "lines": 3,
+    "first_last": [
+     [
+      178.08,
+      276000.0
+     ],
+     [
+      518.22,
+      280000.0
+     ]
+    ]
+   },
+   "north": {
+    "a": 6210166.86655157,
+    "b_m_per_pt": -11.759448658497533,
+    "rms_m": 0.158,
+    "lines": 4,
+    "first_last": [
+     [
+      184.26,
+      6208000.0
+     ],
+     [
+      694.5,
+      6202000.0
+     ]
+    ]
+   },
+   "scale_m_per_pt": 11.7597
+  },
+  "grid_lines": {
+   "east": [
+    [
+     178.08,
+     276000.0
+    ],
+    [
+     348.18,
+     278000.0
+    ],
+    [
+     518.22,
+     280000.0
+    ]
+   ],
+   "north": [
+    [
+     184.26,
+     6208000.0
+    ],
+    [
+     354.36,
+     6206000.0
+    ],
+    [
+     524.4,
+     6204000.0
+    ],
+    [
+     694.5,
+     6202000.0
+    ]
+   ]
+  }
+ },
+ "MSEC1050-01": {
+  "pdf": "appin_MSEC1050_LW902_EoP_report_RevA.pdf",
+  "url": "https://gm3.au/wp-content/uploads/2024/07/Attachment-B-MSEC1050-Appin-LW902-End-of-Panel-Report-Rev.-A.pdf",
+  "page": 32,
+  "title": "Illawarra Coal, Appin Colliery Area 9, General Layout & Monitoring (LW902)",
+  "drawing_date": "2019-07-16",
+  "scale": "1:12500",
+  "report": "MSEC1050 Rev A (LW902 End of Panel)",
+  "datum": "MGA zone 56, converted as GDA94 (EPSG:28356)",
+  "labels": "grid labels are glyph outlines; each line's value was read by eye from a zoomed render (page coordinate -> value listed)",
+  "georef": {
+   "kind": "grid parallel to the page",
+   "east_from_page": "y",
+   "east": {
+    "a": 289645.72032377665,
+    "b_m_per_pt": -4.409754350955567,
+    "rms_m": 0.062,
+    "lines": 3,
+    "first_last": [
+     [
+      146.42,
+      289000.0
+     ],
+     [
+      599.96,
+      287000.0
+     ]
+    ]
+   },
+   "north": {
+    "a": 6216435.727821585,
+    "b_m_per_pt": -4.409754350953051,
+    "rms_m": 0.062,
+    "lines": 3,
+    "first_last": [
+     [
+      98.8,
+      6216000.0
+     ],
+     [
+      552.34,
+      6214000.0
+     ]
+    ]
+   },
+   "scale_m_per_pt": 4.4098
+  },
+  "grid_lines": {
+   "east": [
+    [
+     146.42,
+     289000.0
+    ],
+    [
+     373.22,
+     288000.0
+    ],
+    [
+     599.96,
+     287000.0
+    ]
+   ],
+   "north": [
+    [
+     98.8,
+     6216000.0
+    ],
+    [
+     325.6,
+     6215000.0
+    ],
+    [
+     552.34,
+     6214000.0
+    ]
+   ]
+  }
+ },
+ "MSEC1176-01": {
+  "pdf": "appin_LW903_EoP_monitoring_review.pdf",
+  "url": "https://gm3.au/wp-content/uploads/2024/07/Attachment-B-End-of-Panel-Subsidence-Monitoring-Review-Report-for-Appin-Longwall-903.pdf",
+  "page": 37,
+  "title": "Illawarra Metallurgical Coal, Appin Colliery LW903, Ground Monitoring Lines",
+  "drawing_date": "2021-07-21",
+  "scale": "1:12500",
+  "report": "MSEC1176 (LW903 End of Panel monitoring review)",
+  "datum": "MGA zone 56, converted as GDA94 (EPSG:28356)",
+  "labels": "grid labels are glyph outlines; each line's value was read by eye from a zoomed render (page coordinate -> value listed)",
+  "georef": {
+   "kind": "grid parallel to the page",
+   "east_from_page": "y",
+   "east": {
+    "a": 289688.18342151656,
+    "b_m_per_pt": -4.409171075837368,
+    "rms_m": 0.0,
+    "lines": 3,
+    "first_last": [
+     [
+      156.08,
+      289000.0
+     ],
+     [
+      609.68,
+      287000.0
+     ]
+    ]
+   },
+   "north": {
+    "a": 6216497.640772672,
+    "b_m_per_pt": -4.40975435096033,
+    "rms_m": 0.062,
+    "lines": 3,
+    "first_last": [
+     [
+      112.84,
+      6216000.0
+     ],
+     [
+      566.38,
+      6214000.0
+     ]
+    ]
+   },
+   "scale_m_per_pt": 4.4095
+  },
+  "grid_lines": {
+   "east": [
+    [
+     156.08,
+     289000.0
+    ],
+    [
+     382.88,
+     288000.0
+    ],
+    [
+     609.68,
+     287000.0
+    ]
+   ],
+   "north": [
+    [
+     112.84,
+     6216000.0
+    ],
+    [
+     339.64,
+     6215000.0
+    ],
+    [
+     566.38,
+     6214000.0
+    ]
+   ]
+  }
+ },
+ "MSEC1334-01": {
+  "pdf": "appin_LW905_EoP_monitoring_review.pdf",
+  "url": "https://gm3.au/wp-content/uploads/2024/07/Attachment-B-Appin-LW905-Subsidence-Monitoring-Review.pdf",
+  "page": 41,
+  "title": "Illawarra Metallurgical Coal, Appin Colliery LW905, Ground Monitoring Lines",
+  "drawing_date": "2023-06-15",
+  "scale": "1:12500 (printed reduced)",
+  "report": "MSEC1334 (LW905 End of Panel monitoring review)",
+  "datum": "MGA zone 56, converted as GDA94 (EPSG:28356)",
+  "labels": "grid labels are glyph outlines; each line's value was read by eye from a zoomed render (page coordinate -> value listed)",
+  "georef": {
+   "kind": "grid parallel to the page",
+   "east_from_page": "x",
+   "east": {
+    "a": 285530.4610921303,
+    "b_m_per_pt": 5.0390526197145,
+    "rms_m": 0.071,
+    "lines": 3,
+    "first_last": [
+     [
+      291.62,
+      287000.0
+     ],
+     [
+      688.52,
+      289000.0
+     ]
+    ]
+   },
+   "north": {
+    "a": 6217743.008301157,
+    "b_m_per_pt": -5.03905261971334,
+    "rms_m": 0.071,
+    "lines": 3,
+    "first_last": [
+     [
+      147.46,
+      6217000.0
+     ],
+     [
+      544.36,
+      6215000.0
+     ]
+    ]
+   },
+   "scale_m_per_pt": 5.0391
+  },
+  "grid_lines": {
+   "east": [
+    [
+     291.62,
+     287000.0
+    ],
+    [
+     490.1,
+     288000.0
+    ],
+    [
+     688.52,
+     289000.0
+    ]
+   ],
+   "north": [
+    [
+     147.46,
+     6217000.0
+    ],
+    [
+     345.88,
+     6216000.0
+    ],
+    [
+     544.36,
+     6215000.0
+    ]
+   ]
+  }
+ },
+ "MSEC975-01": {
+  "pdf": "appin_LW707_monitoring_report.pdf",
+  "url": "https://gm3.au/wp-content/uploads/2024/07/Attachment-B-7-Longwall-707-Subsidence-Monitoring-Report.pdf",
+  "page": 51,
+  "title": "Illawarra Coal, LW707 End of Panel, General Layout and Monitoring Lines",
+  "drawing_date": "2018-10-11",
+  "scale": "1:20000",
+  "report": "MSEC975 (LW707 subsidence monitoring report)",
+  "datum": "MGA zone 56, converted as GDA94 (EPSG:28356)",
+  "labels": "grid labels are glyph outlines; each line's value was read by eye from a zoomed render (page coordinate -> value listed)",
+  "georef": {
+   "kind": "grid parallel to the page",
+   "east_from_page": "y",
+   "east": {
+    "a": 293853.96998564503,
+    "b_m_per_pt": -7.055270955030224,
+    "rms_m": 0.104,
+    "lines": 5,
+    "first_last": [
+     [
+      121.04,
+      293000.0
+     ],
+     [
+      687.98,
+      289000.0
+     ]
+    ]
+   },
+   "north": {
+    "a": 6218921.535421962,
+    "b_m_per_pt": -7.056167090044459,
+    "rms_m": 0.0,
+    "lines": 3,
+    "first_last": [
+     [
+      130.6,
+      6218000.0
+     ],
+     [
+      414.04,
+      6216000.0
+     ]
+    ]
+   },
+   "scale_m_per_pt": 7.0557
+  },
+  "grid_lines": {
+   "east": [
+    [
+     121.04,
+     293000.0
+    ],
+    [
+     262.76,
+     292000.0
+    ],
+    [
+     404.54,
+     291000.0
+    ],
+    [
+     546.26,
+     290000.0
+    ],
+    [
+     687.98,
+     289000.0
+    ]
+   ],
+   "north": [
+    [
+     130.6,
+     6218000.0
+    ],
+    [
+     272.32,
+     6217000.0
+    ],
+    [
+     414.04,
+     6216000.0
+    ]
+   ]
+  }
+ },
+ "MSEC1250-01": {
+  "pdf": "appin_LW708_subsidence_assessment.pdf",
+  "url": "https://gm3.au/wp-content/uploads/2024/07/Attachment-D-LW708-Subsidence-Assessment.pdf",
+  "page": 44,
+  "title": "Illawarra Metallurgical Coal, LW708 End of Panel, General Layout and Monitoring Lines",
+  "drawing_date": "2022-04-28",
+  "scale": "1:20000",
+  "report": "MSEC1250 (LW708 subsidence assessment)",
+  "datum": "MGA zone 56, converted as GDA94 (EPSG:28356)",
+  "labels": "grid labels are glyph outlines; each line's value was read by eye from a zoomed render (page coordinate -> value listed)",
+  "georef": {
+   "kind": "grid parallel to the page",
+   "east_from_page": "x",
+   "east": {
+    "a": 287171.94380624994,
+    "b_m_per_pt": 7.054972293943493,
+    "rms_m": 0.12,
+    "lines": 5,
+    "first_last": [
+     [
+      117.36,
+      288000.0
+     ],
+     [
+      684.36,
+      292000.0
+     ]
+    ]
+   },
+   "north": {
+    "a": 6219266.581992667,
+    "b_m_per_pt": -7.05616709004324,
+    "rms_m": 0.0,
+    "lines": 3,
+    "first_last": [
+     [
+      179.5,
+      6218000.0
+     ],
+     [
+      462.94,
+      6216000.0
+     ]
+    ]
+   },
+   "scale_m_per_pt": 7.0556
+  },
+  "grid_lines": {
+   "east": [
+    [
+     117.36,
+     288000.0
+    ],
+    [
+     259.14,
+     289000.0
+    ],
+    [
+     400.86,
+     290000.0
+    ],
+    [
+     542.58,
+     291000.0
+    ],
+    [
+     684.36,
+     292000.0
+    ]
+   ],
+   "north": [
+    [
+     179.5,
+     6218000.0
+    ],
+    [
+     321.22,
+     6217000.0
+    ],
+    [
+     462.94,
+     6216000.0
+    ]
+   ]
+  }
+ },
+ "MSEC1394-01": {
+  "pdf": "appin_LW709_subsidence_assessment.pdf",
+  "url": "https://gm3.au/wp-content/uploads/2024/07/attachment-c-longwall-709-subsidence-assessment.pdf",
+  "page": 46,
+  "title": "Appin Colliery, End of Panel LW709, Ground Monitoring Lines",
+  "drawing_date": "2024-01-23",
+  "scale": "as shown",
+  "report": "MSEC1394 (LW709 subsidence assessment)",
+  "datum": "MGA zone 56, converted as GDA94 (EPSG:28356)",
+  "labels": "grid labels are glyph outlines; each line's value was read by eye from a zoomed render (page coordinate -> value listed)",
+  "georef": {
+   "kind": "grid parallel to the page",
+   "east_from_page": "x",
+   "east": {
+    "a": 287771.86897643754,
+    "b_m_per_pt": 4.89951100339481,
+    "rms_m": 0.081,
+    "lines": 4,
+    "first_last": [
+     [
+      46.58,
+      288000.0
+     ],
+     [
+      658.88,
+      291000.0
+     ]
+    ]
+   },
+   "north": {
+    "a": 6219265.628061923,
+    "b_m_per_pt": -4.89907897314958,
+    "rms_m": 0.0,
+    "lines": 3,
+    "first_last": [
+     [
+      54.22,
+      6219000.0
+     ],
+     [
+      462.46,
+      6217000.0
+     ]
+    ]
+   },
+   "scale_m_per_pt": 4.8993
+  },
+  "grid_lines": {
+   "east": [
+    [
+     46.58,
+     288000.0
+    ],
+    [
+     250.64,
+     289000.0
+    ],
+    [
+     454.76,
+     290000.0
+    ],
+    [
+     658.88,
+     291000.0
+    ]
+   ],
+   "north": [
+    [
+     54.22,
+     6219000.0
+    ],
+    [
+     258.34,
+     6218000.0
+    ],
+    [
+     462.46,
+     6217000.0
+    ]
+   ]
+  }
+ },
+ "MSEC1263-01": {
+  "pdf": "tahmoor_west_report_8.pdf",
+  "url": "https://gm3.au/wp-content/uploads/2026/09/Report-8-\u2013-1-January-2023-to-30-June-2023-for-Longwalls-West-1-to-West-4.pdf",
+  "page": 88,
+  "title": "Tahmoor North Western Domain Monitoring LW W4, General Layout (Rev 21)",
+  "drawing_date": "2023-08-23",
+  "scale": "1:10000 (printed reduced)",
+  "report": "MSEC1263 Rev 21, in Tahmoor West Report 8",
+  "datum": "as the tie panels (MGA94)",
+  "labels": "no grid on this drawing: affine fit to the corners of W1, W2, W3 read from gridded drawings",
+  "georef": {
+   "kind": "affine from control points",
+   "matrix": [
+    [
+     4.900562136882381,
+     0.00018545510422163586,
+     277158.1677823343
+    ],
+    [
+     0.000676044318459424,
+     -4.8993382840146165,
+     6217703.493476462
+    ]
+   ],
+   "rms_m": 0.17,
+   "points": 12,
+   "residuals_m": [
+    [
+     "W1 corner 0",
+     0.13
+    ],
+    [
+     "W1 corner 1",
+     0.17
+    ],
+    [
+     "W1 corner 2",
+     0.13
+    ],
+    [
+     "W1 corner 3",
+     0.16
+    ],
+    [
+     "W2 corner 0",
+     0.15
+    ],
+    [
+     "W2 corner 1",
+     0.18
+    ],
+    [
+     "W2 corner 2",
+     0.06
+    ],
+    [
+     "W2 corner 3",
+     0.25
+    ],
+    [
+     "W3 corner 0",
+     0.26
+    ],
+    [
+     "W3 corner 1",
+     0.1
+    ],
+    [
+     "W3 corner 2",
+     0.2
+    ],
+    [
+     "W3 corner 3",
+     0.16
+    ]
+   ]
+  }
+ },
+ "MSEC1285-01": {
+  "pdf": "appin_LW904_EoP_monitoring_review.pdf",
+  "url": "https://gm3.au/wp-content/uploads/2024/07/Attachment-B-Appin-LW904-Subsidence-Monitoring-Review.pdf",
+  "page": 39,
+  "title": "Illawarra Metallurgical Coal, Appin Colliery LW904, Ground Monitoring Lines",
+  "drawing_date": "2022-12-15",
+  "scale": "as shown",
+  "report": "MSEC1285 (LW904 End of Panel monitoring review)",
+  "datum": "as the tie panels (MGA94)",
+  "labels": "no grid on this drawing: affine fit to the corners of LW901, LW902, LW903 read from gridded drawings",
+  "georef": {
+   "kind": "affine from control points",
+   "matrix": [
+    [
+     5.295802225246941,
+     5.899212265210294e-05,
+     285630.69666249584
+    ],
+    [
+     2.5076495695934273e-05,
+     -5.296170478231995,
+     6217099.0043821875
+    ]
+   ],
+   "rms_m": 0.184,
+   "points": 12,
+   "residuals_m": [
+    [
+     "LW901 corner 0",
+     0.17
+    ],
+    [
+     "LW901 corner 1",
+     0.1
+    ],
+    [
+     "LW901 corner 2",
+     0.12
+    ],
+    [
+     "LW901 corner 3",
+     0.28
+    ],
+    [
+     "LW902 corner 0",
+     0.24
+    ],
+    [
+     "LW902 corner 1",
+     0.19
+    ],
+    [
+     "LW902 corner 2",
+     0.13
+    ],
+    [
+     "LW902 corner 3",
+     0.17
+    ],
+    [
+     "LW903 corner 0",
+     0.24
+    ],
+    [
+     "LW903 corner 1",
+     0.18
+    ],
+    [
+     "LW903 corner 2",
+     0.21
+    ],
+    [
+     "LW903 corner 3",
+     0.08
+    ]
+   ]
+  }
+ }
+}

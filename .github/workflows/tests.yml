@@ -1,0 +1,36 @@
+# The full test suite in the pinned insar environment (install/envs/insar.yml):
+# on pull requests, on main, by hand (Actions > tests > Run workflow) and as the
+# gate of every release (release.yml). Other pushes get checks.yml only, which
+# keeps a private repository well inside GitHub's free Actions minutes.
+# Tests that need a client project or a local record skip here, as on any fresh
+# clone (CONTRIBUTING.md, "Tests").
+name: tests
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  workflow_call:
+permissions:
+  contents: read
+concurrency:
+  group: tests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      # the folder is the package: tests import insar_pipeline from the folder above it
+      - uses: actions/checkout@v4
+        with:
+          path: insar_pipeline
+      - uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-file: insar_pipeline/install/envs/insar.yml
+          cache-environment: true
+      - name: full test suite
+        run: python -m pytest insar_pipeline/tests -q -p no:cacheprovider

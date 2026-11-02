@@ -1,0 +1,51 @@
+# A release, started by pushing the tag v<version>, where <version> is
+# pyproject.toml's (CONTRIBUTING.md, "Commits, branches, releases"):
+#
+#     git tag v2026.10.30 && git push origin v2026.10.30
+#
+# The tag must name pyproject.toml's version; then the cheap checks and the full
+# suite must pass; then install/make_release.sh builds the tarball and the
+# GitHub Release on this repository gets it with its .sha256 and the Windows
+# setup files beside it. The repository is private, and so is the Release.
+name: release
+on:
+  push:
+    tags: ["v*"]
+permissions:
+  contents: read
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: the tag names pyproject.toml's version
+        run: |
+          v="$(sed -n 's/^version *= *"\(.*\)"/\1/p' pyproject.toml | head -1)"
+          if [[ "$GITHUB_REF_NAME" != "v$v" ]]; then
+            echo "::error::tag $GITHUB_REF_NAME, but pyproject.toml's version is $v (tag v$v, or bump the version)"
+            exit 1
+          fi
+  checks:
+    needs: version
+    uses: ./.github/workflows/checks.yml
+  tests:
+    needs: version
+    uses: ./.github/workflows/tests.yml
+  publish:
+    needs: [checks, tests]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: insar_pipeline
+      - name: build the release tarball
+        run: bash insar_pipeline/install/make_release.sh "$RUNNER_TEMP/dist"
+      - name: publish the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" "$RUNNER_TEMP"/dist/* \
+            --repo "$GITHUB_REPOSITORY" --verify-tag --title "$GITHUB_REF_NAME" \
+            --notes "insar_pipeline $GITHUB_REF_NAME. What changed: CHANGELOG.md. Check the download with sha256sum -c <name>.tar.gz.sha256; install as in install/README.md. Internal: do not distribute outside the operating organisation."

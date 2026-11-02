@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>InSAR Results Viewer</title>
+<link rel="stylesheet" href="assets/vendor/leaflet.min.css">
+<link rel="stylesheet" href="assets/vendor/leaflet.draw.css">
+<link rel="stylesheet" href="assets/viewer.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="row1">
+    <h1>Results viewer</h1>
+    <div class="group" id="projgroup">
+      <select id="project" aria-label="Project"></select>
+      <button id="reload" class="small" title="Load the project's points again">Reload</button>
+    </div>
+    <span id="routebadge" class="badge route" hidden></span>
+    <span id="finalbadge" class="badge" hidden></span>
+    <div class="group">
+      <span class="lbl">Dates</span>
+      <select id="preset" aria-label="Date window"></select>
+      <select id="dstart" aria-label="First image"></select>
+      <span>to</span>
+      <select id="dend" aria-label="Last image"></select>
+      <span id="kindchip" class="chip"></span>
+      <span id="wsum" class="wsum"></span>
+    </div>
+    <div class="group">
+      <span class="lbl">Units</span>
+      <span class="toggle" id="units"><button data-v="in" class="on">in</button><button data-v="mm">mm</button></span>
+    </div>
+  </div>
+  <svg id="timeline" role="img" aria-label="Every image of the record; drag to choose the dates"></svg>
+  <div id="windownote" class="note warn" hidden></div>
+</header>
+<aside>
+  <div id="stale" class="note warn" hidden style="margin:10px 16px 0"></div>
+  <section class="step">
+    <h2>Colour the points by</h2>
+    <div class="seg" id="layers">
+      <label><input type="radio" name="layer" value="vert" checked> Vertical movement</label>
+      <label><input type="radio" name="layer" value="los"> Line-of-sight velocity</label>
+      <label><input type="radio" name="layer" value="change"> Change over these dates</label>
+      <label><input type="radio" name="layer" value="snr"> Signal-to-noise</label>
+      <label><input type="radio" name="layer" value="tc"> Measurement quality</label>
+      <label><input type="radio" name="layer" value="unwrap"> Unwrapping consistency</label>
+    </div>
+    <div id="legend" class="legend"></div>
+    <div class="row">
+      <label class="inline"><input type="checkbox" id="fade" checked> Fade points within normal variation</label>
+      <label class="inline"><input type="checkbox" id="outlines" checked> Areas and features</label>
+      <label class="inline" title="Keep the colour scale while you change the dates, to compare windows"><input type="checkbox" id="lockscale"> Hold the colour scale</label>
+      <label class="inline" title="Zoomed in on the whole record, every measured 15 m cell takes the place of the ~100 m points; click one for its own figures and chart"><input type="checkbox" id="cells15" checked> Every 15 m cell when zoomed in</label>
+    </div>
+    <p class="hint" id="cellhint"></p>
+    <p class="hint" id="layerhint"></p>
+  </section>
+  <section class="step">
+    <div class="row" id="shapes"><button id="drawpoly" class="small" title="Click the corners on the map; click the first again to close">Draw a polygon</button><button id="drawrect" class="small" title="Drag on the map">Draw a rectangle</button></div>
+  </section>
+  <section class="step" id="detail">
+    <h2 id="detailhead">Point or polygon</h2>
+    <div id="detailbody"><p class="empty">Click a point for its figures and its movement over these dates, or draw a
+      polygon around a place (the buttons above, or the shapes at the top right of the map) for the average of the
+      points inside it. Polygons stay on the map: click a point inside one, click a polygon's outline or its button to
+      come back to it, and pin points and polygons to compare them on one chart.</p></div>
+  </section>
+  <section class="step" id="compare" hidden>
+    <h2>Compare <button id="clearpins" class="small">Clear</button></h2>
+    <div id="comparebody"></div>
+  </section>
+  <footer id="foot">Over the whole record every figure is the client report's: the table the client KMZ is built from
+    (deliverables/viewer/field_points.npz), so a point reads here what it reads in the KMZ and the rasters. Other
+    dates are computed here from each point's own series. Negative = sinking / away from the satellite.</footer>
+</aside>
+<main>
+  <div id="map"></div>
+  <div class="mapbar">
+    <select id="base" aria-label="Basemap">
+      <option value="usgs">USGS imagery</option><option value="imagery">Esri imagery</option>
+      <option value="osm">OpenStreetMap</option><option value="topo">Topographic</option><option value="grey">Light grey</option>
+    </select>
+  </div>
+  <div class="readout" id="readout">—</div>
+</main>
+<div id="toast" hidden></div>
+<script src="assets/vendor/leaflet.min.js"></script>
+<script src="assets/vendor/leaflet.draw.js"></script>
+<script src="assets/viewer_core.js"></script>
+<script src="assets/viewer_charts.js"></script>
+<script src="assets/viewer_app.js"></script>
+</body>
+</html>

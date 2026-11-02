@@ -1,0 +1,4493 @@
+{
+ "TW_G07": {
+  "figure": "Fig. G07-R21",
+  "page": 89,
+  "title": "Site 7 - PMLL culvert at 87.850km",
+  "styles": {
+   "daily": [
+    "#33cc33",
+    0.792
+   ],
+   "avg7": [
+    "#006633",
+    0.504
+   ]
+  },
+  "x_axis": {
+   "day_number_epoch": "2000-01-01",
+   "a": 6955.184851575626,
+   "b_days_per_pt": 3.0869508756694257,
+   "rms_days": 0.051,
+   "ticks": 24,
+   "first_last_tick": [
+    "2019-11-01",
+    "2023-09-01"
+   ]
+  },
+  "panels": {
+   "easting": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      408.45979965425516,
+      -1.469700548133627
+     ],
+     "labelled_ticks": 6,
+     "rms_at_ticks_mm": 0.001,
+     "gridline_mm": 50.0,
+     "minor_tick_mm": 9.97,
+     "y_range_pt": [
+      175.859375,
+      345.9609375
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 4,
+     "rms_at_gridlines_mm": 0.0,
+     "date_gridlines_used": 24,
+     "rms_days": 0.053,
+     "columns_read": 3645,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 935,
+     "rms_mm": 0.097
+    },
+    "daily_scatter_about_avg7_mm": 1.44,
+    "two_pass": {
+     "epochs": 88,
+     "rms_A_minus_B_mm": 0.1,
+     "max_abs_A_minus_B_mm": 0.36
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.1,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.37,
+     "value_axis_rms_mm": 0.001,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.01,
+      "max": 0.07
+     },
+     "digitising_sigma_mm": {
+      "median": 0.38,
+      "max": 0.39
+     },
+     "gnss_sigma_mm": 1.44,
+     "sigma_mm": {
+      "median": 1.49,
+      "max": 1.49
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 25.0,
+      "digitising_sigma_mm": 25.0,
+      "sigma_mm": 25.04
+     }
+    }
+   },
+   "northing": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      690.255146664986,
+      -1.764083236260425
+     ],
+     "labelled_ticks": 7,
+     "rms_at_ticks_mm": 0.029,
+     "gridline_mm": 50.0,
+     "minor_tick_mm": 9.95,
+     "y_range_pt": [
+      362.94140625,
+      532.98046875
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 7,
+     "rms_at_gridlines_mm": 0.052,
+     "date_gridlines_used": 24,
+     "rms_days": 0.053,
+     "columns_read": 3645,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 711,
+     "rms_mm": 0.091
+    },
+    "daily_scatter_about_avg7_mm": 1.26,
+    "two_pass": {
+     "epochs": 88,
+     "rms_A_minus_B_mm": 0.21,
+     "max_abs_A_minus_B_mm": 1.54
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.21,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.44,
+     "value_axis_rms_mm": 0.029,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.03,
+      "max": 0.14
+     },
+     "digitising_sigma_mm": {
+      "median": 0.49,
+      "max": 0.51
+     },
+     "gnss_sigma_mm": 1.26,
+     "sigma_mm": {
+      "median": 1.35,
+      "max": 1.36
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 25.0,
+      "digitising_sigma_mm": 25.0,
+      "sigma_mm": 25.03
+     }
+    }
+   },
+   "height": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      -2363.777057144515,
+      4.116070400745085
+     ],
+     "labelled_ticks": 8,
+     "rms_at_ticks_mm": 0.066,
+     "gridline_mm": 100.0,
+     "minor_tick_mm": 20.0,
+     "y_range_pt": [
+      550.0195309999999,
+      720.05859375
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 8,
+     "rms_at_gridlines_mm": 0.067,
+     "date_gridlines_used": 24,
+     "rms_days": 0.051,
+     "columns_read": 3645,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 728,
+     "rms_mm": 0.11
+    },
+    "daily_scatter_about_avg7_mm": 2.93,
+    "two_pass": {
+     "epochs": 88,
+     "rms_A_minus_B_mm": 0.56,
+     "max_abs_A_minus_B_mm": 3.15
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.56,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 1.04,
+     "value_axis_rms_mm": 0.066,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.07,
+      "max": 0.27
+     },
+     "digitising_sigma_mm": {
+      "median": 1.18,
+      "max": 1.21
+     },
+     "gnss_sigma_mm": 2.93,
+     "sigma_mm": {
+      "median": 3.16,
+      "max": 3.17
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 50.0,
+      "digitising_sigma_mm": 50.0,
+      "sigma_mm": 50.09
+     }
+    }
+   }
+  },
+  "position": {
+   "inset_affine_rms_m": 0.47,
+   "diamond_page_pt": [
+    165.32,
+    107.12
+   ],
+   "mga94": [
+    278403.5,
+    6216210.5
+   ],
+   "source": "circle on drawing MSEC1263-01 (Report 8 page 88), affine to LW W1-W3 corners (rms 0.17 m); checked against the figure's own inset map",
+   "layout_circle_page_pt": [
+    254.11,
+    304.78
+   ],
+   "inset_mga94": [
+    278404.2,
+    6216210.7
+   ],
+   "inset_minus_layout_m": 0.8,
+   "next_circle_m": 227.6,
+   "position_sigma_note": "5 m (1 sigma): the two drawings agree within 2.4 m; panel georeference 1-2 m",
+   "lat": -34.171549,
+   "lon": 150.595833,
+   "position_sigma_m": 5.0
+  },
+  "warnings": [
+   "daily path at y=145.1 fits 0 panels; skipped"
+  ],
+  "report7": {
+   "figure": "Fig. G07-R20",
+   "page": 179,
+   "x_rms_days": 0.045
+  },
+  "epochs": {
+   "first": "2019-11-18",
+   "last": "2023-07-29",
+   "listed": 89,
+   "dropped": {
+    "e": {
+     "2020-04-15": "only 3 of the 7 days around it have data"
+    },
+    "n": {
+     "2020-04-15": "only 3 of the 7 days around it have data"
+    },
+    "u": {
+     "2020-04-15": "only 3 of the 7 days around it have data"
+    }
+   }
+  }
+ },
+ "TW_G08": {
+  "figure": "Fig. G08-R21",
+  "page": 90,
+  "title": "Site 8 - LW W2 centreline - PMLL at 88.110km",
+  "styles": {
+   "daily": [
+    "#cc9933",
+    0.792
+   ],
+   "avg7": [
+    "#663333",
+    0.504
+   ]
+  },
+  "x_axis": {
+   "day_number_epoch": "2000-01-01",
+   "a": 6955.184851575626,
+   "b_days_per_pt": 3.0869508756694257,
+   "rms_days": 0.051,
+   "ticks": 24,
+   "first_last_tick": [
+    "2019-11-01",
+    "2023-09-01"
+   ]
+  },
+  "panels": {
+   "easting": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      916.4533081863467,
+      -2.9402110902344347
+     ],
+     "labelled_ticks": 6,
+     "rms_at_ticks_mm": 0.049,
+     "gridline_mm": 100.0,
+     "minor_tick_mm": 19.94,
+     "y_range_pt": [
+      175.6796875,
+      345.71875
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 4,
+     "rms_at_gridlines_mm": 0.0,
+     "date_gridlines_used": 24,
+     "rms_days": 0.053,
+     "columns_read": 3645,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 876,
+     "rms_mm": 0.197
+    },
+    "daily_scatter_about_avg7_mm": 2.35,
+    "two_pass": {
+     "epochs": 88,
+     "rms_A_minus_B_mm": 0.25,
+     "max_abs_A_minus_B_mm": 1.4
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.25,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.74,
+     "value_axis_rms_mm": 0.049,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.05,
+      "max": 0.12
+     },
+     "digitising_sigma_mm": {
+      "median": 0.78,
+      "max": 0.79
+     },
+     "gnss_sigma_mm": 2.35,
+     "sigma_mm": {
+      "median": 2.48,
+      "max": 2.48
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 50.0,
+      "digitising_sigma_mm": 50.0,
+      "sigma_mm": 50.06
+     }
+    }
+   },
+   "northing": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      796.2948855587506,
+      -2.057610017998326
+     ],
+     "labelled_ticks": 8,
+     "rms_at_ticks_mm": 0.002,
+     "gridline_mm": 50.0,
+     "minor_tick_mm": 10.0,
+     "y_range_pt": [
+      362.69921875,
+      532.80078125
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 8,
+     "rms_at_gridlines_mm": 0.033,
+     "date_gridlines_used": 24,
+     "rms_days": 0.053,
+     "columns_read": 3645,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 707,
+     "rms_mm": 0.124
+    },
+    "daily_scatter_about_avg7_mm": 1.29,
+    "two_pass": {
+     "epochs": 88,
+     "rms_A_minus_B_mm": 0.62,
+     "max_abs_A_minus_B_mm": 4.12
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.62,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.52,
+     "value_axis_rms_mm": 0.002,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.01,
+      "max": 0.11
+     },
+     "digitising_sigma_mm": {
+      "median": 0.81,
+      "max": 0.82
+     },
+     "gnss_sigma_mm": 1.29,
+     "sigma_mm": {
+      "median": 1.52,
+      "max": 1.52
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 25.0,
+      "digitising_sigma_mm": 25.0,
+      "sigma_mm": 25.03
+     }
+    }
+   },
+   "height": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      -2909.5069807824293,
+      5.290978786546783
+     ],
+     "labelled_ticks": 10,
+     "rms_at_ticks_mm": 0.006,
+     "gridline_mm": 100.0,
+     "minor_tick_mm": 20.01,
+     "y_range_pt": [
+      549.8984379999999,
+      720.0000000000002
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 10,
+     "rms_at_gridlines_mm": 0.0,
+     "date_gridlines_used": 24,
+     "rms_days": 0.051,
+     "columns_read": 3645,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 752,
+     "rms_mm": 0.129
+    },
+    "daily_scatter_about_avg7_mm": 3.28,
+    "two_pass": {
+     "epochs": 88,
+     "rms_A_minus_B_mm": 0.51,
+     "max_abs_A_minus_B_mm": 2.54
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.51,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 1.33,
+     "value_axis_rms_mm": 0.006,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.03,
+      "max": 0.51
+     },
+     "digitising_sigma_mm": {
+      "median": 1.43,
+      "max": 1.51
+     },
+     "gnss_sigma_mm": 3.28,
+     "sigma_mm": {
+      "median": 3.58,
+      "max": 3.61
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 50.0,
+      "digitising_sigma_mm": 50.0,
+      "sigma_mm": 50.11
+     }
+    }
+   }
+  },
+  "position": {
+   "inset_affine_rms_m": 0.47,
+   "diamond_page_pt": [
+    152.48,
+    109.16
+   ],
+   "mga94": [
+    278177.9,
+    6216174.5
+   ],
+   "source": "circle on drawing MSEC1263-01 (Report 8 page 88), affine to LW W1-W3 corners (rms 0.17 m); checked against the figure's own inset map",
+   "layout_circle_page_pt": [
+    208.07,
+    312.12
+   ],
+   "inset_mga94": [
+    278177.6,
+    6216174.9
+   ],
+   "inset_minus_layout_m": 0.5,
+   "next_circle_m": 228.6,
+   "position_sigma_note": "5 m (1 sigma): the two drawings agree within 2.4 m; panel georeference 1-2 m",
+   "lat": -34.171826,
+   "lon": 150.593378,
+   "position_sigma_m": 5.0
+  },
+  "warnings": [
+   "daily height: 1 vertices lie outside the labelled axis range (kept: the vector holds them)",
+   "daily height: 5 vertices lie outside the labelled axis range (kept: the vector holds them)",
+   "daily height: 3 vertices lie outside the labelled axis range (kept: the vector holds them)",
+   "daily height: 1 vertices lie outside the labelled axis range (kept: the vector holds them)",
+   "daily path at y=132.5 fits 0 panels; skipped"
+  ],
+  "report7": {
+   "figure": "Fig. G08-R20",
+   "page": 180,
+   "x_rms_days": 0.045
+  },
+  "epochs": {
+   "first": "2019-11-18",
+   "last": "2023-07-29",
+   "listed": 89,
+   "dropped": {
+    "e": {
+     "2020-04-01": "only 3 of the 7 days around it have data"
+    },
+    "n": {
+     "2020-04-01": "only 3 of the 7 days around it have data"
+    },
+    "u": {
+     "2020-04-01": "only 3 of the 7 days around it have data"
+    }
+   }
+  }
+ },
+ "TW_G09": {
+  "figure": "Fig. G09-R21",
+  "page": 91,
+  "title": "Site 9 - LW W1 centreline - PMLL at 88.550km",
+  "styles": {
+   "daily": [
+    "#9900cc",
+    0.792
+   ],
+   "avg7": [
+    "#6633ff",
+    0.504
+   ]
+  },
+  "x_axis": {
+   "day_number_epoch": "2000-01-01",
+   "a": 6955.184851575626,
+   "b_days_per_pt": 3.0869508756694257,
+   "rms_days": 0.051,
+   "ticks": 24,
+   "first_last_tick": [
+    "2019-11-01",
+    "2023-09-01"
+   ]
+  },
+  "panels": {
+   "easting": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      1729.6915607370008,
+      -5.292622410993284
+     ],
+     "labelled_ticks": 10,
+     "rms_at_ticks_mm": 0.088,
+     "gridline_mm": 100.0,
+     "minor_tick_mm": 20.01,
+     "y_range_pt": [
+      175.6796875,
+      345.71875
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 8,
+     "rms_at_gridlines_mm": 0.001,
+     "date_gridlines_used": 24,
+     "rms_days": 0.053,
+     "columns_read": 3645,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 458,
+     "rms_mm": 0.175
+    },
+    "daily_scatter_about_avg7_mm": 1.87,
+    "two_pass": {
+     "epochs": 84,
+     "rms_A_minus_B_mm": 0.57,
+     "max_abs_A_minus_B_mm": 2.98
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.57,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 1.33,
+     "value_axis_rms_mm": 0.088,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.09,
+      "max": 0.13
+     },
+     "digitising_sigma_mm": {
+      "median": 1.45,
+      "max": 1.46
+     },
+     "gnss_sigma_mm": 1.87,
+     "sigma_mm": {
+      "median": 2.37,
+      "max": 2.37
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 50.0,
+      "digitising_sigma_mm": 50.0,
+      "sigma_mm": 50.03
+     }
+    }
+   },
+   "northing": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      583.0584204268308,
+      -1.4697005481336258
+     ],
+     "labelled_ticks": 6,
+     "rms_at_ticks_mm": 0.001,
+     "gridline_mm": 50.0,
+     "minor_tick_mm": 9.97,
+     "y_range_pt": [
+      362.69921875,
+      532.80078125
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 6,
+     "rms_at_gridlines_mm": 0.025,
+     "date_gridlines_used": 24,
+     "rms_days": 0.053,
+     "columns_read": 3645,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 758,
+     "rms_mm": 0.105
+    },
+    "daily_scatter_about_avg7_mm": 1.44,
+    "two_pass": {
+     "epochs": 84,
+     "rms_A_minus_B_mm": 0.12,
+     "max_abs_A_minus_B_mm": 0.54
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.12,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.37,
+     "value_axis_rms_mm": 0.001,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.01,
+      "max": 0.08
+     },
+     "digitising_sigma_mm": {
+      "median": 0.39,
+      "max": 0.4
+     },
+     "gnss_sigma_mm": 1.44,
+     "sigma_mm": {
+      "median": 1.49,
+      "max": 1.49
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 25.0,
+      "digitising_sigma_mm": 25.0,
+      "sigma_mm": 25.04
+     }
+    }
+   },
+   "height": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      -2686.4069134555525,
+      4.703446661498551
+     ],
+     "labelled_ticks": 9,
+     "rms_at_ticks_mm": 0.075,
+     "gridline_mm": 100.0,
+     "minor_tick_mm": 20.03,
+     "y_range_pt": [
+      549.8984379999999,
+      720.0000000000001
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 9,
+     "rms_at_gridlines_mm": 0.076,
+     "date_gridlines_used": 24,
+     "rms_days": 0.051,
+     "columns_read": 3646,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 692,
+     "rms_mm": 0.123
+    },
+    "daily_scatter_about_avg7_mm": 3.79,
+    "two_pass": {
+     "epochs": 84,
+     "rms_A_minus_B_mm": 0.37,
+     "max_abs_A_minus_B_mm": 1.81
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.37,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 1.19,
+     "value_axis_rms_mm": 0.075,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.08,
+      "max": 0.25
+     },
+     "digitising_sigma_mm": {
+      "median": 1.25,
+      "max": 1.27
+     },
+     "gnss_sigma_mm": 3.79,
+     "sigma_mm": {
+      "median": 3.99,
+      "max": 3.99
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 50.0,
+      "digitising_sigma_mm": 50.0,
+      "sigma_mm": 50.14
+     }
+    }
+   }
+  },
+  "position": {
+   "inset_affine_rms_m": 0.47,
+   "diamond_page_pt": [
+    136.39,
+    127.82
+   ],
+   "mga94": [
+    277894.1,
+    6215844.7
+   ],
+   "source": "circle on drawing MSEC1263-01 (Report 8 page 88), affine to LW W1-W3 corners (rms 0.17 m); checked against the figure's own inset map",
+   "layout_circle_page_pt": [
+    150.16,
+    379.42
+   ],
+   "inset_mga94": [
+    277893.9,
+    6215845.9
+   ],
+   "inset_minus_layout_m": 1.3,
+   "next_circle_m": 391.6,
+   "position_sigma_note": "5 m (1 sigma): the two drawings agree within 2.4 m; panel georeference 1-2 m",
+   "lat": -34.174737,
+   "lon": 150.590217,
+   "position_sigma_m": 5.0
+  },
+  "warnings": [],
+  "report7": {
+   "figure": "Fig. G09-R20",
+   "page": 181,
+   "x_rms_days": 0.045
+  },
+  "epochs": {
+   "first": "2019-11-18",
+   "last": "2023-07-29",
+   "listed": 89,
+   "dropped": {
+    "e": {
+     "2020-03-01": "only 3 of the 7 days around it have data",
+     "2020-05-01": "only 3 of the 7 days around it have data",
+     "2023-01-15": "only 0 of the 7 days around it have data",
+     "2023-02-01": "only 0 of the 7 days around it have data",
+     "2023-02-15": "only 0 of the 7 days around it have data"
+    },
+    "n": {
+     "2020-03-01": "only 3 of the 7 days around it have data",
+     "2020-05-01": "only 3 of the 7 days around it have data",
+     "2023-01-15": "only 0 of the 7 days around it have data",
+     "2023-02-01": "only 0 of the 7 days around it have data",
+     "2023-02-15": "only 0 of the 7 days around it have data"
+    },
+    "u": {
+     "2020-03-01": "only 3 of the 7 days around it have data",
+     "2020-05-01": "only 3 of the 7 days around it have data",
+     "2023-01-15": "only 0 of the 7 days around it have data",
+     "2023-02-01": "only 0 of the 7 days around it have data",
+     "2023-02-15": "only 0 of the 7 days around it have data"
+    }
+   }
+  }
+ },
+ "TW_G10": {
+  "figure": "Fig. G10-R21",
+  "page": 92,
+  "title": "Site 10 - PMLL at 89.000km",
+  "styles": {
+   "daily": [
+    "#ff9933",
+    0.792
+   ],
+   "avg7": [
+    "#ff0000",
+    0.504
+   ]
+  },
+  "x_axis": {
+   "day_number_epoch": "2000-01-01",
+   "a": 6955.184851575626,
+   "b_days_per_pt": 3.0869508756694257,
+   "rms_days": 0.051,
+   "ticks": 24,
+   "first_last_tick": [
+    "2019-11-01",
+    "2023-09-01"
+   ]
+  },
+  "panels": {
+   "easting": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      1526.362229290042,
+      -4.704354113376225
+     ],
+     "labelled_ticks": 9,
+     "rms_at_ticks_mm": 0.082,
+     "gridline_mm": 100.0,
+     "minor_tick_mm": 20.03,
+     "y_range_pt": [
+      175.6796875,
+      345.71875
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 7,
+     "rms_at_gridlines_mm": 0.07,
+     "date_gridlines_used": 24,
+     "rms_days": 0.053,
+     "columns_read": 3645,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 565,
+     "rms_mm": 0.157
+    },
+    "daily_scatter_about_avg7_mm": 1.69,
+    "two_pass": {
+     "epochs": 88,
+     "rms_A_minus_B_mm": 0.47,
+     "max_abs_A_minus_B_mm": 2.71
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.47,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 1.19,
+     "value_axis_rms_mm": 0.082,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.08,
+      "max": 0.12
+     },
+     "digitising_sigma_mm": {
+      "median": 1.28,
+      "max": 1.28
+     },
+     "gnss_sigma_mm": 1.69,
+     "sigma_mm": {
+      "median": 2.12,
+      "max": 2.12
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 50.0,
+      "digitising_sigma_mm": 50.0,
+      "sigma_mm": 50.03
+     }
+    }
+   },
+   "northing": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      338.5179542235003,
+      -0.8230440071993302
+     ],
+     "labelled_ticks": 8,
+     "rms_at_ticks_mm": 0.001,
+     "gridline_mm": 20.0,
+     "minor_tick_mm": 4.99,
+     "y_range_pt": [
+      362.69921875,
+      532.80078125
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 8,
+     "rms_at_gridlines_mm": 0.013,
+     "date_gridlines_used": 24,
+     "rms_days": 0.053,
+     "columns_read": 3645,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 949,
+     "rms_mm": 0.107
+    },
+    "daily_scatter_about_avg7_mm": 1.68,
+    "two_pass": {
+     "epochs": 88,
+     "rms_A_minus_B_mm": 0.11,
+     "max_abs_A_minus_B_mm": 0.58
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.11,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.21,
+     "value_axis_rms_mm": 0.001,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.01,
+      "max": 0.07
+     },
+     "digitising_sigma_mm": {
+      "median": 0.24,
+      "max": 0.25
+     },
+     "gnss_sigma_mm": 1.68,
+     "sigma_mm": {
+      "median": 1.7,
+      "max": 1.7
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 10.0,
+      "digitising_sigma_mm": 10.0,
+      "sigma_mm": 10.14
+     }
+    }
+   },
+   "height": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      -1181.4763802300088,
+      2.0576060838108368
+     ],
+     "labelled_ticks": 8,
+     "rms_at_ticks_mm": 0.002,
+     "gridline_mm": 50.0,
+     "minor_tick_mm": 10.0,
+     "y_range_pt": [
+      549.8984379999999,
+      720.0000000000002
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 8,
+     "rms_at_gridlines_mm": 0.0,
+     "date_gridlines_used": 24,
+     "rms_days": 0.051,
+     "columns_read": 3645,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 917,
+     "rms_mm": 0.077
+    },
+    "daily_scatter_about_avg7_mm": 3.48,
+    "two_pass": {
+     "epochs": 88,
+     "rms_A_minus_B_mm": 0.32,
+     "max_abs_A_minus_B_mm": 1.51
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.32,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.52,
+     "value_axis_rms_mm": 0.002,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.02,
+      "max": 0.13
+     },
+     "digitising_sigma_mm": {
+      "median": 0.61,
+      "max": 0.62
+     },
+     "gnss_sigma_mm": 3.48,
+     "sigma_mm": {
+      "median": 3.53,
+      "max": 3.54
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 25.0,
+      "digitising_sigma_mm": 25.0,
+      "sigma_mm": 25.24
+     }
+    }
+   }
+  },
+  "position": {
+   "inset_affine_rms_m": 0.47,
+   "diamond_page_pt": [
+    126.38,
+    147.62
+   ],
+   "mga94": [
+    277717.3,
+    6215496.4
+   ],
+   "source": "circle on drawing MSEC1263-01 (Report 8 page 88), affine to LW W1-W3 corners (rms 0.17 m); checked against the figure's own inset map",
+   "layout_circle_page_pt": [
+    114.07,
+    450.51
+   ],
+   "inset_mga94": [
+    277717.1,
+    6215496.7
+   ],
+   "inset_minus_layout_m": 0.4,
+   "next_circle_m": 390.4,
+   "position_sigma_note": "5 m (1 sigma): the two drawings agree within 2.4 m; panel georeference 1-2 m",
+   "lat": -34.177838,
+   "lon": 150.58821,
+   "position_sigma_m": 5.0
+  },
+  "warnings": [],
+  "report7": {
+   "figure": "Fig. G10-R20",
+   "page": 182,
+   "x_rms_days": 0.045
+  },
+  "epochs": {
+   "first": "2019-11-18",
+   "last": "2023-07-29",
+   "listed": 89,
+   "dropped": {
+    "e": {
+     "2022-04-01": "only 1 of the 7 days around it have data"
+    },
+    "n": {
+     "2022-04-01": "only 1 of the 7 days around it have data"
+    },
+    "u": {
+     "2022-04-01": "only 1 of the 7 days around it have data"
+    }
+   }
+  }
+ },
+ "TW_G11": {
+  "figure": "Fig. G11-R21",
+  "page": 93,
+  "title": "Site 11 - PMLL at 89.629km",
+  "styles": {
+   "daily": [
+    "#00ffff",
+    0.792
+   ],
+   "avg7": [
+    "#003399",
+    0.504
+   ]
+  },
+  "x_axis": {
+   "day_number_epoch": "2000-01-01",
+   "a": 6955.184851575626,
+   "b_days_per_pt": 3.0869508756694257,
+   "rms_days": 0.051,
+   "ticks": 24,
+   "first_last_tick": [
+    "2019-11-01",
+    "2023-09-01"
+   ]
+  },
+  "panels": {
+   "easting": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      1119.760710362665,
+      -3.5281664725208497
+     ],
+     "labelled_ticks": 7,
+     "rms_at_ticks_mm": 0.057,
+     "gridline_mm": 100.0,
+     "minor_tick_mm": 19.9,
+     "y_range_pt": [
+      175.6796875,
+      345.71875
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 5,
+     "rms_at_gridlines_mm": 0.051,
+     "date_gridlines_used": 24,
+     "rms_days": 0.053,
+     "columns_read": 3650,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 777,
+     "rms_mm": 0.494
+    },
+    "daily_scatter_about_avg7_mm": 1.27,
+    "two_pass": {
+     "epochs": 84,
+     "rms_A_minus_B_mm": 0.37,
+     "max_abs_A_minus_B_mm": 2.35
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.37,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.89,
+     "value_axis_rms_mm": 0.057,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.06,
+      "max": 0.08
+     },
+     "digitising_sigma_mm": {
+      "median": 0.96,
+      "max": 0.97
+     },
+     "gnss_sigma_mm": 1.27,
+     "sigma_mm": {
+      "median": 1.59,
+      "max": 1.59
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 50.0,
+      "digitising_sigma_mm": 50.0,
+      "sigma_mm": 50.02
+     }
+    }
+   },
+   "northing": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      335.9115007801955,
+      -0.705560358689504
+     ],
+     "labelled_ticks": 7,
+     "rms_at_ticks_mm": 0.012,
+     "gridline_mm": 20.0,
+     "minor_tick_mm": 5.0,
+     "y_range_pt": [
+      362.69921875,
+      532.80078125
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 7,
+     "rms_at_gridlines_mm": 0.021,
+     "date_gridlines_used": 24,
+     "rms_days": 0.053,
+     "columns_read": 3650,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 952,
+     "rms_mm": 0.327
+    },
+    "daily_scatter_about_avg7_mm": 1.19,
+    "two_pass": {
+     "epochs": 84,
+     "rms_A_minus_B_mm": 0.08,
+     "max_abs_A_minus_B_mm": 0.27
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.08,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.18,
+     "value_axis_rms_mm": 0.012,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.02,
+      "max": 0.05
+     },
+     "digitising_sigma_mm": {
+      "median": 0.2,
+      "max": 0.2
+     },
+     "gnss_sigma_mm": 1.19,
+     "sigma_mm": {
+      "median": 1.21,
+      "max": 1.21
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 10.0,
+      "digitising_sigma_mm": 10.0,
+      "sigma_mm": 10.07
+     }
+    }
+   },
+   "height": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      -472.59055209200324,
+      0.8230424335243343
+     ],
+     "labelled_ticks": 8,
+     "rms_at_ticks_mm": 0.001,
+     "gridline_mm": 20.0,
+     "minor_tick_mm": 4.99,
+     "y_range_pt": [
+      549.8984379999999,
+      720.0000000000002
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 8,
+     "rms_at_gridlines_mm": 0.0,
+     "date_gridlines_used": 24,
+     "rms_days": 0.051,
+     "columns_read": 3651,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 1061,
+     "rms_mm": 0.986
+    },
+    "daily_scatter_about_avg7_mm": 3.0,
+    "two_pass": {
+     "epochs": 84,
+     "rms_A_minus_B_mm": 0.34,
+     "max_abs_A_minus_B_mm": 1.09
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.34,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.21,
+     "value_axis_rms_mm": 0.001,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.04,
+      "max": 0.12
+     },
+     "digitising_sigma_mm": {
+      "median": 0.4,
+      "max": 0.41
+     },
+     "gnss_sigma_mm": 3.0,
+     "sigma_mm": {
+      "median": 3.02,
+      "max": 3.03
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 10.0,
+      "digitising_sigma_mm": 10.0,
+      "sigma_mm": 10.44
+     }
+    }
+   }
+  },
+  "position": {
+   "inset_affine_rms_m": 0.47,
+   "diamond_page_pt": [
+    115.51,
+    187.64
+   ],
+   "mga94": [
+    277525.9,
+    6214790.4
+   ],
+   "source": "circle on drawing MSEC1263-01 (Report 8 page 88), affine to LW W1-W3 corners (rms 0.17 m); checked against the figure's own inset map",
+   "layout_circle_page_pt": [
+    75.01,
+    594.59
+   ],
+   "inset_mga94": [
+    277525.5,
+    6214790.9
+   ],
+   "inset_minus_layout_m": 0.6,
+   "next_circle_m": 241.4,
+   "position_sigma_note": "5 m (1 sigma): the two drawings agree within 2.4 m; panel georeference 1-2 m",
+   "lat": -34.184158,
+   "lon": 150.585954,
+   "position_sigma_m": 5.0
+  },
+  "warnings": [],
+  "report7": {
+   "figure": "Fig. G11-R20",
+   "page": 183,
+   "x_rms_days": 0.045
+  },
+  "epochs": {
+   "first": "2019-11-17",
+   "last": "2023-07-30",
+   "listed": 89,
+   "dropped": {
+    "e": {
+     "2022-11-01": "only 0 of the 7 days around it have data",
+     "2022-11-15": "only 0 of the 7 days around it have data",
+     "2022-12-01": "only 0 of the 7 days around it have data",
+     "2022-12-15": "only 2 of the 7 days around it have data",
+     "2023-01-01": "only 0 of the 7 days around it have data"
+    },
+    "n": {
+     "2022-11-01": "only 0 of the 7 days around it have data",
+     "2022-11-15": "only 0 of the 7 days around it have data",
+     "2022-12-01": "only 0 of the 7 days around it have data",
+     "2022-12-15": "only 2 of the 7 days around it have data",
+     "2023-01-01": "only 0 of the 7 days around it have data"
+    },
+    "u": {
+     "2022-11-01": "only 0 of the 7 days around it have data",
+     "2022-11-15": "only 0 of the 7 days around it have data",
+     "2022-12-01": "only 0 of the 7 days around it have data",
+     "2022-12-15": "only 2 of the 7 days around it have data",
+     "2023-01-01": "only 0 of the 7 days around it have data"
+    }
+   }
+  }
+ },
+ "TW_G12A": {
+  "figure": "Fig. G12A-R21",
+  "page": 94,
+  "title": "Site 12A - south of Stonequarry Creek upstream of Rockbar SR17",
+  "styles": {
+   "daily": [
+    "#33cc99",
+    0.792
+   ],
+   "avg7": [
+    "#336666",
+    0.504
+   ]
+  },
+  "x_axis": {
+   "day_number_epoch": "2000-01-01",
+   "a": 7652.444854900482,
+   "b_days_per_pt": 1.8123869875133807,
+   "rms_days": 0.028,
+   "ticks": 28,
+   "first_last_tick": [
+    "2021-06-01",
+    "2023-09-01"
+   ]
+  },
+  "panels": {
+   "easting": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      244.5935815027135,
+      -0.8232140808543632
+     ],
+     "labelled_ticks": 8,
+     "rms_at_ticks_mm": 0.013,
+     "gridline_mm": 20.0,
+     "minor_tick_mm": 4.99,
+     "y_range_pt": [
+      175.6796875,
+      345.71875
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 6,
+     "rms_at_gridlines_mm": 0.0,
+     "date_gridlines_used": 28,
+     "rms_days": 0.032,
+     "columns_read": 3470,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 569,
+     "rms_mm": 0.044
+    },
+    "daily_scatter_about_avg7_mm": 1.24,
+    "two_pass": {
+     "epochs": 51,
+     "rms_A_minus_B_mm": 0.08,
+     "max_abs_A_minus_B_mm": 0.35
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.08,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.21,
+     "value_axis_rms_mm": 0.013,
+     "date_axis_rms_days": 0.028,
+     "calibration_mm": {
+      "median": 0.01,
+      "max": 0.03
+     },
+     "digitising_sigma_mm": {
+      "median": 0.22,
+      "max": 0.22
+     },
+     "gnss_sigma_mm": 1.24,
+     "sigma_mm": {
+      "median": 1.26,
+      "max": 1.26
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 10.0,
+      "digitising_sigma_mm": 10.0,
+      "sigma_mm": 10.08
+     }
+    }
+   },
+   "northing": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      361.18167814416876,
+      -0.9406835704043791
+     ],
+     "labelled_ticks": 9,
+     "rms_at_ticks_mm": 0.015,
+     "gridline_mm": 20.0,
+     "minor_tick_mm": 5.02,
+     "y_range_pt": [
+      362.69921875,
+      532.80078125
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 9,
+     "rms_at_gridlines_mm": 0.025,
+     "date_gridlines_used": 28,
+     "rms_days": 0.032,
+     "columns_read": 3470,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 508,
+     "rms_mm": 0.055
+    },
+    "daily_scatter_about_avg7_mm": 1.08,
+    "two_pass": {
+     "epochs": 51,
+     "rms_A_minus_B_mm": 0.1,
+     "max_abs_A_minus_B_mm": 0.33
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.1,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.24,
+     "value_axis_rms_mm": 0.015,
+     "date_axis_rms_days": 0.028,
+     "calibration_mm": {
+      "median": 0.02,
+      "max": 0.04
+     },
+     "digitising_sigma_mm": {
+      "median": 0.26,
+      "max": 0.26
+     },
+     "gnss_sigma_mm": 1.08,
+     "sigma_mm": {
+      "median": 1.11,
+      "max": 1.11
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 10.0,
+      "digitising_sigma_mm": 10.0,
+      "sigma_mm": 10.06
+     }
+    }
+   },
+   "height": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      -537.2813826911105,
+      0.9406893322997103
+     ],
+     "labelled_ticks": 9,
+     "rms_at_ticks_mm": 0.015,
+     "gridline_mm": 20.0,
+     "minor_tick_mm": 5.02,
+     "y_range_pt": [
+      549.8984379999999,
+      720.0000000000001
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 9,
+     "rms_at_gridlines_mm": 0.015,
+     "date_gridlines_used": 28,
+     "rms_days": 0.028,
+     "columns_read": 3470,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 639,
+     "rms_mm": 0.03
+    },
+    "daily_scatter_about_avg7_mm": 2.17,
+    "two_pass": {
+     "epochs": 51,
+     "rms_A_minus_B_mm": 0.09,
+     "max_abs_A_minus_B_mm": 0.22
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.09,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.24,
+     "value_axis_rms_mm": 0.015,
+     "date_axis_rms_days": 0.028,
+     "calibration_mm": {
+      "median": 0.02,
+      "max": 0.06
+     },
+     "digitising_sigma_mm": {
+      "median": 0.25,
+      "max": 0.26
+     },
+     "gnss_sigma_mm": 2.17,
+     "sigma_mm": {
+      "median": 2.19,
+      "max": 2.19
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 10.0,
+      "digitising_sigma_mm": 10.0,
+      "sigma_mm": 10.23
+     }
+    }
+   }
+  },
+  "position": {
+   "inset_affine_rms_m": 0.47,
+   "diamond_page_pt": [
+    169.39,
+    94.87
+   ],
+   "mga94": [
+    278476.2,
+    6216426.6
+   ],
+   "source": "circle on drawing MSEC1263-01 (Report 8 page 88), affine to LW W1-W3 corners (rms 0.17 m); checked against the figure's own inset map",
+   "layout_circle_page_pt": [
+    268.94,
+    260.66
+   ],
+   "inset_mga94": [
+    278476.2,
+    6216426.6
+   ],
+   "inset_minus_layout_m": 0.0,
+   "next_circle_m": 104.7,
+   "position_sigma_note": "5 m (1 sigma): the two drawings agree within 2.4 m; panel georeference 1-2 m",
+   "lat": -34.169617,
+   "lon": 150.596676,
+   "position_sigma_m": 5.0
+  },
+  "warnings": [],
+  "report7": {
+   "figure": "Fig. G12A-R20",
+   "page": 184,
+   "x_rms_days": 0.009
+  },
+  "epochs": {
+   "first": "2021-06-14",
+   "last": "2023-07-08",
+   "listed": 51,
+   "dropped": {}
+  }
+ },
+ "TW_G13": {
+  "figure": "Fig. G13-R21",
+  "page": 95,
+  "title": "Site 13 - north of Stonequarry Creek at Rockbar SR17",
+  "styles": {
+   "daily": [
+    "#cc9933",
+    0.792
+   ],
+   "avg7": [
+    "#663333",
+    0.504
+   ]
+  },
+  "x_axis": {
+   "day_number_epoch": "2000-01-01",
+   "a": 6955.184851575626,
+   "b_days_per_pt": 3.0869508756694257,
+   "rms_days": 0.051,
+   "ticks": 24,
+   "first_last_tick": [
+    "2019-11-01",
+    "2023-09-01"
+   ]
+  },
+  "panels": {
+   "easting": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      244.5935815027135,
+      -0.8232140808543632
+     ],
+     "labelled_ticks": 8,
+     "rms_at_ticks_mm": 0.013,
+     "gridline_mm": 20.0,
+     "minor_tick_mm": 4.99,
+     "y_range_pt": [
+      175.6796875,
+      345.71875
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 6,
+     "rms_at_gridlines_mm": 0.0,
+     "date_gridlines_used": 23,
+     "rms_days": 0.053,
+     "columns_read": 3589,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 929,
+     "rms_mm": 0.094
+    },
+    "daily_scatter_about_avg7_mm": 1.32,
+    "two_pass": {
+     "epochs": 83,
+     "rms_A_minus_B_mm": 0.08,
+     "max_abs_A_minus_B_mm": 0.34
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.08,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.21,
+     "value_axis_rms_mm": 0.013,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.02,
+      "max": 0.07
+     },
+     "digitising_sigma_mm": {
+      "median": 0.22,
+      "max": 0.23
+     },
+     "gnss_sigma_mm": 1.32,
+     "sigma_mm": {
+      "median": 1.34,
+      "max": 1.34
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 10.0,
+      "digitising_sigma_mm": 10.0,
+      "sigma_mm": 10.09
+     }
+    }
+   },
+   "northing": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      318.5179542235003,
+      -0.8230440071993302
+     ],
+     "labelled_ticks": 8,
+     "rms_at_ticks_mm": 0.001,
+     "gridline_mm": 20.0,
+     "minor_tick_mm": 4.99,
+     "y_range_pt": [
+      362.69921875,
+      532.80078125
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 8,
+     "rms_at_gridlines_mm": 0.013,
+     "date_gridlines_used": 24,
+     "rms_days": 0.053,
+     "columns_read": 3589,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 843,
+     "rms_mm": 0.074
+    },
+    "daily_scatter_about_avg7_mm": 1.24,
+    "two_pass": {
+     "epochs": 83,
+     "rms_A_minus_B_mm": 0.1,
+     "max_abs_A_minus_B_mm": 0.43
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.1,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.21,
+     "value_axis_rms_mm": 0.001,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.01,
+      "max": 0.04
+     },
+     "digitising_sigma_mm": {
+      "median": 0.23,
+      "max": 0.23
+     },
+     "gnss_sigma_mm": 1.24,
+     "sigma_mm": {
+      "median": 1.27,
+      "max": 1.27
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 10.0,
+      "digitising_sigma_mm": 10.0,
+      "sigma_mm": 10.08
+     }
+    }
+   },
+   "height": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      -407.99964537872836,
+      0.7055707775792812
+     ],
+     "labelled_ticks": 7,
+     "rms_at_ticks_mm": 0.012,
+     "gridline_mm": 20.0,
+     "minor_tick_mm": 5.0,
+     "y_range_pt": [
+      549.8984379999999,
+      719.9999999999999
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 7,
+     "rms_at_gridlines_mm": 0.012,
+     "date_gridlines_used": 24,
+     "rms_days": 0.051,
+     "columns_read": 3588,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 996,
+     "rms_mm": 0.05
+    },
+    "daily_scatter_about_avg7_mm": 2.57,
+    "two_pass": {
+     "epochs": 83,
+     "rms_A_minus_B_mm": 0.22,
+     "max_abs_A_minus_B_mm": 0.8
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.22,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.18,
+     "value_axis_rms_mm": 0.012,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.02,
+      "max": 0.06
+     },
+     "digitising_sigma_mm": {
+      "median": 0.29,
+      "max": 0.29
+     },
+     "gnss_sigma_mm": 2.57,
+     "sigma_mm": {
+      "median": 2.59,
+      "max": 2.59
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 10.0,
+      "digitising_sigma_mm": 10.0,
+      "sigma_mm": 10.33
+     }
+    }
+   }
+  },
+  "position": {
+   "inset_affine_rms_m": 0.47,
+   "diamond_page_pt": [
+    169.46,
+    87.5
+   ],
+   "mga94": [
+    278477.9,
+    6216556.4
+   ],
+   "source": "circle on drawing MSEC1263-01 (Report 8 page 88), affine to LW W1-W3 corners (rms 0.17 m); checked against the figure's own inset map",
+   "layout_circle_page_pt": [
+    269.29,
+    234.17
+   ],
+   "inset_mga94": [
+    278477.3,
+    6216556.8
+   ],
+   "inset_minus_layout_m": 0.7,
+   "next_circle_m": 102.3,
+   "position_sigma_note": "5 m (1 sigma): the two drawings agree within 2.4 m; panel georeference 1-2 m",
+   "lat": -34.168448,
+   "lon": 150.596728,
+   "position_sigma_m": 5.0
+  },
+  "warnings": [
+   "daily path at y=132.5 fits 0 panels; skipped"
+  ],
+  "report7": {
+   "figure": "Fig. G13-R20",
+   "page": 185,
+   "x_rms_days": 0.045
+  },
+  "figure_note": {
+   "from": "2022-03-29",
+   "note": "after the gap of 10 Jan - 29 Mar 2022: Fig. G13 says the unit was disturbed in early January 2022 (printed '2002'), relocated on 28 March 2022 and 'results normalised', so values after the gap are joined to those before it and any movement during the gap is not measured"
+  },
+  "epochs": {
+   "first": "2019-11-18",
+   "last": "2023-07-08",
+   "listed": 88,
+   "dropped": {
+    "e": {
+     "2022-01-15": "only 0 of the 7 days around it have data",
+     "2022-02-01": "only 0 of the 7 days around it have data",
+     "2022-02-15": "only 0 of the 7 days around it have data",
+     "2022-03-01": "only 0 of the 7 days around it have data",
+     "2022-03-15": "only 0 of the 7 days around it have data"
+    },
+    "n": {
+     "2022-01-15": "only 0 of the 7 days around it have data",
+     "2022-02-01": "only 0 of the 7 days around it have data",
+     "2022-02-15": "only 0 of the 7 days around it have data",
+     "2022-03-01": "only 0 of the 7 days around it have data",
+     "2022-03-15": "only 0 of the 7 days around it have data"
+    },
+    "u": {
+     "2022-01-15": "only 0 of the 7 days around it have data",
+     "2022-02-01": "only 0 of the 7 days around it have data",
+     "2022-02-15": "only 0 of the 7 days around it have data",
+     "2022-03-01": "only 0 of the 7 days around it have data",
+     "2022-03-15": "only 0 of the 7 days around it have data"
+    }
+   }
+  }
+ },
+ "TW_G15": {
+  "figure": "Fig. G15-R21",
+  "page": 96,
+  "title": "Site 15 - Near commencing end of LW W1",
+  "styles": {
+   "daily": [
+    "#6699ff",
+    0.792
+   ],
+   "avg7": [
+    "#0000ff",
+    0.504
+   ]
+  },
+  "x_axis": {
+   "day_number_epoch": "2000-01-01",
+   "a": 6955.184851575626,
+   "b_days_per_pt": 3.0869508756694257,
+   "rms_days": 0.051,
+   "ticks": 24,
+   "first_last_tick": [
+    "2019-11-01",
+    "2023-09-01"
+   ]
+  },
+  "panels": {
+   "easting": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      916.4533081863467,
+      -2.9402110902344347
+     ],
+     "labelled_ticks": 6,
+     "rms_at_ticks_mm": 0.049,
+     "gridline_mm": 100.0,
+     "minor_tick_mm": 19.94,
+     "y_range_pt": [
+      175.6796875,
+      345.71875
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 4,
+     "rms_at_gridlines_mm": 0.0,
+     "date_gridlines_used": 24,
+     "rms_days": 0.053,
+     "columns_read": 3589,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 825,
+     "rms_mm": 0.146
+    },
+    "daily_scatter_about_avg7_mm": 1.84,
+    "two_pass": {
+     "epochs": 87,
+     "rms_A_minus_B_mm": 0.22,
+     "max_abs_A_minus_B_mm": 1.05
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.22,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.74,
+     "value_axis_rms_mm": 0.049,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.05,
+      "max": 0.09
+     },
+     "digitising_sigma_mm": {
+      "median": 0.77,
+      "max": 0.78
+     },
+     "gnss_sigma_mm": 1.84,
+     "sigma_mm": {
+      "median": 2.0,
+      "max": 2.0
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 50.0,
+      "digitising_sigma_mm": 50.0,
+      "sigma_mm": 50.03
+     }
+    }
+   },
+   "northing": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      583.0584204268308,
+      -1.4697005481336258
+     ],
+     "labelled_ticks": 6,
+     "rms_at_ticks_mm": 0.001,
+     "gridline_mm": 50.0,
+     "minor_tick_mm": 9.97,
+     "y_range_pt": [
+      362.69921875,
+      532.80078125
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 6,
+     "rms_at_gridlines_mm": 0.025,
+     "date_gridlines_used": 24,
+     "rms_days": 0.053,
+     "columns_read": 3589,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 923,
+     "rms_mm": 0.109
+    },
+    "daily_scatter_about_avg7_mm": 1.7,
+    "two_pass": {
+     "epochs": 87,
+     "rms_A_minus_B_mm": 0.12,
+     "max_abs_A_minus_B_mm": 0.47
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.12,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.37,
+     "value_axis_rms_mm": 0.001,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.01,
+      "max": 0.06
+     },
+     "digitising_sigma_mm": {
+      "median": 0.39,
+      "max": 0.39
+     },
+     "gnss_sigma_mm": 1.7,
+     "sigma_mm": {
+      "median": 1.75,
+      "max": 1.75
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 25.0,
+      "digitising_sigma_mm": 25.0,
+      "sigma_mm": 25.06
+     }
+    }
+   },
+   "height": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      -696.6023824556456,
+      1.1758544968774547
+     ],
+     "labelled_ticks": 5,
+     "rms_at_ticks_mm": 0.017,
+     "gridline_mm": 50.0,
+     "minor_tick_mm": 10.02,
+     "y_range_pt": [
+      549.8984379999999,
+      720.0
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 5,
+     "rms_at_gridlines_mm": 0.017,
+     "date_gridlines_used": 24,
+     "rms_days": 0.051,
+     "columns_read": 3588,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 1034,
+     "rms_mm": 0.083
+    },
+    "daily_scatter_about_avg7_mm": 3.98,
+    "two_pass": {
+     "epochs": 87,
+     "rms_A_minus_B_mm": 0.26,
+     "max_abs_A_minus_B_mm": 0.86
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.26,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.3,
+     "value_axis_rms_mm": 0.017,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.03,
+      "max": 0.1
+     },
+     "digitising_sigma_mm": {
+      "median": 0.39,
+      "max": 0.4
+     },
+     "gnss_sigma_mm": 3.98,
+     "sigma_mm": {
+      "median": 4.0,
+      "max": 4.0
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 25.0,
+      "digitising_sigma_mm": 25.0,
+      "sigma_mm": 25.31
+     }
+    }
+   }
+  },
+  "position": {
+   "inset_affine_rms_m": 0.47,
+   "diamond_page_pt": [
+    137.83,
+    83.48
+   ],
+   "mga94": [
+    277919.0,
+    6216627.5
+   ],
+   "source": "circle on drawing MSEC1263-01 (Report 8 page 88), affine to LW W1-W3 corners (rms 0.17 m); checked against the figure's own inset map",
+   "layout_circle_page_pt": [
+    155.24,
+    219.65
+   ],
+   "inset_mga94": [
+    277919.3,
+    6216628.0
+   ],
+   "inset_minus_layout_m": 0.7,
+   "next_circle_m": 190.3,
+   "position_sigma_note": "5 m (1 sigma): the two drawings agree within 2.4 m; panel georeference 1-2 m",
+   "lat": -34.167689,
+   "lon": 150.590687,
+   "position_sigma_m": 5.0
+  },
+  "warnings": [
+   "daily path at y=157.7 fits 0 panels; skipped"
+  ],
+  "report7": {
+   "figure": "Fig. G15-R20",
+   "page": 186,
+   "x_rms_days": 0.045
+  },
+  "epochs": {
+   "first": "2019-11-18",
+   "last": "2023-07-08",
+   "listed": 88,
+   "dropped": {
+    "e": {
+     "2020-03-15": "only 3 of the 7 days around it have data"
+    },
+    "n": {
+     "2020-03-15": "only 3 of the 7 days around it have data"
+    },
+    "u": {
+     "2020-03-15": "only 3 of the 7 days around it have data"
+    }
+   }
+  }
+ },
+ "TW_G16": {
+  "figure": "Fig. G16-R21",
+  "page": 97,
+  "title": "Site 16 - North of Cedar Creek",
+  "styles": {
+   "daily": [
+    "#00ffff",
+    0.792
+   ],
+   "avg7": [
+    "#0000ff",
+    0.504
+   ]
+  },
+  "x_axis": {
+   "day_number_epoch": "2000-01-01",
+   "a": 6955.184851575626,
+   "b_days_per_pt": 3.0869508756694257,
+   "rms_days": 0.051,
+   "ticks": 24,
+   "first_last_tick": [
+    "2019-11-01",
+    "2023-09-01"
+   ]
+  },
+  "panels": {
+   "easting": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      916.4533081863467,
+      -2.9402110902344347
+     ],
+     "labelled_ticks": 6,
+     "rms_at_ticks_mm": 0.049,
+     "gridline_mm": 100.0,
+     "minor_tick_mm": 19.94,
+     "y_range_pt": [
+      175.6796875,
+      345.71875
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 4,
+     "rms_at_gridlines_mm": 0.0,
+     "date_gridlines_used": 24,
+     "rms_days": 0.053,
+     "columns_read": 3586,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 713,
+     "rms_mm": 0.139
+    },
+    "daily_scatter_about_avg7_mm": 1.84,
+    "two_pass": {
+     "epochs": 86,
+     "rms_A_minus_B_mm": 0.19,
+     "max_abs_A_minus_B_mm": 0.69
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.19,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.74,
+     "value_axis_rms_mm": 0.049,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.05,
+      "max": 0.11
+     },
+     "digitising_sigma_mm": {
+      "median": 0.77,
+      "max": 0.77
+     },
+     "gnss_sigma_mm": 1.84,
+     "sigma_mm": {
+      "median": 1.99,
+      "max": 1.99
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 50.0,
+      "digitising_sigma_mm": 50.0,
+      "sigma_mm": 50.03
+     }
+    }
+   },
+   "northing": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      361.18167814416876,
+      -0.9406835704043791
+     ],
+     "labelled_ticks": 9,
+     "rms_at_ticks_mm": 0.015,
+     "gridline_mm": 20.0,
+     "minor_tick_mm": 5.02,
+     "y_range_pt": [
+      362.69921875,
+      532.80078125
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 9,
+     "rms_at_gridlines_mm": 0.025,
+     "date_gridlines_used": 24,
+     "rms_days": 0.053,
+     "columns_read": 3586,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 884,
+     "rms_mm": 0.121
+    },
+    "daily_scatter_about_avg7_mm": 1.67,
+    "two_pass": {
+     "epochs": 86,
+     "rms_A_minus_B_mm": 0.14,
+     "max_abs_A_minus_B_mm": 0.81
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.14,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.24,
+     "value_axis_rms_mm": 0.015,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.02,
+      "max": 0.07
+     },
+     "digitising_sigma_mm": {
+      "median": 0.28,
+      "max": 0.29
+     },
+     "gnss_sigma_mm": 1.67,
+     "sigma_mm": {
+      "median": 1.7,
+      "max": 1.7
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 10.0,
+      "digitising_sigma_mm": 10.0,
+      "sigma_mm": 10.14
+     }
+    }
+   },
+   "height": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      -472.59055209200324,
+      0.8230424335243343
+     ],
+     "labelled_ticks": 8,
+     "rms_at_ticks_mm": 0.001,
+     "gridline_mm": 20.0,
+     "minor_tick_mm": 4.99,
+     "y_range_pt": [
+      549.8984379999999,
+      720.0000000000002
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 8,
+     "rms_at_gridlines_mm": 0.0,
+     "date_gridlines_used": 24,
+     "rms_days": 0.051,
+     "columns_read": 3585,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 956,
+     "rms_mm": 0.067
+    },
+    "daily_scatter_about_avg7_mm": 3.81,
+    "two_pass": {
+     "epochs": 86,
+     "rms_A_minus_B_mm": 0.44,
+     "max_abs_A_minus_B_mm": 1.57
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.44,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.21,
+     "value_axis_rms_mm": 0.001,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.03,
+      "max": 0.1
+     },
+     "digitising_sigma_mm": {
+      "median": 0.49,
+      "max": 0.5
+     },
+     "gnss_sigma_mm": 3.81,
+     "sigma_mm": {
+      "median": 3.84,
+      "max": 3.84
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 10.0,
+      "digitising_sigma_mm": 10.0,
+      "sigma_mm": 10.7
+     }
+    }
+   }
+  },
+  "position": {
+   "inset_affine_rms_m": 0.47,
+   "diamond_page_pt": [
+    119.41,
+    82.28
+   ],
+   "mga94": [
+    277594.6,
+    6216649.3
+   ],
+   "source": "circle on drawing MSEC1263-01 (Report 8 page 88), affine to LW W1-W3 corners (rms 0.17 m); checked against the figure's own inset map",
+   "layout_circle_page_pt": [
+    89.05,
+    215.17
+   ],
+   "inset_mga94": [
+    277594.2,
+    6216649.4
+   ],
+   "inset_minus_layout_m": 0.4,
+   "next_circle_m": 325.5,
+   "position_sigma_note": "5 m (1 sigma): the two drawings agree within 2.4 m; panel georeference 1-2 m",
+   "lat": -34.167423,
+   "lon": 150.587176,
+   "position_sigma_m": 5.0
+  },
+  "warnings": [],
+  "report7": {
+   "figure": "Fig. G16-R20",
+   "page": 187,
+   "x_rms_days": 0.045
+  },
+  "epochs": {
+   "first": "2019-11-19",
+   "last": "2023-07-08",
+   "listed": 88,
+   "dropped": {
+    "e": {
+     "2020-03-15": "only 2 of the 7 days around it have data",
+     "2020-09-15": "only 0 of the 7 days around it have data"
+    },
+    "n": {
+     "2020-03-15": "only 2 of the 7 days around it have data",
+     "2020-09-15": "only 0 of the 7 days around it have data"
+    },
+    "u": {
+     "2020-03-15": "only 2 of the 7 days around it have data",
+     "2020-09-15": "only 0 of the 7 days around it have data"
+    }
+   }
+  }
+ },
+ "TW_G17": {
+  "figure": "Fig. G17-R21",
+  "page": 98,
+  "title": "Site 17 - Near confluence of Cedar and Matthews Creeks",
+  "styles": {
+   "daily": [
+    "#33cc33",
+    0.792
+   ],
+   "avg7": [
+    "#006633",
+    0.504
+   ]
+  },
+  "x_axis": {
+   "day_number_epoch": "2000-01-01",
+   "a": 6955.184851575626,
+   "b_days_per_pt": 3.0869508756694257,
+   "rms_days": 0.051,
+   "ticks": 24,
+   "first_last_tick": [
+    "2019-11-01",
+    "2023-09-01"
+   ]
+  },
+  "panels": {
+   "easting": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      1119.760710362665,
+      -3.5281664725208497
+     ],
+     "labelled_ticks": 7,
+     "rms_at_ticks_mm": 0.057,
+     "gridline_mm": 100.0,
+     "minor_tick_mm": 19.9,
+     "y_range_pt": [
+      175.6796875,
+      345.71875
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 5,
+     "rms_at_gridlines_mm": 0.051,
+     "date_gridlines_used": 24,
+     "rms_days": 0.053,
+     "columns_read": 3589,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 681,
+     "rms_mm": 0.138
+    },
+    "daily_scatter_about_avg7_mm": 1.88,
+    "two_pass": {
+     "epochs": 80,
+     "rms_A_minus_B_mm": 0.2,
+     "max_abs_A_minus_B_mm": 1.09
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.2,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.89,
+     "value_axis_rms_mm": 0.057,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.06,
+      "max": 0.1
+     },
+     "digitising_sigma_mm": {
+      "median": 0.91,
+      "max": 0.92
+     },
+     "gnss_sigma_mm": 1.88,
+     "sigma_mm": {
+      "median": 2.09,
+      "max": 2.09
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 50.0,
+      "digitising_sigma_mm": 50.0,
+      "sigma_mm": 50.04
+     }
+    }
+   },
+   "northing": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      318.5179542235003,
+      -0.8230440071993302
+     ],
+     "labelled_ticks": 8,
+     "rms_at_ticks_mm": 0.001,
+     "gridline_mm": 20.0,
+     "minor_tick_mm": 4.99,
+     "y_range_pt": [
+      362.69921875,
+      532.80078125
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 7,
+     "rms_at_gridlines_mm": 0.014,
+     "date_gridlines_used": 24,
+     "rms_days": 0.053,
+     "columns_read": 3589,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 891,
+     "rms_mm": 0.1
+    },
+    "daily_scatter_about_avg7_mm": 1.68,
+    "two_pass": {
+     "epochs": 80,
+     "rms_A_minus_B_mm": 0.1,
+     "max_abs_A_minus_B_mm": 0.3
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.1,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.21,
+     "value_axis_rms_mm": 0.001,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.01,
+      "max": 0.06
+     },
+     "digitising_sigma_mm": {
+      "median": 0.23,
+      "max": 0.24
+     },
+     "gnss_sigma_mm": 1.68,
+     "sigma_mm": {
+      "median": 1.7,
+      "max": 1.7
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 10.0,
+      "digitising_sigma_mm": 10.0,
+      "sigma_mm": 10.14
+     }
+    }
+   },
+   "height": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      -621.9013961564857,
+      1.0581957573093566
+     ],
+     "labelled_ticks": 10,
+     "rms_at_ticks_mm": 0.001,
+     "gridline_mm": 20.0,
+     "minor_tick_mm": 5.01,
+     "y_range_pt": [
+      549.8984379999999,
+      720.0000000000002
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 10,
+     "rms_at_gridlines_mm": 0.0,
+     "date_gridlines_used": 24,
+     "rms_days": 0.051,
+     "columns_read": 3588,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 919,
+     "rms_mm": 0.073
+    },
+    "daily_scatter_about_avg7_mm": 4.05,
+    "two_pass": {
+     "epochs": 80,
+     "rms_A_minus_B_mm": 0.42,
+     "max_abs_A_minus_B_mm": 1.78
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.42,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.27,
+     "value_axis_rms_mm": 0.001,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.03,
+      "max": 0.13
+     },
+     "digitising_sigma_mm": {
+      "median": 0.5,
+      "max": 0.51
+     },
+     "gnss_sigma_mm": 4.05,
+     "sigma_mm": {
+      "median": 4.08,
+      "max": 4.08
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 10.0,
+      "digitising_sigma_mm": 10.0,
+      "sigma_mm": 10.79
+     }
+    }
+   }
+  },
+  "position": {
+   "inset_affine_rms_m": 0.47,
+   "diamond_page_pt": [
+    109.16,
+    109.87
+   ],
+   "mga94": [
+    277412.9,
+    6216162.1
+   ],
+   "source": "circle on drawing MSEC1263-01 (Report 8 page 88), affine to LW W1-W3 corners (rms 0.17 m); checked against the figure's own inset map",
+   "layout_circle_page_pt": [
+    51.97,
+    314.62
+   ],
+   "inset_mga94": [
+    277413.2,
+    6216162.7
+   ],
+   "inset_minus_layout_m": 0.6,
+   "next_circle_m": 168.4,
+   "position_sigma_note": "5 m (1 sigma): the two drawings agree within 2.4 m; panel georeference 1-2 m",
+   "lat": -34.171774,
+   "lon": 150.585082,
+   "position_sigma_m": 5.0
+  },
+  "warnings": [
+   "daily path at y=145.1 fits 0 panels; skipped"
+  ],
+  "report7": {
+   "figure": "Fig. G17-R20",
+   "page": 188,
+   "x_rms_days": 0.045
+  },
+  "epochs": {
+   "first": "2019-11-18",
+   "last": "2023-07-08",
+   "listed": 88,
+   "dropped": {
+    "e": {
+     "2020-02-15": "only 2 of the 7 days around it have data",
+     "2020-03-01": "only 1 of the 7 days around it have data",
+     "2020-03-15": "only 2 of the 7 days around it have data",
+     "2021-07-01": "only 2 of the 7 days around it have data",
+     "2021-08-01": "only 0 of the 7 days around it have data",
+     "2023-02-15": "only 0 of the 7 days around it have data",
+     "2023-03-01": "only 0 of the 7 days around it have data",
+     "2023-03-15": "only 0 of the 7 days around it have data"
+    },
+    "n": {
+     "2020-02-15": "only 2 of the 7 days around it have data",
+     "2020-03-01": "only 1 of the 7 days around it have data",
+     "2020-03-15": "only 2 of the 7 days around it have data",
+     "2021-07-01": "only 2 of the 7 days around it have data",
+     "2021-08-01": "only 0 of the 7 days around it have data",
+     "2023-02-15": "only 0 of the 7 days around it have data",
+     "2023-03-01": "only 0 of the 7 days around it have data",
+     "2023-03-15": "only 0 of the 7 days around it have data"
+    },
+    "u": {
+     "2020-02-15": "only 2 of the 7 days around it have data",
+     "2020-03-01": "only 1 of the 7 days around it have data",
+     "2020-03-15": "only 2 of the 7 days around it have data",
+     "2021-07-01": "only 2 of the 7 days around it have data",
+     "2021-08-01": "only 0 of the 7 days around it have data",
+     "2023-02-15": "only 0 of the 7 days around it have data",
+     "2023-03-01": "only 0 of the 7 days around it have data",
+     "2023-03-15": "only 0 of the 7 days around it have data"
+    }
+   }
+  }
+ },
+ "TW_G18": {
+  "figure": "Fig. G18-R21",
+  "page": 99,
+  "title": "Site 18 - Near confluence of Matthews Creek and Rumker Gully",
+  "styles": {
+   "daily": [
+    "#ff9933",
+    0.792
+   ],
+   "avg7": [
+    "#ff0000",
+    0.504
+   ]
+  },
+  "x_axis": {
+   "day_number_epoch": "2000-01-01",
+   "a": 6955.184851575626,
+   "b_days_per_pt": 3.0869508756694257,
+   "rms_days": 0.051,
+   "ticks": 24,
+   "first_last_tick": [
+    "2019-11-01",
+    "2023-09-01"
+   ]
+  },
+  "panels": {
+   "easting": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      1119.760710362665,
+      -3.5281664725208497
+     ],
+     "labelled_ticks": 7,
+     "rms_at_ticks_mm": 0.057,
+     "gridline_mm": 100.0,
+     "minor_tick_mm": 19.9,
+     "y_range_pt": [
+      175.6796875,
+      345.71875
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 5,
+     "rms_at_gridlines_mm": 0.051,
+     "date_gridlines_used": 24,
+     "rms_days": 0.053,
+     "columns_read": 3589,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 751,
+     "rms_mm": 0.142
+    },
+    "daily_scatter_about_avg7_mm": 1.57,
+    "two_pass": {
+     "epochs": 88,
+     "rms_A_minus_B_mm": 0.28,
+     "max_abs_A_minus_B_mm": 1.75
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.28,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.89,
+     "value_axis_rms_mm": 0.057,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.06,
+      "max": 0.09
+     },
+     "digitising_sigma_mm": {
+      "median": 0.93,
+      "max": 0.94
+     },
+     "gnss_sigma_mm": 1.57,
+     "sigma_mm": {
+      "median": 1.83,
+      "max": 1.83
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 50.0,
+      "digitising_sigma_mm": 50.0,
+      "sigma_mm": 50.02
+     }
+    }
+   },
+   "northing": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      315.9115007801955,
+      -0.7055603586895038
+     ],
+     "labelled_ticks": 7,
+     "rms_at_ticks_mm": 0.012,
+     "gridline_mm": 20.0,
+     "minor_tick_mm": 5.0,
+     "y_range_pt": [
+      362.69921875,
+      532.80078125
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 7,
+     "rms_at_gridlines_mm": 0.021,
+     "date_gridlines_used": 24,
+     "rms_days": 0.053,
+     "columns_read": 3589,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 999,
+     "rms_mm": 0.073
+    },
+    "daily_scatter_about_avg7_mm": 1.26,
+    "two_pass": {
+     "epochs": 88,
+     "rms_A_minus_B_mm": 0.08,
+     "max_abs_A_minus_B_mm": 0.29
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.08,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.18,
+     "value_axis_rms_mm": 0.012,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.01,
+      "max": 0.04
+     },
+     "digitising_sigma_mm": {
+      "median": 0.19,
+      "max": 0.2
+     },
+     "gnss_sigma_mm": 1.26,
+     "sigma_mm": {
+      "median": 1.27,
+      "max": 1.27
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 10.0,
+      "digitising_sigma_mm": 10.0,
+      "sigma_mm": 10.08
+     }
+    }
+   },
+   "height": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      -472.59055209200324,
+      0.8230424335243343
+     ],
+     "labelled_ticks": 8,
+     "rms_at_ticks_mm": 0.001,
+     "gridline_mm": 20.0,
+     "minor_tick_mm": 4.99,
+     "y_range_pt": [
+      549.8984379999999,
+      720.0000000000002
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 8,
+     "rms_at_gridlines_mm": 0.0,
+     "date_gridlines_used": 24,
+     "rms_days": 0.051,
+     "columns_read": 3588,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 1116,
+     "rms_mm": 0.053
+    },
+    "daily_scatter_about_avg7_mm": 2.78,
+    "two_pass": {
+     "epochs": 88,
+     "rms_A_minus_B_mm": 0.24,
+     "max_abs_A_minus_B_mm": 0.91
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.24,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.21,
+     "value_axis_rms_mm": 0.001,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.02,
+      "max": 0.1
+     },
+     "digitising_sigma_mm": {
+      "median": 0.32,
+      "max": 0.33
+     },
+     "gnss_sigma_mm": 2.78,
+     "sigma_mm": {
+      "median": 2.8,
+      "max": 2.8
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 10.0,
+      "digitising_sigma_mm": 10.0,
+      "sigma_mm": 10.38
+     }
+    }
+   }
+  },
+  "position": {
+   "inset_affine_rms_m": 0.47,
+   "diamond_page_pt": [
+    103.51,
+    165.32
+   ],
+   "mga94": [
+    277314.0,
+    6215183.5
+   ],
+   "source": "circle on drawing MSEC1263-01 (Report 8 page 88), affine to LW W1-W3 corners (rms 0.17 m); checked against the figure's own inset map",
+   "layout_circle_page_pt": [
+    31.78,
+    514.36
+   ],
+   "inset_mga94": [
+    277313.7,
+    6215184.7
+   ],
+   "inset_minus_layout_m": 1.3,
+   "next_circle_m": 323.2,
+   "position_sigma_note": "5 m (1 sigma): the two drawings agree within 2.4 m; panel georeference 1-2 m",
+   "lat": -34.180571,
+   "lon": 150.583758,
+   "position_sigma_m": 5.0
+  },
+  "warnings": [],
+  "report7": {
+   "figure": "Fig. G18-R20",
+   "page": 189,
+   "x_rms_days": 0.045
+  },
+  "epochs": {
+   "first": "2019-11-18",
+   "last": "2023-07-08",
+   "listed": 88,
+   "dropped": {}
+  }
+ },
+ "TW_G19": {
+  "figure": "Fig. G19-R21",
+  "page": 100,
+  "title": "Site 19 - PMLL at 89.440km",
+  "styles": {
+   "daily": [
+    "#9900cc",
+    0.792
+   ],
+   "avg7": [
+    "#3300cc",
+    0.504
+   ]
+  },
+  "x_axis": {
+   "day_number_epoch": "2000-01-01",
+   "a": 6955.184851575626,
+   "b_days_per_pt": 3.0869508756694257,
+   "rms_days": 0.051,
+   "ticks": 24,
+   "first_last_tick": [
+    "2019-11-01",
+    "2023-09-01"
+   ]
+  },
+  "panels": {
+   "easting": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      1119.760710362665,
+      -3.5281664725208497
+     ],
+     "labelled_ticks": 7,
+     "rms_at_ticks_mm": 0.057,
+     "gridline_mm": 100.0,
+     "minor_tick_mm": 19.9,
+     "y_range_pt": [
+      175.6796875,
+      345.71875
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 5,
+     "rms_at_gridlines_mm": 0.051,
+     "date_gridlines_used": 24,
+     "rms_days": 0.053,
+     "columns_read": 3645,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 738,
+     "rms_mm": 0.139
+    },
+    "daily_scatter_about_avg7_mm": 1.57,
+    "two_pass": {
+     "epochs": 87,
+     "rms_A_minus_B_mm": 0.35,
+     "max_abs_A_minus_B_mm": 1.84
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.35,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.89,
+     "value_axis_rms_mm": 0.057,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.06,
+      "max": 0.1
+     },
+     "digitising_sigma_mm": {
+      "median": 0.96,
+      "max": 0.96
+     },
+     "gnss_sigma_mm": 1.57,
+     "sigma_mm": {
+      "median": 1.84,
+      "max": 1.84
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 50.0,
+      "digitising_sigma_mm": 50.0,
+      "sigma_mm": 50.02
+     }
+    }
+   },
+   "northing": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      315.9115007801955,
+      -0.7055603586895038
+     ],
+     "labelled_ticks": 7,
+     "rms_at_ticks_mm": 0.012,
+     "gridline_mm": 20.0,
+     "minor_tick_mm": 5.0,
+     "y_range_pt": [
+      362.69921875,
+      532.80078125
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 7,
+     "rms_at_gridlines_mm": 0.021,
+     "date_gridlines_used": 24,
+     "rms_days": 0.053,
+     "columns_read": 3645,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 926,
+     "rms_mm": 0.069
+    },
+    "daily_scatter_about_avg7_mm": 1.25,
+    "two_pass": {
+     "epochs": 87,
+     "rms_A_minus_B_mm": 0.07,
+     "max_abs_A_minus_B_mm": 0.26
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.07,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.18,
+     "value_axis_rms_mm": 0.012,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.01,
+      "max": 0.04
+     },
+     "digitising_sigma_mm": {
+      "median": 0.19,
+      "max": 0.2
+     },
+     "gnss_sigma_mm": 1.25,
+     "sigma_mm": {
+      "median": 1.27,
+      "max": 1.27
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 10.0,
+      "digitising_sigma_mm": 10.0,
+      "sigma_mm": 10.08
+     }
+    }
+   },
+   "height": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      -537.2813826911105,
+      0.9406893322997103
+     ],
+     "labelled_ticks": 9,
+     "rms_at_ticks_mm": 0.015,
+     "gridline_mm": 20.0,
+     "minor_tick_mm": 5.02,
+     "y_range_pt": [
+      549.8984379999999,
+      720.0000000000001
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 9,
+     "rms_at_gridlines_mm": 0.015,
+     "date_gridlines_used": 24,
+     "rms_days": 0.051,
+     "columns_read": 3645,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 1039,
+     "rms_mm": 0.056
+    },
+    "daily_scatter_about_avg7_mm": 2.93,
+    "two_pass": {
+     "epochs": 87,
+     "rms_A_minus_B_mm": 0.3,
+     "max_abs_A_minus_B_mm": 1.2
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.3,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.24,
+     "value_axis_rms_mm": 0.015,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.03,
+      "max": 0.12
+     },
+     "digitising_sigma_mm": {
+      "median": 0.39,
+      "max": 0.4
+     },
+     "gnss_sigma_mm": 2.93,
+     "sigma_mm": {
+      "median": 2.95,
+      "max": 2.95
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 10.0,
+      "digitising_sigma_mm": 10.0,
+      "sigma_mm": 10.42
+     }
+    }
+   }
+  },
+  "position": {
+   "inset_affine_rms_m": 0.47,
+   "diamond_page_pt": [
+    119.41,
+    174.62
+   ],
+   "mga94": [
+    277593.3,
+    6215022.6
+   ],
+   "source": "circle on drawing MSEC1263-01 (Report 8 page 88), affine to LW W1-W3 corners (rms 0.17 m); checked against the figure's own inset map",
+   "layout_circle_page_pt": [
+    88.76,
+    547.2
+   ],
+   "inset_mga94": [
+    277594.3,
+    6215020.5
+   ],
+   "inset_minus_layout_m": 2.3,
+   "next_circle_m": 240.0,
+   "position_sigma_note": "5 m (1 sigma): the two drawings agree within 2.4 m; panel georeference 1-2 m",
+   "lat": -34.18208,
+   "lon": 150.586744,
+   "position_sigma_m": 5.0
+  },
+  "warnings": [],
+  "report7": {
+   "figure": "Fig. G19-R20",
+   "page": 190,
+   "x_rms_days": 0.045
+  },
+  "epochs": {
+   "first": "2019-11-18",
+   "last": "2023-07-29",
+   "listed": 89,
+   "dropped": {
+    "e": {
+     "2020-02-15": "only 1 of the 7 days around it have data",
+     "2020-03-15": "only 2 of the 7 days around it have data"
+    },
+    "n": {
+     "2020-02-15": "only 1 of the 7 days around it have data",
+     "2020-03-15": "only 2 of the 7 days around it have data"
+    },
+    "u": {
+     "2020-02-15": "only 1 of the 7 days around it have data",
+     "2020-03-15": "only 2 of the 7 days around it have data"
+    }
+   }
+  }
+ },
+ "TW_G20": {
+  "figure": "Fig. G20-R21",
+  "page": 101,
+  "title": "Site 20 - Near confluence of Cedar and Matthews Creeks",
+  "styles": {
+   "daily": [
+    "#ff99ff",
+    0.792
+   ],
+   "avg7": [
+    "#9900cc",
+    0.504
+   ]
+  },
+  "x_axis": {
+   "day_number_epoch": "2000-01-01",
+   "a": 6955.184851575626,
+   "b_days_per_pt": 3.0869508756694257,
+   "rms_days": 0.051,
+   "ticks": 24,
+   "first_last_tick": [
+    "2019-11-01",
+    "2023-09-01"
+   ]
+  },
+  "panels": {
+   "easting": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      1119.760710362665,
+      -3.5281664725208497
+     ],
+     "labelled_ticks": 7,
+     "rms_at_ticks_mm": 0.057,
+     "gridline_mm": 100.0,
+     "minor_tick_mm": 19.9,
+     "y_range_pt": [
+      175.6796875,
+      345.71875
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 5,
+     "rms_at_gridlines_mm": 0.051,
+     "date_gridlines_used": 24,
+     "rms_days": 0.053,
+     "columns_read": 2690,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 511,
+     "rms_mm": 0.121
+    },
+    "daily_scatter_about_avg7_mm": 1.27,
+    "two_pass": {
+     "epochs": 66,
+     "rms_A_minus_B_mm": 0.3,
+     "max_abs_A_minus_B_mm": 1.21
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.3,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.89,
+     "value_axis_rms_mm": 0.057,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.06,
+      "max": 0.1
+     },
+     "digitising_sigma_mm": {
+      "median": 0.94,
+      "max": 0.94
+     },
+     "gnss_sigma_mm": 1.27,
+     "sigma_mm": {
+      "median": 1.58,
+      "max": 1.58
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 50.0,
+      "digitising_sigma_mm": 50.0,
+      "sigma_mm": 50.02
+     }
+    }
+   },
+   "northing": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      275.9115007801955,
+      -0.705560358689504
+     ],
+     "labelled_ticks": 7,
+     "rms_at_ticks_mm": 0.012,
+     "gridline_mm": 20.0,
+     "minor_tick_mm": 5.0,
+     "y_range_pt": [
+      362.69921875,
+      532.80078125
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 7,
+     "rms_at_gridlines_mm": 0.021,
+     "date_gridlines_used": 24,
+     "rms_days": 0.053,
+     "columns_read": 2690,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 751,
+     "rms_mm": 0.072
+    },
+    "daily_scatter_about_avg7_mm": 1.25,
+    "two_pass": {
+     "epochs": 66,
+     "rms_A_minus_B_mm": 0.07,
+     "max_abs_A_minus_B_mm": 0.23
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.07,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.18,
+     "value_axis_rms_mm": 0.012,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.01,
+      "max": 0.04
+     },
+     "digitising_sigma_mm": {
+      "median": 0.19,
+      "max": 0.19
+     },
+     "gnss_sigma_mm": 1.25,
+     "sigma_mm": {
+      "median": 1.27,
+      "max": 1.27
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 10.0,
+      "digitising_sigma_mm": 10.0,
+      "sigma_mm": 10.08
+     }
+    }
+   },
+   "height": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      -427.99964537872825,
+      0.705570777579281
+     ],
+     "labelled_ticks": 7,
+     "rms_at_ticks_mm": 0.012,
+     "gridline_mm": 20.0,
+     "minor_tick_mm": 5.0,
+     "y_range_pt": [
+      549.8984379999999,
+      719.9999999999999
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 7,
+     "rms_at_gridlines_mm": 0.012,
+     "date_gridlines_used": 24,
+     "rms_days": 0.051,
+     "columns_read": 2689,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 844,
+     "rms_mm": 0.06
+    },
+    "daily_scatter_about_avg7_mm": 2.76,
+    "two_pass": {
+     "epochs": 66,
+     "rms_A_minus_B_mm": 0.31,
+     "max_abs_A_minus_B_mm": 1.64
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.31,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.18,
+     "value_axis_rms_mm": 0.012,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.02,
+      "max": 0.09
+     },
+     "digitising_sigma_mm": {
+      "median": 0.36,
+      "max": 0.37
+     },
+     "gnss_sigma_mm": 2.76,
+     "sigma_mm": {
+      "median": 2.79,
+      "max": 2.79
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 10.0,
+      "digitising_sigma_mm": 10.0,
+      "sigma_mm": 10.37
+     }
+    }
+   }
+  },
+  "position": {
+   "inset_affine_rms_m": 0.47,
+   "diamond_page_pt": [
+    118.33,
+    107.23
+   ],
+   "mga94": [
+    277575.2,
+    6216208.8
+   ],
+   "source": "circle on drawing MSEC1263-01 (Report 8 page 88), affine to LW W1-W3 corners (rms 0.17 m); checked against the figure's own inset map",
+   "layout_circle_page_pt": [
+    85.08,
+    305.1
+   ],
+   "inset_mga94": [
+    277575.2,
+    6216209.1
+   ],
+   "inset_minus_layout_m": 0.4,
+   "next_circle_m": 168.9,
+   "position_sigma_note": "5 m (1 sigma): the two drawings agree within 2.4 m; panel georeference 1-2 m",
+   "lat": -34.171388,
+   "lon": 150.586853,
+   "position_sigma_m": 5.0
+  },
+  "warnings": [],
+  "report7": {
+   "figure": "Fig. G20-R20",
+   "page": 191,
+   "x_rms_days": 0.045
+  },
+  "epochs": {
+   "first": "2020-10-16",
+   "last": "2023-07-08",
+   "listed": 66,
+   "dropped": {}
+  }
+ },
+ "TW_G21": {
+  "figure": "Fig. G21-R21",
+  "page": 102,
+  "title": "Site 21 - LW W1-2 commencing ends",
+  "styles": {
+   "daily": [
+    "#1389ff",
+    0.792
+   ],
+   "avg7": [
+    "#003399",
+    0.504
+   ]
+  },
+  "x_axis": {
+   "day_number_epoch": "2000-01-01",
+   "a": 6955.184851575626,
+   "b_days_per_pt": 3.0869508756694257,
+   "rms_days": 0.051,
+   "ticks": 24,
+   "first_last_tick": [
+    "2019-11-01",
+    "2023-09-01"
+   ]
+  },
+  "panels": {
+   "easting": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      1119.760710362665,
+      -3.5281664725208497
+     ],
+     "labelled_ticks": 7,
+     "rms_at_ticks_mm": 0.057,
+     "gridline_mm": 100.0,
+     "minor_tick_mm": 19.9,
+     "y_range_pt": [
+      175.6796875,
+      345.71875
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 5,
+     "rms_at_gridlines_mm": 0.051,
+     "date_gridlines_used": 24,
+     "rms_days": 0.053,
+     "columns_read": 2690,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 520,
+     "rms_mm": 0.129
+    },
+    "daily_scatter_about_avg7_mm": 1.55,
+    "two_pass": {
+     "epochs": 66,
+     "rms_A_minus_B_mm": 0.31,
+     "max_abs_A_minus_B_mm": 1.3
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.31,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.89,
+     "value_axis_rms_mm": 0.057,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.06,
+      "max": 0.09
+     },
+     "digitising_sigma_mm": {
+      "median": 0.94,
+      "max": 0.94
+     },
+     "gnss_sigma_mm": 1.55,
+     "sigma_mm": {
+      "median": 1.82,
+      "max": 1.82
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 50.0,
+      "digitising_sigma_mm": 50.0,
+      "sigma_mm": 50.02
+     }
+    }
+   },
+   "northing": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      583.0584204268308,
+      -1.4697005481336258
+     ],
+     "labelled_ticks": 6,
+     "rms_at_ticks_mm": 0.001,
+     "gridline_mm": 50.0,
+     "minor_tick_mm": 9.97,
+     "y_range_pt": [
+      362.69921875,
+      532.80078125
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 6,
+     "rms_at_gridlines_mm": 0.025,
+     "date_gridlines_used": 24,
+     "rms_days": 0.053,
+     "columns_read": 2690,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 639,
+     "rms_mm": 0.095
+    },
+    "daily_scatter_about_avg7_mm": 1.18,
+    "two_pass": {
+     "epochs": 66,
+     "rms_A_minus_B_mm": 0.11,
+     "max_abs_A_minus_B_mm": 0.39
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.11,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.37,
+     "value_axis_rms_mm": 0.001,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.01,
+      "max": 0.07
+     },
+     "digitising_sigma_mm": {
+      "median": 0.39,
+      "max": 0.39
+     },
+     "gnss_sigma_mm": 1.18,
+     "sigma_mm": {
+      "median": 1.25,
+      "max": 1.25
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 25.0,
+      "digitising_sigma_mm": 25.0,
+      "sigma_mm": 25.03
+     }
+    }
+   },
+   "height": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      -1019.9991134468205,
+      1.7639269439482024
+     ],
+     "labelled_ticks": 7,
+     "rms_at_ticks_mm": 0.03,
+     "gridline_mm": 50.0,
+     "minor_tick_mm": 10.0,
+     "y_range_pt": [
+      549.8984379999999,
+      719.9999999999999
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 7,
+     "rms_at_gridlines_mm": 0.03,
+     "date_gridlines_used": 24,
+     "rms_days": 0.051,
+     "columns_read": 2689,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 737,
+     "rms_mm": 0.063
+    },
+    "daily_scatter_about_avg7_mm": 2.83,
+    "two_pass": {
+     "epochs": 66,
+     "rms_A_minus_B_mm": 0.33,
+     "max_abs_A_minus_B_mm": 2.18
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.33,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.44,
+     "value_axis_rms_mm": 0.03,
+     "date_axis_rms_days": 0.051,
+     "calibration_mm": {
+      "median": 0.04,
+      "max": 0.13
+     },
+     "digitising_sigma_mm": {
+      "median": 0.55,
+      "max": 0.57
+     },
+     "gnss_sigma_mm": 2.83,
+     "sigma_mm": {
+      "median": 2.88,
+      "max": 2.89
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 25.0,
+      "digitising_sigma_mm": 25.0,
+      "sigma_mm": 25.16
+     }
+    }
+   }
+  },
+  "position": {
+   "inset_affine_rms_m": 0.47,
+   "diamond_page_pt": [
+    142.82,
+    93.01
+   ],
+   "mga94": [
+    278008.4,
+    6216460.0
+   ],
+   "source": "circle on drawing MSEC1263-01 (Report 8 page 88), affine to LW W1-W3 corners (rms 0.17 m); checked against the figure's own inset map",
+   "layout_circle_page_pt": [
+    173.5,
+    253.84
+   ],
+   "inset_mga94": [
+    278007.2,
+    6216459.7
+   ],
+   "inset_minus_layout_m": 1.3,
+   "next_circle_m": 189.5,
+   "position_sigma_note": "5 m (1 sigma): the two drawings agree within 2.4 m; panel georeference 1-2 m",
+   "lat": -34.169217,
+   "lon": 150.591614,
+   "position_sigma_m": 5.0
+  },
+  "warnings": [],
+  "report7": {
+   "figure": "Fig. G21-R20",
+   "page": 192,
+   "x_rms_days": 0.045
+  },
+  "epochs": {
+   "first": "2020-10-16",
+   "last": "2023-07-08",
+   "listed": 66,
+   "dropped": {}
+  }
+ },
+ "TW_G24": {
+  "figure": "Fig. G24-R21",
+  "page": 103,
+  "title": "Site 24 above LW W4",
+  "styles": {
+   "daily": [
+    "#9966ff",
+    0.792
+   ],
+   "avg7": [
+    "#330099",
+    0.504
+   ]
+  },
+  "x_axis": {
+   "day_number_epoch": "2000-01-01",
+   "a": 7981.748922537576,
+   "b_days_per_pt": 1.210488788551411,
+   "rms_days": 0.022,
+   "ticks": 19,
+   "first_last_tick": [
+    "2022-03-01",
+    "2023-09-01"
+   ]
+  },
+  "panels": {
+   "easting": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      916.4533081863467,
+      -2.9402110902344347
+     ],
+     "labelled_ticks": 6,
+     "rms_at_ticks_mm": 0.049,
+     "gridline_mm": 100.0,
+     "minor_tick_mm": 19.94,
+     "y_range_pt": [
+      175.6796875,
+      345.71875
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 4,
+     "rms_at_gridlines_mm": 0.0,
+     "date_gridlines_used": 19,
+     "rms_days": 0.02,
+     "columns_read": 3356,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 228,
+     "rms_mm": 0.363
+    },
+    "daily_scatter_about_avg7_mm": 1.06,
+    "two_pass": {
+     "epochs": 32,
+     "rms_A_minus_B_mm": 0.4,
+     "max_abs_A_minus_B_mm": 1.73
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.4,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.74,
+     "value_axis_rms_mm": 0.049,
+     "date_axis_rms_days": 0.022,
+     "calibration_mm": {
+      "median": 0.05,
+      "max": 0.07
+     },
+     "digitising_sigma_mm": {
+      "median": 0.85,
+      "max": 0.85
+     },
+     "gnss_sigma_mm": 1.06,
+     "sigma_mm": {
+      "median": 1.35,
+      "max": 1.35
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 50.0,
+      "digitising_sigma_mm": 50.0,
+      "sigma_mm": 50.01
+     }
+    }
+   },
+   "northing": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      583.0584204268308,
+      -1.4697005481336258
+     ],
+     "labelled_ticks": 6,
+     "rms_at_ticks_mm": 0.001,
+     "gridline_mm": 50.0,
+     "minor_tick_mm": 9.97,
+     "y_range_pt": [
+      362.69921875,
+      532.80078125
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 6,
+     "rms_at_gridlines_mm": 0.025,
+     "date_gridlines_used": 19,
+     "rms_days": 0.02,
+     "columns_read": 3356,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 308,
+     "rms_mm": 0.621
+    },
+    "daily_scatter_about_avg7_mm": 1.17,
+    "two_pass": {
+     "epochs": 32,
+     "rms_A_minus_B_mm": 0.36,
+     "max_abs_A_minus_B_mm": 1.95
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.36,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.37,
+     "value_axis_rms_mm": 0.001,
+     "date_axis_rms_days": 0.022,
+     "calibration_mm": {
+      "median": 0.0,
+      "max": 0.07
+     },
+     "digitising_sigma_mm": {
+      "median": 0.52,
+      "max": 0.52
+     },
+     "gnss_sigma_mm": 1.17,
+     "sigma_mm": {
+      "median": 1.28,
+      "max": 1.28
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 25.0,
+      "digitising_sigma_mm": 25.0,
+      "sigma_mm": 25.03
+     }
+    }
+   },
+   "height": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      -2586.4069134555516,
+      4.703446661498551
+     ],
+     "labelled_ticks": 9,
+     "rms_at_ticks_mm": 0.075,
+     "gridline_mm": 100.0,
+     "minor_tick_mm": 20.03,
+     "y_range_pt": [
+      549.8984379999999,
+      720.0000000000001
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 9,
+     "rms_at_gridlines_mm": 0.076,
+     "date_gridlines_used": 19,
+     "rms_days": 0.022,
+     "columns_read": 3356,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 243,
+     "rms_mm": 0.978
+    },
+    "daily_scatter_about_avg7_mm": 2.07,
+    "two_pass": {
+     "epochs": 32,
+     "rms_A_minus_B_mm": 1.0,
+     "max_abs_A_minus_B_mm": 4.49
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 1.0,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 1.19,
+     "value_axis_rms_mm": 0.075,
+     "date_axis_rms_days": 0.022,
+     "calibration_mm": {
+      "median": 0.08,
+      "max": 0.25
+     },
+     "digitising_sigma_mm": {
+      "median": 1.55,
+      "max": 1.57
+     },
+     "gnss_sigma_mm": 2.07,
+     "sigma_mm": {
+      "median": 2.59,
+      "max": 2.6
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 50.0,
+      "digitising_sigma_mm": 50.0,
+      "sigma_mm": 50.04
+     }
+    }
+   }
+  },
+  "position": {
+   "inset_affine_rms_m": 0.47,
+   "diamond_page_pt": [
+    193.16,
+    155.48
+   ],
+   "mga94": [
+    278896.2,
+    6215357.8
+   ],
+   "source": "circle on drawing MSEC1263-01 (Report 8 page 88), affine to LW W1-W3 corners (rms 0.17 m); checked against the figure's own inset map",
+   "layout_circle_page_pt": [
+    354.64,
+    478.82
+   ],
+   "inset_mga94": [
+    278895.5,
+    6215357.4
+   ],
+   "inset_minus_layout_m": 0.8,
+   "next_circle_m": 669.9,
+   "position_sigma_note": "5 m (1 sigma): the two drawings agree within 2.4 m; panel georeference 1-2 m",
+   "lat": -34.179337,
+   "lon": 150.600956,
+   "position_sigma_m": 5.0
+  },
+  "warnings": [
+   "daily height: 3 vertices lie outside the labelled axis range (kept: the vector holds them)",
+   "daily height: 4 vertices lie outside the labelled axis range (kept: the vector holds them)"
+  ],
+  "report7": {
+   "figure": "Fig. G24-R20",
+   "page": 193,
+   "x_rms_days": 0.01
+  },
+  "epochs": {
+   "first": "2022-03-30",
+   "last": "2023-07-30",
+   "listed": 33,
+   "dropped": {
+    "e": {
+     "2023-01-01": "only 3 of the 7 days around it have data"
+    },
+    "n": {
+     "2023-01-01": "only 3 of the 7 days around it have data"
+    },
+    "u": {
+     "2023-01-01": "only 3 of the 7 days around it have data"
+    }
+   }
+  }
+ },
+ "TW_GSR17N": {
+  "figure": "Fig. GSR17N-R21",
+  "page": 104,
+  "title": "Site SR17N - Northern side of rockbar",
+  "styles": {
+   "daily": [
+    "#996699",
+    0.792
+   ],
+   "avg7": [
+    "#663399",
+    0.504
+   ]
+  },
+  "x_axis": {
+   "day_number_epoch": "2000-01-01",
+   "a": 7782.540319105537,
+   "b_days_per_pt": 1.0737776532597842,
+   "rms_days": 0.019,
+   "ticks": 17,
+   "first_last_tick": [
+    "2021-08-01",
+    "2022-12-01"
+   ]
+  },
+  "panels": {
+   "easting": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      163.29066163726935,
+      -0.5880422180468868
+     ],
+     "labelled_ticks": 6,
+     "rms_at_ticks_mm": 0.01,
+     "gridline_mm": 20.0,
+     "minor_tick_mm": 5.01,
+     "y_range_pt": [
+      175.6796875,
+      345.71875
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 4,
+     "rms_at_gridlines_mm": 0.0,
+     "date_gridlines_used": 17,
+     "rms_days": 0.018,
+     "columns_read": 3170,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 323,
+     "rms_mm": 0.585
+    },
+    "daily_scatter_about_avg7_mm": 2.09,
+    "two_pass": {
+     "epochs": 28,
+     "rms_A_minus_B_mm": 0.05,
+     "max_abs_A_minus_B_mm": 0.12
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.05,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.15,
+     "value_axis_rms_mm": 0.01,
+     "date_axis_rms_days": 0.019,
+     "calibration_mm": {
+      "median": 0.01,
+      "max": 0.03
+     },
+     "digitising_sigma_mm": {
+      "median": 0.16,
+      "max": 0.16
+     },
+     "gnss_sigma_mm": 2.09,
+     "sigma_mm": {
+      "median": 2.1,
+      "max": 2.1
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 10.0,
+      "digitising_sigma_mm": 10.0,
+      "sigma_mm": 10.22
+     }
+    }
+   },
+   "northing": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      275.9115007801955,
+      -0.705560358689504
+     ],
+     "labelled_ticks": 7,
+     "rms_at_ticks_mm": 0.012,
+     "gridline_mm": 20.0,
+     "minor_tick_mm": 5.0,
+     "y_range_pt": [
+      362.69921875,
+      532.80078125
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 7,
+     "rms_at_gridlines_mm": 0.021,
+     "date_gridlines_used": 17,
+     "rms_days": 0.018,
+     "columns_read": 3170,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 335,
+     "rms_mm": 0.417
+    },
+    "daily_scatter_about_avg7_mm": 1.51,
+    "two_pass": {
+     "epochs": 28,
+     "rms_A_minus_B_mm": 0.05,
+     "max_abs_A_minus_B_mm": 0.11
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.05,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.18,
+     "value_axis_rms_mm": 0.012,
+     "date_axis_rms_days": 0.019,
+     "calibration_mm": {
+      "median": 0.01,
+      "max": 0.02
+     },
+     "digitising_sigma_mm": {
+      "median": 0.19,
+      "max": 0.19
+     },
+     "gnss_sigma_mm": 1.51,
+     "sigma_mm": {
+      "median": 1.52,
+      "max": 1.52
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 10.0,
+      "digitising_sigma_mm": 10.0,
+      "sigma_mm": 10.11
+     }
+    }
+   },
+   "height": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      -492.5905520920035,
+      0.8230424335243347
+     ],
+     "labelled_ticks": 8,
+     "rms_at_ticks_mm": 0.001,
+     "gridline_mm": 20.0,
+     "minor_tick_mm": 4.99,
+     "y_range_pt": [
+      549.8984379999999,
+      720.0000000000002
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 8,
+     "rms_at_gridlines_mm": 0.0,
+     "date_gridlines_used": 17,
+     "rms_days": 0.019,
+     "columns_read": 3170,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 367,
+     "rms_mm": 1.55
+    },
+    "daily_scatter_about_avg7_mm": 4.1,
+    "two_pass": {
+     "epochs": 28,
+     "rms_A_minus_B_mm": 0.26,
+     "max_abs_A_minus_B_mm": 0.91
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.26,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.21,
+     "value_axis_rms_mm": 0.001,
+     "date_axis_rms_days": 0.019,
+     "calibration_mm": {
+      "median": 0.02,
+      "max": 0.08
+     },
+     "digitising_sigma_mm": {
+      "median": 0.33,
+      "max": 0.34
+     },
+     "gnss_sigma_mm": 4.1,
+     "sigma_mm": {
+      "median": 4.12,
+      "max": 4.12
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 10.0,
+      "digitising_sigma_mm": 10.0,
+      "sigma_mm": 10.81
+     }
+    }
+   }
+  },
+  "position": {
+   "inset_affine_rms_m": 0.47,
+   "diamond_page_pt": [
+    175.46,
+    88.16
+   ],
+   "mga94": [
+    278583.4,
+    6216545.3
+   ],
+   "source": "circle on drawing MSEC1263-01 (Report 8 page 88), affine to LW W1-W3 corners (rms 0.17 m); checked against the figure's own inset map",
+   "layout_circle_page_pt": [
+    290.81,
+    236.43
+   ],
+   "inset_mga94": [
+    278583.2,
+    6216545.1
+   ],
+   "inset_minus_layout_m": 0.3,
+   "next_circle_m": 58.2,
+   "position_sigma_note": "5 m (1 sigma): the two drawings agree within 2.4 m; panel georeference 1-2 m",
+   "lat": -34.16857,
+   "lon": 150.597868,
+   "position_sigma_m": 5.0
+  },
+  "warnings": [],
+  "report7": {
+   "figure": "Fig. GSR17N-R20",
+   "page": 194,
+   "x_rms_days": 0.019
+  },
+  "epochs": {
+   "first": "2021-08-22",
+   "last": "2022-10-04",
+   "listed": 28,
+   "dropped": {}
+  }
+ },
+ "TW_GSR17S": {
+  "figure": "Fig. GSR17S-R21",
+  "page": 105,
+  "title": "Site SR17S - Southern side of rockbar",
+  "styles": {
+   "daily": [
+    "#669933",
+    0.792
+   ],
+   "avg7": [
+    "#003333",
+    0.504
+   ]
+  },
+  "x_axis": {
+   "day_number_epoch": "2000-01-01",
+   "a": 7726.012739026455,
+   "b_days_per_pt": 1.6779528256372476,
+   "rms_days": 0.029,
+   "ticks": 26,
+   "first_last_tick": [
+    "2021-08-01",
+    "2023-09-01"
+   ]
+  },
+  "panels": {
+   "easting": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      183.29066163726935,
+      -0.5880422180468869
+     ],
+     "labelled_ticks": 6,
+     "rms_at_ticks_mm": 0.01,
+     "gridline_mm": 20.0,
+     "minor_tick_mm": 5.01,
+     "y_range_pt": [
+      175.6796875,
+      345.71875
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 4,
+     "rms_at_gridlines_mm": 0.0,
+     "date_gridlines_used": 26,
+     "rms_days": 0.025,
+     "columns_read": 3410,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 538,
+     "rms_mm": 0.614
+    },
+    "daily_scatter_about_avg7_mm": 1.78,
+    "two_pass": {
+     "epochs": 44,
+     "rms_A_minus_B_mm": 0.14,
+     "max_abs_A_minus_B_mm": 0.63
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.14,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.15,
+     "value_axis_rms_mm": 0.01,
+     "date_axis_rms_days": 0.029,
+     "calibration_mm": {
+      "median": 0.01,
+      "max": 0.05
+     },
+     "digitising_sigma_mm": {
+      "median": 0.21,
+      "max": 0.21
+     },
+     "gnss_sigma_mm": 1.78,
+     "sigma_mm": {
+      "median": 1.79,
+      "max": 1.79
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 10.0,
+      "digitising_sigma_mm": 10.0,
+      "sigma_mm": 10.16
+     }
+    }
+   },
+   "northing": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      275.9115007801955,
+      -0.705560358689504
+     ],
+     "labelled_ticks": 7,
+     "rms_at_ticks_mm": 0.012,
+     "gridline_mm": 20.0,
+     "minor_tick_mm": 5.0,
+     "y_range_pt": [
+      362.69921875,
+      532.80078125
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 7,
+     "rms_at_gridlines_mm": 0.021,
+     "date_gridlines_used": 26,
+     "rms_days": 0.025,
+     "columns_read": 3410,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 494,
+     "rms_mm": 0.519
+    },
+    "daily_scatter_about_avg7_mm": 1.51,
+    "two_pass": {
+     "epochs": 44,
+     "rms_A_minus_B_mm": 0.08,
+     "max_abs_A_minus_B_mm": 0.31
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.08,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.18,
+     "value_axis_rms_mm": 0.012,
+     "date_axis_rms_days": 0.029,
+     "calibration_mm": {
+      "median": 0.01,
+      "max": 0.04
+     },
+     "digitising_sigma_mm": {
+      "median": 0.2,
+      "max": 0.2
+     },
+     "gnss_sigma_mm": 1.51,
+     "sigma_mm": {
+      "median": 1.52,
+      "max": 1.52
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 10.0,
+      "digitising_sigma_mm": 10.0,
+      "sigma_mm": 10.11
+     }
+    }
+   },
+   "height": {
+    "pass_A": {
+     "value_mm = a + b * y_pt": [
+      -472.59055209200324,
+      0.8230424335243343
+     ],
+     "labelled_ticks": 8,
+     "rms_at_ticks_mm": 0.001,
+     "gridline_mm": 20.0,
+     "minor_tick_mm": 4.99,
+     "y_range_pt": [
+      549.8984379999999,
+      720.0000000000002
+     ]
+    },
+    "pass_B": {
+     "gridlines_used": 8,
+     "rms_at_gridlines_mm": 0.0,
+     "date_gridlines_used": 26,
+     "rms_days": 0.029,
+     "columns_read": 3411,
+     "dpi": 600
+    },
+    "avg7_vs_centred_daily_mean": {
+     "n": 552,
+     "rms_mm": 1.492
+    },
+    "daily_scatter_about_avg7_mm": 3.29,
+    "two_pass": {
+     "epochs": 44,
+     "rms_A_minus_B_mm": 0.24,
+     "max_abs_A_minus_B_mm": 0.78
+    },
+    "sigma": {
+     "rule": "amendment 2026-10-08/p23-1: digitising sigma = hypot(two-pass RMS, half the plotted line width in data units, axis-calibration residual) per point; sigma = hypot(digitising sigma, the unit's daily scatter)",
+     "digitising_rms_mm": 0.24,
+     "avg7_line_width_pt": 0.504,
+     "avg7_paths_read": 1,
+     "half_line_width_mm": 0.21,
+     "value_axis_rms_mm": 0.001,
+     "date_axis_rms_days": 0.029,
+     "calibration_mm": {
+      "median": 0.02,
+      "max": 0.14
+     },
+     "digitising_sigma_mm": {
+      "median": 0.32,
+      "max": 0.35
+     },
+     "gnss_sigma_mm": 3.29,
+     "sigma_mm": {
+      "median": 3.31,
+      "max": 3.31
+     },
+     "as_first_fixed": {
+      "rule": "two-pass RMS, at least half the plot's gridline spacing (protocol A as first fixed)",
+      "half_gridline_mm": 10.0,
+      "digitising_sigma_mm": 10.0,
+      "sigma_mm": 10.53
+     }
+    }
+   }
+  },
+  "position": {
+   "inset_affine_rms_m": 0.47,
+   "diamond_page_pt": [
+    174.01,
+    91.09
+   ],
+   "mga94": [
+    278557.2,
+    6216493.0
+   ],
+   "source": "circle on drawing MSEC1263-01 (Report 8 page 88), affine to LW W1-W3 corners (rms 0.17 m); checked against the figure's own inset map",
+   "layout_circle_page_pt": [
+    285.47,
+    247.12
+   ],
+   "inset_mga94": [
+    278557.7,
+    6216493.3
+   ],
+   "inset_minus_layout_m": 0.6,
+   "next_circle_m": 58.0,
+   "position_sigma_note": "5 m (1 sigma): the two drawings agree within 2.4 m; panel georeference 1-2 m",
+   "lat": -34.169037,
+   "lon": 150.597571,
+   "position_sigma_m": 5.0
+  },
+  "warnings": [],
+  "report7": {
+   "figure": "Fig. GSR17S-R20",
+   "page": 195,
+   "x_rms_days": 0.019
+  },
+  "epochs": {
+   "first": "2021-08-22",
+   "last": "2023-07-09",
+   "listed": 46,
+   "dropped": {
+    "e": {
+     "2022-07-15": "only 0 of the 7 days around it have data",
+     "2023-02-01": "only 0 of the 7 days around it have data"
+    },
+    "n": {
+     "2022-07-15": "only 0 of the 7 days around it have data",
+     "2023-02-01": "only 0 of the 7 days around it have data"
+    },
+    "u": {
+     "2022-07-15": "only 0 of the 7 days around it have data",
+     "2023-02-01": "only 0 of the 7 days around it have data"
+    }
+   }
+  }
+ }
+}

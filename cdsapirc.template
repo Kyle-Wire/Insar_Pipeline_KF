@@ -1,0 +1,36 @@
+# Copernicus Climate Data Store credentials for ERA5 tropospheric correction.
+#
+# INSTALL:  copy to ~/.cdsapirc  and  chmod 600 ~/.cdsapirc
+#           (it holds a bearer token; 600 keeps it out of other accounts)
+#
+# GET THE TOKEN:
+#   1. Register / log in at https://cds.climate.copernicus.eu
+#   2. Open your profile (top right) -> "Personal Access Token"
+#   3. Copy the token and paste it after "key:" below
+#   4. ACCEPT THE LICENCE, which is a separate and easily missed step:
+#      https://cds.climate.copernicus.eu/datasets/reanalysis-era5-pressure-levels
+#      -> "Download data" tab -> "Terms of use" -> Accept.
+#      Without this every request returns 403 and the failure message does
+#      not mention the licence.
+#
+# WHY THE FORMAT MATTERS: the CDS was migrated in September 2024. Guides
+# written before that show
+#     url: https://cds.climate.copernicus.eu/api/v2
+#     key: 12345:abcdef-...            <- UID colon key
+# BOTH ARE NOW WRONG. The new endpoint has no /v2 and the key is the token
+# alone, with no UID and no colon. cdsapi 0.7.7 (installed here) splits each
+# line on the FIRST colon, so a legacy uid:key line silently authenticates as
+# the UID and fails confusingly.
+#
+# WHO USES IT: MintPy's tropospheric correction via pyaps3, which calls
+# cdsapi.Client() with no arguments and so reads this file directly
+# (pyaps3/autoget.py:105). Set by mintpy_tropo_method: pyaps in the config.
+# RAiDER, on the DISP/HyP3 paths, uses the same file.
+#
+# VERIFY after installing:
+#   conda activate insar
+#   python -c "import cdsapi; c=cdsapi.Client(); print('CDS auth OK:', c.url)"
+
+url: https://cds.climate.copernicus.eu/api
+key: PASTE_YOUR_PERSONAL_ACCESS_TOKEN_HERE
+

@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>InSAR Pipeline</title>
+<link rel="icon" href="assets/icon.png" type="image/png">
+<link rel="stylesheet" href="assets/vendor/leaflet.min.css">
+<link rel="stylesheet" href="assets/app.css">
+</head>
+<body>
+<nav class="rail" aria-label="Main">
+  <div class="brand"><img src="assets/icon.png" alt="InSAR Pipeline"><div class="fringe-rule" aria-hidden="true"></div></div>
+  <a href="#/" data-nav="projects" class="navlink"><svg viewBox="0 0 24 24"><path d="M4 5h7v6H4zM13 5h7v4h-7zM13 11h7v8h-7zM4 13h7v6H4z"/></svg><span>Projects</span></a>
+  <a href="#/new" data-nav="new" class="navlink"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>New project</span></a>
+  <a href="#/files" data-nav="files" class="navlink"><svg viewBox="0 0 24 24"><path d="M3 6h7l2 2h9v11H3z"/></svg><span>Files</span></a>
+  <a href="#/computer" data-nav="computer" class="navlink"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H4zM9 20h6M12 16v4"/></svg><span>This computer</span></a>
+  <div class="rail-spacer"></div>
+  <div id="conn" class="conn" title="Connection to the pipeline on this computer"><i></i><span>connected</span></div>
+  <button id="theme" class="ghost" title="Black / white">B/W</button>
+</nav>
+
+<main id="main">
+  <!-- ======================================================== projects -->
+  <section id="v-projects" class="view" hidden>
+    <header class="pagehead">
+      <div><h1>Projects</h1><p class="sub">Every project on this computer. Open one to watch it run or read its results.</p></div>
+      <div class="actions"><button id="newproj" class="primary">+ New project</button></div>
+    </header>
+    <div class="overview">
+      <div id="homemap" class="homemap" aria-label="Where the projects are"></div>
+      <div class="kpis" id="kpis"></div>
+    </div>
+    <div class="filterbar">
+      <div class="seg" id="pfilter"><button data-f="all" class="on">All</button><button data-f="running">Running</button><button data-f="attention">Needs attention</button><button data-f="done">Finished</button></div>
+      <input id="psearch" type="search" placeholder="Search projects">
+    </div>
+    <div id="cards" class="cards"></div>
+    <details id="gone" class="gone card" hidden><summary><h2>Not on disk</h2><span id="gonecount" class="muted small"></span></summary>
+      <div id="gonelist"></div></details>
+  </section>
+
+  <!-- ======================================================== new -->
+  <section id="v-new" class="view" hidden>
+    <header class="pagehead"><div><h1>New project</h1><p class="sub">A project starts as a map: draw or upload the area, add the mines and any areas the report should cover.</p></div></header>
+    <div class="newsteps">
+      <div class="nstep"><b>1</b><h3>Draw the area</h3><p>Draw it on the map, search a place, or upload a shapefile, KML or GeoJSON.</p></div>
+      <div class="nstep"><b>2</b><h3>Add mines and report areas</h3><p>Underground and surface mines, and any extra areas the client wants figures for.</p></div>
+      <div class="nstep"><b>3</b><h3>Create it</h3><p>The builder writes the project with the standard settings. It appears in Projects within seconds.</p></div>
+      <div class="nstep"><b>4</b><h3>Start it here</h3><p>Open the project, press Start: the checks run first, then the run, with its progress on the map.</p></div>
+    </div>
+    <div class="row"><button id="openbuilder" class="primary big">Open the map builder</button><span class="muted" id="builderurl"></span></div>
+  </section>
+
+  <!-- ======================================================== project -->
+  <section id="v-project" class="view" hidden>
+    <header class="pagehead project">
+      <div>
+        <a href="#/" class="back">&lt; Projects</a>
+        <h1 id="pname">…</h1>
+        <div class="meta" id="pmeta"></div>
+      </div>
+      <div class="actions">
+        <button id="bstart" class="primary">Start</button>
+        <button id="bstop" class="danger" hidden>Stop</button>
+        <button id="breport">Report</button>
+        <button id="bsign" hidden>Sign off</button>
+        <button id="bviewer">Results map</button>
+        <button id="bfiles" title="Sizes, and deleting files">Files</button>
+        <button id="bexport" title="A map page to print or send">Export map</button>
+      </div>
+    </header>
+    <div id="pnotes" class="notes"></div>
+    <ol id="phases" class="phases" aria-label="Where the run is"></ol>
+    <div id="now" class="now"></div>
+
+    <div class="pgrid">
+      <div class="mapcard card">
+        <div class="cardhead"><h2>Live map</h2><span class="muted small" id="mapsub">layers appear as the run makes them</span>
+          <div class="seg small" id="basemaps"><button data-b="imagery" class="on">Imagery</button><button data-b="osm">Streets</button><button data-b="usgs">USGS</button><button data-b="topo">Topo</button><button data-b="grey">Grey</button></div></div>
+        <div class="mapwrap">
+          <div id="pmap" class="pmap"></div>
+          <div id="legend" class="legend" hidden></div>
+        </div>
+        <ul id="layers" class="layers"></ul>
+      </div>
+      <div class="side">
+        <div class="tabs" role="tablist">
+          <button data-t="stages" class="on" role="tab">Stages</button>
+          <button data-t="results" role="tab">Results</button>
+          <button data-t="log" role="tab">Log</button>
+          <button data-t="activity" role="tab">Activity</button>
+        </div>
+        <div class="tab card" id="t-stages"></div>
+        <div class="tab card" id="t-results" hidden></div>
+        <div class="tab card logbox" id="t-log" hidden><div class="loghead"><span id="logpath" class="muted small"></span><label class="small"><input type="checkbox" id="logfollow" checked> follow</label></div><pre id="logtext"></pre></div>
+        <div class="tab card" id="t-activity" hidden><ul id="activity" class="activity"></ul></div>
+        <div class="card res" id="pres"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================== files -->
+  <section id="v-files" class="view" hidden>
+    <header class="pagehead"><div><h1>Files</h1><p class="sub">What each project keeps on disk. Free space a folder at a time, or a whole project at once.</p></div></header>
+    <div class="fgrid">
+      <div class="card"><div class="cardhead"><h2>Projects</h2></div><ul id="fprojects" class="flist"></ul></div>
+      <div class="card" id="fpanel">
+        <div class="cardhead"><h2 id="fname">Pick a project</h2>
+          <div class="row" style="margin-left:auto"><button id="fopen" class="small">Open in Explorer</button><button id="fkeep" class="small">Keep results only</button><button id="fdelproj" class="small danger">Delete project</button></div></div>
+        <div id="fcrumbs" class="crumbs"></div>
+        <div id="ftable" class="ftable"></div>
+        <div class="ffoot"><span id="fsel" class="muted">Nothing chosen.</span><button id="fdelete" class="danger" disabled>Delete chosen</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================== computer -->
+  <section id="v-computer" class="view" hidden>
+    <header class="pagehead"><div><h1>This computer</h1><p class="sub">Disk, memory and the runs going now. Runs keep going when this window closes.</p></div>
+      <div class="actions"><button id="quit" class="danger" title="Stops this app's window server; runs carry on">Quit the app</button></div></header>
+    <div class="cgrid">
+      <div class="side">
+      <div class="card" id="cres"></div>
+      <div class="card"><div class="cardhead"><h2>Company</h2></div>
+        <div class="company">
+          <p class="muted small">Printed on every map export and in the reports: who prepared them.</p>
+          <label>Firm <input id="cofirm" type="text"></label>
+          <label>Prepared by <input id="coprep" type="text"></label>
+          <label>Contact <input id="cocontact" type="text"></label>
+          <div class="logobox"><img id="cologo" alt="" hidden><span id="cologonone" class="muted small">No logo yet.</span></div>
+          <div class="row"><label class="filebtn"><input id="cofile" type="file" accept="image/png,image/jpeg"> Upload logo</label>
+            <button id="coremove" class="small" type="button">Remove logo</button><button id="cosave" class="primary small" type="button">Save</button></div>
+        </div></div>
+      </div>
+      <div class="card"><div class="cardhead"><h2>Storage by project</h2><button id="loadstorage" class="small">Measure</button></div>
+        <p class="muted small">Measuring reads every folder, so it can take a minute. To free disk, use <code>insar storage</code> or <b>g</b> in the terminal dashboard: they show what goes first and ask before anything is deleted.</p>
+        <div id="storage"></div></div>
+    </div>
+  </section>
+</main>
+
+<!-- ======================================================== start dialog -->
+<dialog id="dstart" class="dlg">
+  <form method="dialog" class="dlgbody">
+    <header><h2>Start a run</h2><button value="cancel" class="ghost x" aria-label="Close">X</button></header>
+    <div id="sstep1">
+      <p class="muted">The run is detached: closing this window or the computer's screen never stops it.</p>
+      <div id="sreason" class="note good" hidden></div>
+      <div id="soptions" class="options"></div>
+    </div>
+    <div id="sstep2" hidden>
+      <div class="pfhead"><b id="pfkind"></b><span id="pfstate" class="pill"></span></div>
+      <ul id="pfchecks" class="checks"></ul>
+      <details id="pfplandet"><summary>What the planner worked out</summary><pre id="pfplan"></pre></details>
+      <label id="pfcleaned" class="confirm" hidden><input type="checkbox" id="pfcleanedbox"> <span id="pfcleanedtext"></span></label>
+    </div>
+    <footer>
+      <button value="cancel" class="ghost">Cancel</button>
+      <button id="sback" type="button" hidden>← Back</button>
+      <button id="srecheck" type="button" hidden>Check again</button>
+      <button id="sgo" type="button" class="primary" hidden disabled>Start the run</button>
+    </footer>
+  </form>
+</dialog>
+
+<dialog id="dconfirm" class="dlg narrow">
+  <form method="dialog" class="dlgbody">
+    <header><h2 id="cftitle">Are you sure?</h2></header>
+    <div id="cftext" class="cftext"></div>
+    <footer><button value="no" class="ghost">Cancel</button><button value="yes" id="cfyes" class="primary">OK</button></footer>
+  </form>
+</dialog>
+
+<dialog id="dexport" class="dlg">
+  <form method="dialog" class="dlgbody">
+    <header><h2>Export the map</h2><button value="cancel" class="ghost x" aria-label="Close">X</button></header>
+    <div class="exgrid">
+      <label>Page <select id="xpage"><option value="letter">Letter 8.5 x 11</option><option value="legal">Legal 8.5 x 14</option>
+        <option value="tabloid" selected>Tabloid 11 x 17</option><option value="ansi_c">ANSI C 17 x 22</option><option value="ansi_d">ANSI D 22 x 34</option>
+        <option value="a4">A4</option><option value="a3">A3</option></select></label>
+      <label>Orientation <select id="xorient"><option value="landscape">Landscape</option><option value="portrait">Portrait</option></select></label>
+      <label>Colour <select id="xbw"><option value="0">Colour</option><option value="1">Black and white</option></select></label>
+      <label>File <select id="xfmt"><option value="pdf">PDF (vector)</option><option value="png">PNG, 300 dpi</option></select></label>
+      <label>Base map <select id="xbase"><option value="imagery">Imagery</option><option value="osm">Streets</option><option value="usgs">USGS topo</option>
+        <option value="topo">OpenTopoMap</option><option value="grey">Light grey</option><option value="none">None</option></select></label>
+      <label class="inline"><input type="checkbox" id="xlogo" checked> Company logo</label>
+      <label class="wide">Title <input id="xtitle" type="text"></label>
+      <label class="wide">Subtitle <input id="xsub" type="text" placeholder="e.g. Ground movement 2016-2026"></label>
+      <label class="wide">Notes <textarea id="xnotes" rows="4" placeholder="Printed in the Notes box, above the standard notes"></textarea></label>
+      <p class="wide muted small" id="xwhat"></p>
+    </div>
+    <footer><button value="cancel" class="ghost">Cancel</button><button id="xgo" type="button" class="primary">Export</button></footer>
+  </form>
+</dialog>
+
+<dialog id="dsign" class="dlg">
+  <form method="dialog" class="dlgbody">
+    <header><h2>Sign off this client report</h2><button value="cancel" class="ghost x" aria-label="Close">X</button></header>
+    <div class="signform">
+      <p class="muted small">Your name goes on the report. The sign-off binds to these numbers: a rebuild that changes one voids it.</p>
+      <div id="sgleft"></div>
+      <label>Reviewer <input id="sgname" type="text" autocomplete="off" spellcheck="false" maxlength="120"></label>
+      <div id="sghold" hidden>
+        <div class="note warn"><b>Held for a specialist.</b> <span id="sgholdtext"></span></div>
+        <label>Specialist who read these reasons (may be you) <input id="sgspec" type="text" autocomplete="off" spellcheck="false" maxlength="120"></label>
+      </div>
+      <p id="sgfeatwhat" class="small"></p>
+      <div id="sgfeats" class="signfeats"></div>
+      <label>Notes (optional) <textarea id="sgnotes" rows="3" maxlength="2000"></textarea></label>
+      <div id="sgerr"></div>
+    </div>
+    <footer><button value="cancel" class="ghost">Cancel</button><button id="sggo" type="button" class="primary">Sign off, rebuild the report and package</button></footer>
+  </form>
+</dialog>
+
+<dialog id="ddelete" class="dlg">
+  <form method="dialog" class="dlgbody">
+    <header><h2 id="ddtitle">Delete</h2><button value="cancel" class="ghost x" aria-label="Close">X</button></header>
+    <div>
+      <div id="ddbody"></div>
+      <label id="ddname" class="confirm" hidden>Type <b id="ddwant"></b> to confirm: <input id="ddinput" type="text" autocomplete="off" spellcheck="false"></label>
+    </div>
+    <footer><button value="cancel" class="ghost">Cancel</button><button id="ddgo" type="button" class="danger" disabled>Delete</button></footer>
+  </form>
+</dialog>
+
+<div id="toasts" class="toasts" aria-live="polite"></div>
+<div id="sky" aria-hidden="true"></div>
+<script src="assets/vendor/leaflet.min.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

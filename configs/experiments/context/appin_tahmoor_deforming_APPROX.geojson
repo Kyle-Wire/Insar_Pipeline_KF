@@ -1,0 +1,23 @@
+{
+  "type": "FeatureCollection",
+  "_source": "APPROXIMATE envelopes drawn 8 Oct 2026 for P0.1 (experiment A) from the research notes only, NOT from mine plans. Each envelope is meant to contain every longwall panel mined or still settling in 2017-11 .. 2022-12 inside the A box PLUS the angle of draw (26.5 deg in the NSW Southern Coalfield, i.e. about 0.5 x depth of cover = 250-300 m at 490-600 m cover) PLUS roughly 0.5-1 km for the uncertainty of these hand-drawn outlines. Anchors used: CA19 (150.6912 E, 34.1789 S) lies over Appin LW902 (GA CEMP report); Appin Area 7 point 150.735 E, 34.205 S, with LW708 under the ARTC Main Southern line and the M31 near Douglas Park and LW709 on the Menangle Rd line (EoP reports); Tahmoor West W1-W4 'between Thirlmere and Picton, NW of the Main Southern Railway' (point 150.58 E, 34.19 S); Tahmoor North LW31/LW32 under and north of Tahmoor township (mined to about 2019; extent UNCONFIRMED); Tahmoor South S1A 'south of the Bargo River, east of Remembrance Drive' (point 150.60 E, 34.27 S; S1A started 18 Oct 2022, inside the window). Sources: review_2026-10-08/longwall/notes.md sections 3.1-3.2 and PLAN.md section 1A. Replace with the digitised Extraction Plan outlines (PLAN phase 2, T1) before any stable-ring statistic is computed; the run uses these only to keep the subsidence out of the deramp plane fit, the far field and the reference-pixel choice (deramp_buffer_m 2000 m is added on top).",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"name": "Appin Areas 7 and 9 (LW707-LW709, LW901-LW905), APPROXIMATE envelope incl. angle of draw", "approximate": true},
+      "geometry": {"type": "Polygon", "coordinates": [[
+        [150.660, -34.148], [150.725, -34.148], [150.785, -34.168], [150.785, -34.238],
+        [150.700, -34.240], [150.660, -34.207], [150.660, -34.148]
+      ]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"name": "Tahmoor West W1-W4, Tahmoor North LW31-LW32, Tahmoor South S1A, APPROXIMATE envelope incl. angle of draw", "approximate": true},
+      "geometry": {"type": "Polygon", "coordinates": [[
+        [150.556, -34.168], [150.618, -34.165], [150.630, -34.200], [150.632, -34.250],
+        [150.632, -34.295], [150.580, -34.295], [150.580, -34.250], [150.556, -34.215],
+        [150.556, -34.168]
+      ]]}
+    }
+  ]
+}
