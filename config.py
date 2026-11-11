@@ -202,6 +202,19 @@ class PipelineConfig:
     miaplpy_skip: str = "water"
     miaplpy_phase_linking_method: str = "sequential_EMI"   # EVD | EMI | PTA | sequential_* | SBW
     miaplpy_num_processors: int = 8                  # parallel patches in phase linking
+    # Phase linking on the GPU (11 Nov 2026; pl_gpu.py, review_2026-11-10/PLAN.md
+    # Phase 2): the same per-pixel algorithm as our patched MiaplPy build,
+    # batched with JAX in miaplpy_gpu_env; it writes MiaplPy's own patch files,
+    # so concatenation and everything after are unchanged, and MiaplPy on the
+    # CPU then links any patch the GPU did not. "auto" (default since 11 Nov 2026,
+    # Kyle: the GPU when one is usable and its self-check against MiaplPy on the
+    # CPU passes, else the CPU; a GPU failure leaves the patches it did not
+    # finish to the CPU), "on" (a GPU is required), "off". Only sequential_EMI/EMI.
+    # The first real run with it is Gate 2(b) of the plan (MintPy velocity and
+    # GNSS tie against a CPU-linked record).
+    miaplpy_gpu: str = "auto"
+    miaplpy_gpu_env: str = "dolphin"                 # conda env with CUDA JAX (the NISAR route's)
+    miaplpy_gpu_memory_gb: float = 4.0               # device memory one batch may use (Windows shares the GPU)
     # MiaplPy's --time_lag. In the PATCHED library (patches/miaplpy, built by build_miaplpy.sh)
     # (25 Sep 2026) it is the window OVERLAP of the sequential estimator: each
     # mini-stack of miaplpy_ministack_size images is solved together with the
@@ -1243,6 +1256,7 @@ _ENUMS = {
     "stack_virtual_merge": ("true", "false"),
     "mintpy_unwrap_error_method": ("auto", "no", "bridging", "phase_closure", "bridging+phase_closure"),
     "miaplpy_pair_coherence": ("phasor", "sample"),
+    "miaplpy_gpu": ("auto", "on", "off"),
     "purpose": PURPOSES,
     "site_profile": SITE_PROFILES,
 }
@@ -1258,7 +1272,7 @@ _NON_NEGATIVE = ("gnss_tie_radius_km", "gnss_search_radius_km", "acceptance_far_
                  "vendor_coverage_percent", "vendor_points")
 _POSITIVE = ("max_perp_baseline", "max_temp_baseline", "max_plausible_velocity_mm_yr",
              "mintpy_max_memory_gb", "large_area_km", "acceptance_window_days", "kmz_point_step",
-             "graph_n_points", "deforming_threshold")
+             "graph_n_points", "deforming_threshold", "miaplpy_gpu_memory_gb")
 # One Sentinel-1 IW swath is ~80 km, a whole track ~250 km (~2.5 deg at these
 # latitudes); a coregistered stack over more than that is a typo, not a site.
 MAX_STACK_BBOX_DEG = 2.5

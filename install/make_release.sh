@@ -62,6 +62,7 @@ WHITELIST=(
     patches/fix_raider_readonly.py
     patches/miaplpy/README.md patches/miaplpy/build_miaplpy.sh
     patches/miaplpy/check_miaplpy_patch.py patches/miaplpy/overlap_window_datum.patch
+    patches/miaplpy/speed.patch
     "tests/*.py"                            # less tests/test_local_*.py (SKIP below)
     # the retired topsApp runbook, kept for the record (INSAR_RUNBOOK.md links it);
     # the archived configs beside it stay out

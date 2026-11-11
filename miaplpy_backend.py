@@ -900,6 +900,185 @@ def _ifgram_dirs(work: Path) -> list:
 # from a series is still recognised as its own; a fingerprint without them
 # (none recorded) compares as before; and the pipeline's code hash is
 # deliberately not compared - any edit would force 12 h of re-linking.
+# ---------------------------------------------------------------- phase linking on the GPU
+# pl_gpu.py (speed plan Phase 2, review_2026-11-10/PLAN.md): our patched
+# build's per-pixel algorithm batched with JAX, in its own env. It writes
+# MiaplPy's patch files (flag.npy last, each file renamed into place) plus
+# kernel.json; MiaplPy's phase_linking step then runs as usual and links only
+# the patches without a flag, so a GPU that stops part-way loses nothing.
+PL_GPU = Path(__file__).resolve().parent / "pl_gpu.py"
+GPU_LOG = "miaplpy_phase_linking_gpu.log"
+GPU_PROBE_TIMEOUT_S = 180
+
+
+def _gpu_command(cfg: PipelineConfig, args: list) -> list:
+    from .procs import conda_env_arg
+    env = conda_env_arg(cfg.miaplpy_gpu_env, "miaplpy_gpu_env")
+    cmd = (f"source {shlex.quote(str(CONDA_SH))} && conda activate {env} && "
+           f"python {shlex.quote(str(PL_GPU))} {' '.join(shlex.quote(str(a)) for a in args)}")
+    return ["bash", "-lc", cmd]
+
+
+def gpu_probe(cfg: PipelineConfig) -> dict:
+    """pl_gpu.py probe in miaplpy_gpu_env: {"gpu": bool, ...}. Never raises."""
+    from . import procs as _procs
+    try:
+        p = _procs.run_group(_gpu_command(cfg, ["probe"]), timeout=GPU_PROBE_TIMEOUT_S)
+        line = [ln for ln in (p.stdout or "").splitlines() if ln.strip().startswith("{")]
+        if p.returncode == 0 and line:
+            return json.loads(line[-1])
+        return {"gpu": False, "reason": f"probe rc={p.returncode}: {((p.stderr or '') + (p.stdout or '')).strip()[-300:]}"}
+    except Exception as exc:                                  # noqa: BLE001 - env missing, bad name
+        return {"gpu": False, "reason": f"{type(exc).__name__}: {exc}"[:300]}
+
+
+def gpu_linking_plan(cfg: PipelineConfig) -> dict:
+    """Whether phase linking runs on the GPU first: {"use", "mode", "reason", "probe"}.
+    Raises when miaplpy_gpu is "on" and the GPU cannot be used."""
+    from . import pl_gpu
+    mode = str(getattr(cfg, "miaplpy_gpu", "auto") or "auto").strip().lower()
+    if mode == "off":
+        return {"use": False, "mode": mode, "reason": "miaplpy_gpu is off"}
+    method = str(cfg.miaplpy_phase_linking_method).strip()
+    why = None
+    if method not in pl_gpu.SUPPORTED_METHODS:
+        why = f"method {method} is not implemented on the GPU (only {', '.join(pl_gpu.SUPPORTED_METHODS)})"
+        probe = None
+    else:
+        probe = gpu_probe(cfg)
+        if not probe.get("gpu"):
+            why = f"no usable GPU in env '{cfg.miaplpy_gpu_env}': {probe.get('reason')}"
+    if why:
+        if mode == "on":
+            raise RuntimeError(f"miaplpy_gpu is 'on' but {why}. Set miaplpy_gpu to 'auto' (CPU when there is no "
+                               "GPU) or 'off', or install the GPU env (install/install.sh, the dolphin env).")
+        return {"use": False, "mode": mode, "reason": why, "probe": probe}
+    return {"use": True, "mode": mode, "reason": f"GPU {probe.get('device')} ({probe.get('kind') or 'CUDA'})",
+            "probe": probe}
+
+
+def _gpu_args(cfg: PipelineConfig) -> list:
+    work = work_dir(cfg)
+    args = ["run", "--slc-stack", work / "inputs" / "slcStack.h5", "--out-dir", work / "inverted",
+            "--range-window", int(cfg.miaplpy_range_window), "--azimuth-window", int(cfg.miaplpy_azimuth_window),
+            "--patch-size", _patch_size(work), "--method", str(cfg.miaplpy_phase_linking_method).strip(),
+            "--ministack", int(cfg.miaplpy_ministack_size), "--lag", int(cfg.miaplpy_time_lag),
+            "--ps-shp", 10, "--memory-gb", float(cfg.miaplpy_gpu_memory_gb)]
+    mask = skip_mask_path(cfg)
+    if mask.exists():
+        args += ["--mask", mask]            # MiaplPy is given the same file (write_template)
+    return args
+
+
+def gpu_patch_count(work: Path) -> int:
+    """Finished patches the GPU kernel wrote (kernel.json beside flag.npy)."""
+    return sum(1 for f in (work / "inverted" / "PATCHES").glob("PATCH_*/kernel.json")
+               if (f.parent / "flag.npy").exists())
+
+
+GPU_CHECK = "gpu_check.json"           # miaplpy/: the last GPU-against-CPU self-check
+GPU_CHECK_TIMEOUT_S = 900
+
+
+def verify_gpu_kernel(cfg: PipelineConfig) -> dict:
+    """One synthetic patch linked by the installed MiaplPy on the CPU (its own
+    process_patch_c, in miaplpy_env) and by pl_gpu.py (miaplpy_gpu_env),
+    compared with pl_gpu.SELFCHECK_LIMITS. Written to miaplpy/gpu_check.json.
+    Returns {"ok", "why", "metrics", ...}; never raises."""
+    import shutil
+    from . import pl_gpu
+    from . import procs as _procs
+    from .procs import conda_env_arg
+    work = work_dir(cfg)
+    d = work / ".gpu_check"
+    shutil.rmtree(d, ignore_errors=True)
+    d.mkdir(parents=True)
+    rec = {"checked": time.strftime("%Y-%m-%dT%H:%M:%S"), "kernel": pl_gpu.kernel_label(),
+           "cpu_env": cfg.miaplpy_env, "gpu_env": cfg.miaplpy_gpu_env, "limits": pl_gpu.SELFCHECK_LIMITS}
+    try:
+        n, L, W = pl_gpu.SELFCHECK_SHAPE
+        pl_gpu.synthetic_stack(d / "stack.h5")
+        (d / "cpu_reference.py").write_text(pl_gpu.CPU_REFERENCE)
+        env = conda_env_arg(cfg.miaplpy_env, "miaplpy_env")
+        cpu = ["bash", "-lc", f"source {shlex.quote(str(CONDA_SH))} && conda activate {env} && cd {shlex.quote(str(d))} && "
+               f"OMP_NUM_THREADS=1 python cpu_reference.py stack.h5 cpu {shlex.quote(str(PL_GPU.parent))}"]
+        p = _procs.run_group(cpu, timeout=GPU_CHECK_TIMEOUT_S)
+        if p.returncode:
+            raise RuntimeError(f"MiaplPy on the CPU rc={p.returncode}: {(p.stderr or p.stdout or '').strip()[-300:]}")
+        g = _procs.run_group(_gpu_command(cfg, ["run", "--slc-stack", d / "stack.h5", "--out-dir", d / "gpu",
+                                                "--boxes", f"0,0,{W},{L},0", "--memory-gb",
+                                                float(cfg.miaplpy_gpu_memory_gb)]), timeout=GPU_CHECK_TIMEOUT_S)
+        if g.returncode:
+            raise RuntimeError(f"pl_gpu.py rc={g.returncode}: {(g.stderr or g.stdout or '').strip()[-300:]}")
+        m = pl_gpu.compare_patch_dirs(d / "cpu" / "PATCHES" / "PATCH_0000", d / "gpu" / "PATCHES" / "PATCH_0000")
+        ok, why = pl_gpu.selfcheck_verdict(m)
+        rec.update({"ok": ok, "why": why, "metrics": m})
+    except Exception as exc:                                  # noqa: BLE001 - an env missing, a crash
+        rec.update({"ok": False, "why": f"self-check could not run: {type(exc).__name__}: {exc}"[:400]})
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+    (work / GPU_CHECK).write_text(json.dumps(rec, indent=2))
+    return rec
+
+
+def run_gpu_phase_linking(cfg: PipelineConfig) -> dict:
+    """Link the unfinished patches on the GPU before MiaplPy's own step, under
+    the same supervision (patch count, stall limit). Returns what it did; in
+    'auto' mode a failure is logged and the CPU links the rest."""
+    from . import procs as _procs
+    plan = gpu_linking_plan(cfg)
+    if not plan["use"]:
+        if plan["mode"] != "off":
+            log.info("Phase linking on the CPU: %s", plan["reason"])
+        return {"used": False, "mode": plan["mode"], "reason": plan["reason"]}
+    work = work_dir(cfg)
+    chk = verify_gpu_kernel(cfg)
+    if not chk["ok"]:
+        msg = (f"the GPU kernel's self-check against MiaplPy on the CPU failed ({chk['why']}; "
+               f"{work / GPU_CHECK})")
+        if plan["mode"] == "on":
+            raise RuntimeError(f"miaplpy_gpu is 'on' but {msg}. Nothing was linked on the GPU; set miaplpy_gpu to "
+                               "'off' or 'auto' to link on the CPU.")
+        log.warning("Phase linking on the CPU: %s", msg)
+        return {"used": False, "mode": plan["mode"], "reason": msg, "check": chk}
+    log.info("GPU kernel self-check against MiaplPy on the CPU: %s (SHP identical %.1f%%, phase p99 %.4f rad)",
+             chk["why"], 100 * chk["metrics"]["shp_identical"], chk["metrics"]["phase_p99_rad"])
+    before = gpu_patch_count(work)
+    argv = _gpu_command(cfg, _gpu_args(cfg))
+    log_path = work / GPU_LOG
+    log.info("Phase linking on the %s first (log %s); MiaplPy then links any patch left", plan["reason"], log_path)
+    t0 = time.time()
+    rc, err = None, None
+    with open(log_path, "a") as fh:
+        fh.write(f"\n=== {time.strftime('%Y-%m-%d %H:%M:%S')} {argv[-1]}\n")
+        fh.flush()
+        offset = fh.tell()
+        proc = _procs.popen_group(argv, stdout=fh, stderr=subprocess.STDOUT, env={**os.environ, "OMP_NUM_THREADS": "4"})
+        try:
+            rc = _supervise(cfg, proc, "phase_linking", log_path, offset, t0)
+        except RuntimeError as exc:                           # stalled: the supervisor stopped it
+            err = str(exc).splitlines()[0]
+        finally:
+            _procs.unregister(proc.pid)
+    if err is None and rc:
+        err = f"pl_gpu.py exited rc={rc}: {_log_tail(log_path, offset, n=8)}"
+    done = gpu_patch_count(work) - before
+    rec = {"used": True, "mode": plan["mode"], "check": {k: chk.get(k) for k in ("ok", "why", "metrics")},
+           "device": plan["probe"].get("device"),
+           "kind": plan["probe"].get("kind"), "jax": plan["probe"].get("jax"), "patches_linked": done,
+           "minutes": round((time.time() - t0) / 60, 1), "rc": rc, "error": err, "log": str(log_path)}
+    if err:
+        if plan["mode"] == "on":
+            raise RuntimeError(f"Phase linking on the GPU failed after {done} patch(es): {err}. Finished patches "
+                               f"are kept. Restart 'Phase linking onward', or set miaplpy_gpu to 'auto' to let the "
+                               f"CPU link the rest - see {log_path}")
+        log.warning("Phase linking on the GPU stopped after %d patch(es) (%s); MiaplPy links the rest on the CPU",
+                    done, err)
+    else:
+        log.info("Phase linking on the GPU: %d patches in %.1f min", done, rec["minutes"])
+    return rec
+
+
 FINGERPRINT = "linking_fingerprint.json"          # miaplpy/inverted/
 FINGERPRINT_KEYS = ("method", "ministack_size", "time_lag", "range_window", "azimuth_window", "subset_yx")
 _PL_ARGS = {"method": rb"--method\s+(\S+)", "ministack_size": rb"--mini_stack_size\s+(\d+)",
@@ -1065,6 +1244,29 @@ def installed_miaplpy_build(cfg: PipelineConfig) -> str | None:
     return (_read_json(work_dir(cfg) / "patch_check.json") or {}).get("miaplpy_version") or None
 
 
+# Build-label suffixes that change speed only, never the estimate. A series
+# linked with "0.2.1+overlapdatum" resumes under "0.2.1+overlapdatum.fast" and
+# the reverse. Added only with an equivalence record: '.fast' (10 Nov 2026,
+# patches/miaplpy/speed.patch; review_2026-11-10/PLAN.md section 8) matched the
+# older build on 6 real patches as closely as the older build matches itself
+# under float32 rounding noise (SHP and PS masks identical, phase p99 <= 0.0023
+# rad either way); its other change only schedules patches.
+SPEED_ONLY_BUILD_SUFFIXES = (".fast",)
+
+
+def miaplpy_algorithm(build: str | None) -> str:
+    """The build label without its speed-only suffixes: two builds with the
+    same algorithm label give the same series to float32 rounding."""
+    b = str(build or "").strip()
+    changed = True
+    while changed:
+        changed = False
+        for suf in SPEED_ONLY_BUILD_SUFFIXES:
+            if b.endswith(suf):
+                b, changed = b[: -len(suf)], True
+    return b
+
+
 def check_linking_fingerprint(cfg: PipelineConfig) -> dict | None:
     """
     Compare the fingerprint of the series (or of the patches being linked)
@@ -1095,7 +1297,7 @@ def check_linking_fingerprint(cfg: PipelineConfig) -> dict | None:
         changed.append(f"dates: {len(removed)} linked date(s) are no longer in inputs/slcStack.h5 ({removed[:4]}"
                        f"{'...' if len(removed) > 4 else ''})")
     built, build_now = fp.get("miaplpy_version"), installed_miaplpy_build(cfg)
-    rebuilt = bool(built and build_now and str(built).strip() != str(build_now).strip())
+    rebuilt = bool(built and build_now and miaplpy_algorithm(built) != miaplpy_algorithm(build_now))
     if rebuilt:
         changed.append(f"MiaplPy build: linked with {built}, installed now {build_now}")
     if not changed:
@@ -1228,7 +1430,10 @@ def run_step(cfg: PipelineConfig, tpl: Path, step: str) -> None:
     from . import progress
     progress.emit(cfg.project_dir, f"miaplpy_{step}", "start", msg=f"log: {log_path}")
     t0 = time.time()
+    gpu = None
     try:
+        if step == "phase_linking":
+            gpu = run_gpu_phase_linking(cfg)      # links what it can first; MiaplPy below links the rest
         rc = _run(cfg, [tpl, "--dir", work, "--dostep", step], log_path.name)
     except Exception as exc:                                  # noqa: BLE001 - stalled or could not start
         progress.emit(cfg.project_dir, f"miaplpy_{step}", "failed", msg=str(exc).splitlines()[0][:200])
@@ -1276,7 +1481,7 @@ def run_step(cfg: PipelineConfig, tpl: Path, step: str) -> None:
             log.warning("MiaplPy phase_linking: %d patches flagged, the %dx%d-window grid has %d - the concatenation "
                         "will check every patch", flags, cfg.miaplpy_range_window, cfg.miaplpy_azimuth_window, total)
         _write_step_marker(cfg, step, tpl, time.time() - t0, "verified after the step: rc 0, clean log, no patch unfinished",
-                           patches=flags, patch_total=total)
+                           patches=flags, patch_total=total, patches_gpu=gpu_patch_count(work), gpu=gpu)
     if step == "concatenate_patches":
         scan = scan_phase_series(work)
         if not scan["ok"]:
@@ -2186,7 +2391,7 @@ def verify_patched_miaplpy(env: str, timeout: int = 300, ministack: int | None =
     except ValueError:
         info = {"patched": False, "reason": (r.stderr or r.stdout)[-400:]}
     if not info.get("patched"):
-        if info.get("ratio") is not None and str(info.get("miaplpy_version", "")).endswith("overlapdatum"):
+        if info.get("ratio") is not None and miaplpy_algorithm(info.get("miaplpy_version")).endswith("overlapdatum"):
             # The boundary error GROWS with the overlap from 1 up (mini-stack
             # 10, measured 6 Oct 2026: 1.08x at 1, 1.29x at 3, 1.86x at 6,
             # 2.11x at 7, 2.41x at 9), and an overlap of 0 leaves the windows

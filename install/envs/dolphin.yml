@@ -2,8 +2,9 @@
 # phase-linked NISAR route (nisar_dolphin.py; review_2026-10-28/PLAN_nisar_phase_linked.md).
 # Exact conda-forge pins, exported 28 Oct 2026 from the 'dolphin' environment that made the
 # first test-site runs. The CPU-specific _x86_64-microarch-level pin is left out, as in the other
-# environments. Note: the solver pulled JAX's CUDA plugin (cuda-* packages); dolphin falls
-# back to the CPU without a GPU. A CPU-only rebuild is on the plan's follow-up list.
+# environments. JAX's CUDA plugin (cuda-* packages, jax/jaxlib 0.12.0.1) is kept on purpose since
+# 11 Nov 2026: pl_gpu.py, the GPU phase linker of the Sentinel-1 route (miaplpy_gpu), runs in this
+# env. Without a GPU, dolphin and pl_gpu.py's probe fall back to the CPU / report no GPU.
 # Created by install/install.sh.
 name: dolphin
 channels:

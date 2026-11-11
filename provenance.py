@@ -447,6 +447,8 @@ def _miaplpy_settings(cfg: PipelineConfig) -> dict:
         "num_processors": cfg.miaplpy_num_processors,
         "pair_coherence": getattr(cfg, "miaplpy_pair_coherence", "phasor"),
         "env": cfg.miaplpy_env,
+        "gpu": getattr(cfg, "miaplpy_gpu", "auto"),
+        "gpu_env": getattr(cfg, "miaplpy_gpu_env", None),
         "stack_reference_date": ref or "(not resolved)",
         "linked_coherence_layer": layer,
         "as_run_template": str(tpl) if tpl else "absent",
@@ -475,10 +477,22 @@ def _miaplpy_outcome(cfg: PipelineConfig) -> dict:
         "export_manifest": _export_manifest(merged / "interferograms" / "export_manifest.json"),
         "phase_series_complete": (work / "inverted" / "phase_series.complete").exists(),
         "completed_steps": status,
+        "phase_linking_kernels": _linking_kernels(work),
         "n_dates_slc_stack": len(slc_dates) if slc_dates is not None else "slcStack.h5 absent",
         "n_dates_phase_series": len(ph_dates) if ph_dates is not None else "phase_series.h5 absent",
         "unwrap": _unwrap_record(cfg),
     }
+
+
+def _linking_kernels(work: Path):
+    """Which code linked the patches: MiaplPy on the CPU or pl_gpu.py on the
+    GPU (patches it wrote carry kernel.json), from the phase_linking marker."""
+    m = _load(work / ".status" / "phase_linking.done.json")
+    if not isinstance(m, dict):
+        return "absent (no phase_linking marker)"
+    total, gpu = m.get("patches"), m.get("patches_gpu") or 0
+    return {"patches": total, "gpu_patches": gpu,
+            "cpu_patches": (total - gpu) if isinstance(total, int) else None, "gpu_run": m.get("gpu")}
 
 
 # The epoch of the ground the elevation model describes. geo_demErr.h5 (the

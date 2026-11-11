@@ -1,0 +1,106 @@
+diff --git a/src/miaplpy/lib/utils.pyx b/src/miaplpy/lib/utils.pyx
+index 5c56f09..4c946bd 100755
+--- a/src/miaplpy/lib/utils.pyx
++++ b/src/miaplpy/lib/utils.pyx
+@@ -356,32 +356,23 @@ cdef inline float complex[:,::1] transposemat2(float complex[:, :] x):
+             y[j, i] = x[i, j]
+     return y
+ 
++cdef inline float complex[:,::1] _sample_cov_blas(float complex[:,::1] ccg):
++    """ccg @ ccg^H / n_samples through BLAS (cgemm), complex64 throughout.
++    Same estimate as the original scalar triple loop (multiplymat22); only the
++    float32 summation order differs. Added 10 Nov 2026 (+blas build): the
++    loop was ~65% of phase-linking time at 445 dates (N x N x n_shp per pixel)."""
++    cdef cnp.ndarray a = np.asarray(ccg)
++    cdef cnp.ndarray cov = np.ascontiguousarray(a @ a.conj().T, dtype=np.complex64)
++    cov /= np.float32(ccg.shape[1])
++    return cov
++
+ cdef inline float complex[:,::1] est_corr_cy(float complex[:,::1] ccg):
+     """ Estimate Correlation matrix from an ensemble."""
+-    cdef cnp.intp_t i, t
+-    cdef float complex[:,::1] cov_mat, corr_matrix
+-
+-    cov_mat = multiplymat22(ccg,  conjmat2(transposemat2(ccg)))
+-
+-    for i in range(cov_mat.shape[0]):
+-        for t in range(cov_mat.shape[1]):
+-            cov_mat[i, t] /= ccg.shape[1]
+-    corr_matrix = cov2corr_cy(cov_mat)
+-
+-    return corr_matrix
++    return cov2corr_cy(_sample_cov_blas(ccg))
+ 
+ cdef inline float complex[:,::1] est_cov_cy(float complex[:,::1] ccg):
+     """ Estimate Correlation matrix from an ensemble."""
+-    cdef cnp.intp_t i, t
+-    cdef float complex[:,::1] cov_mat
+-
+-    cov_mat = multiplymat22(ccg,  conjmat2(transposemat2(ccg)))
+-
+-    for i in range(cov_mat.shape[0]):
+-        for t in range(cov_mat.shape[1]):
+-            cov_mat[i, t] /= ccg.shape[1]
+-
+-    return cov_mat
++    return _sample_cov_blas(ccg)
+ 
+ cpdef float complex[:,::1] est_cov_py(float complex[:,::1] ccg):
+     """ Estimate Correlation matrix from an ensemble."""
+diff --git a/src/miaplpy/miaplpyApp.py b/src/miaplpy/miaplpyApp.py
+index ba368ec..1a4b2fc 100755
+--- a/src/miaplpy/miaplpyApp.py
++++ b/src/miaplpy/miaplpyApp.py
+@@ -298,7 +298,11 @@ class miaplpyTimeSeriesAnalysis(TimeSeriesAnalysis):
+         num_width_patch = math.ceil(self.metadata['WIDTH'] / int(self.template['miaplpy.inversion.patchSize']))
+         num_patches = num_length_patch * num_width_patch
+ 
+-        number_of_nodes = math.ceil(num_patches / self.num_workers)
++        # One pool over every patch (insar_pipeline patch, 10 Nov 2026): upstream splits the
++        # patches into ceil(patches/workers) jobs that run ONE AFTER ANOTHER on a single
++        # machine, each waiting for its slowest patch - workers sat idle 21% of an 11.8 h
++        # run (study area, 445 dates). The job split only helps on a cluster scheduler.
++        number_of_nodes = 1
+         num_bursts = int(self.template['miaplpy.inversion.patchSize'])**2 // 40000
+ 
+         slc_stack = os.path.join(self.workDir, 'inputs/slcStack.h5')
+diff --git a/src/miaplpy/phase_linking.py b/src/miaplpy/phase_linking.py
+index 726ae74..f007470 100755
+--- a/src/miaplpy/phase_linking.py
++++ b/src/miaplpy/phase_linking.py
+@@ -94,7 +94,9 @@ def phase_invert(inps, inversionObj):
+         num_cores = num_workers
+ 
+     print('Number of parallel tasks: {}'.format(num_cores))
+-    pool = mp.Pool(num_cores, init_worker)
++    # maxtasksperchild=1: each patch in a fresh worker process, as the per-job
++    # processes did before (no memory carried from one patch to the next)
++    pool = mp.Pool(num_cores, init_worker, maxtasksperchild=1)
+     data_kwargs = inversionObj.get_datakwargs()
+     os.makedirs(data_kwargs['out_dir'].decode('UTF-8') + '/PATCHES', exist_ok=True)
+ 
+@@ -122,7 +124,11 @@ def phase_invert(inps, inversionObj):
+     print('Reading SLC data from {} and inverting patches in parallel ...'.format(inps.slc_stack))
+ 
+     try:
+-        pool.map(func, box_list)
++        # chunksize=1: a free worker takes the next patch as soon as it is free. pool.map's
++        # default hands out runs of ceil(n/(4*workers)) patches, so the last runs (up to
++        # ~6 patches of ~30 min each) finish on a few workers while the rest sit idle.
++        for _ in pool.imap_unordered(func, box_list, chunksize=1):
++            pass
+         pool.close()
+         pool.join()
+     except KeyboardInterrupt:
+diff --git a/src/miaplpy/version.py b/src/miaplpy/version.py
+index fbca5a0..3d3aa24 100755
+--- a/src/miaplpy/version.py
++++ b/src/miaplpy/version.py
+@@ -8,6 +8,7 @@ import collections
+ ###########################################################################
+ Tag = collections.namedtuple('Tag', 'version date')
+ release_history = (
++    Tag('0.2.1+overlapdatum.fast', '2026-11-10'),   # speed only, same estimate: covariance through BLAS, one patch pool (insar_pipeline/patches/miaplpy)
+     Tag('0.2.1+overlapdatum', '2026-09-25'),   # Kleinfelder patch: overlapping-window datum (insar_pipeline/patches/miaplpy)
+     Tag('0.2.1', '2023-08-22'),
+     Tag('0.2.0', '2021-09-14'),

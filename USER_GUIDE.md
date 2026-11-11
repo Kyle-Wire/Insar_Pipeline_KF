@@ -1836,6 +1836,7 @@ the ones this guide refers to.
 | `allow_missing_dates` | dates the run may proceed without, for example `['20231105']` |
 | `stack_swaths` | the sub-swaths processed, for example `"2"` or `"1 2"` |
 | `miaplpy_num_processors` | parallel workers in phase linking; lower it if phase linking stalls |
+| `miaplpy_gpu` | phase linking on the graphics card: `auto` (default: the GPU when one works, else the CPU), `on` (GPU required), `off` (always the CPU). Same results as the CPU to rounding; about an hour instead of most of a day on a 445-date stack. Before linking, a short self-check compares it with MiaplPy on the CPU and stays on the CPU if they disagree |
 | `report_areas` | the named areas the report gives figures for |
 | `report_revision` | the reissue note (section 4.10) |
 | `control_ground_label` | the word used for the comparison ground ("farmland" by default) |

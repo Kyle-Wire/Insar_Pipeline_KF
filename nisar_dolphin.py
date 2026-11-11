@@ -51,6 +51,11 @@ MINISTACK = 10
 BANDWIDTH = 3
 STRIDE = 3                 # 5 m pixels -> 15 m output
 WORKERS = 2                # chunks phase-linked at once: 4 peaked at 23.5 GB (11 x 11, stride 1)
+# dolphin's --worker-settings.gpu-enabled (speed plan Phase 3, 11 Nov 2026): dolphin
+# defaults it to False and then hides the GPU from JAX, so the route ran on the CPU
+# even on a machine with CUDA JAX. "auto" = on when pl_gpu.py's probe finds a usable
+# CUDA device in the env; "on" / "off" force it.
+GPU = "auto"
 
 
 def conda_run() -> list[str]:
@@ -101,8 +106,32 @@ def ref_rowcol(gslc_dir: Path, lat: float, lon: float) -> tuple[int, int]:
     return int(np.argmin(np.abs(y - ys))), int(np.argmin(np.abs(x - xs)))
 
 
+def gpu_probe() -> dict:
+    """pl_gpu.py probe in the dolphin env: {"gpu": bool, "device", ...}. Never raises."""
+    try:
+        p = subprocess.run(conda_run() + ["python", str(Path(__file__).resolve().parent / "pl_gpu.py"), "probe"],
+                           capture_output=True, text=True, timeout=180)
+        line = [ln for ln in p.stdout.splitlines() if ln.strip().startswith("{")]
+        return json.loads(line[-1]) if p.returncode == 0 and line else {"gpu": False, "reason": f"probe rc={p.returncode}"}
+    except Exception as exc:                                    # noqa: BLE001
+        return {"gpu": False, "reason": f"{type(exc).__name__}: {exc}"[:300]}
+
+
+def resolve_gpu(mode: str = GPU) -> dict:
+    """{"enabled": bool, "mode", "device"/"reason"} for dolphin's GPU switch."""
+    mode = str(mode).strip().lower()
+    if mode == "off":
+        return {"enabled": False, "mode": mode, "reason": "off"}
+    pr = gpu_probe()
+    if not pr.get("gpu"):
+        if mode == "on":
+            raise RuntimeError(f"dolphin GPU 'on' but no usable GPU in env '{ENV}': {pr.get('reason')}")
+        return {"enabled": False, "mode": mode, "reason": pr.get("reason")}
+    return {"enabled": True, "mode": mode, "device": pr.get("device"), "kind": pr.get("kind")}
+
+
 def write_config(work: Path, inputs: dict, window: int, ref_rc: tuple[int, int], workers: int = WORKERS,
-                 stride: int = STRIDE) -> Path:
+                 stride: int = STRIDE, gpu: bool = False) -> Path:
     """dolphin's YAML with the plan's settings (dolphin config, then the
     reference point set in the YAML)."""
     import yaml
@@ -122,7 +151,8 @@ def write_config(work: Path, inputs: dict, window: int, ref_rc: tuple[int, int],
         "--unwrap-options.snaphu-options.n-parallel-tiles", "4",
         "--unwrap-options.n-parallel-jobs", "2",
         "--worker-settings.threads-per-worker", "4",
-        "--worker-settings.n-parallel-bursts", str(workers)]
+        "--worker-settings.n-parallel-bursts", str(workers),
+        "--worker-settings.gpu-enabled" if gpu else "--worker-settings.no-gpu-enabled"]
     if inputs.get("wavelength_m"):
         cmd += ["--input-options.wavelength", f"{inputs['wavelength_m']:.6f}"]
     subprocess.run(cmd, check=True, capture_output=True, text=True)
@@ -164,7 +194,7 @@ def retire_other_init_outputs(work: Path) -> list[str]:
 
 
 def run(gslc_dir: Path, work: Path, window: int, ref_lalo: tuple[float, float], workers: int = WORKERS,
-        stride: int = STRIDE) -> dict:
+        stride: int = STRIDE, gpu: str = GPU) -> dict:
     """Inputs, config, `dolphin run`; returns (and writes) the run record:
     seconds, peak memory, the settings."""
     work = Path(work)
@@ -172,7 +202,9 @@ def run(gslc_dir: Path, work: Path, window: int, ref_lalo: tuple[float, float], 
     retired = retire_other_init_outputs(work)
     inputs = write_inputs(gslc_dir, work)
     rc = ref_rowcol(gslc_dir, *ref_lalo)
-    cfg = write_config(work, inputs, window, rc, workers, stride)
+    g = resolve_gpu(gpu)
+    log.info("dolphin on the %s", f"GPU ({g.get('device')})" if g["enabled"] else f"CPU ({g.get('reason')})")
+    cfg = write_config(work, inputs, window, rc, workers, stride, gpu=g["enabled"])
     timer = shutil.which("time") or "/usr/bin/time"
     cmd = conda_run() + ["dolphin", "run", str(cfg)]
     if Path(timer).exists():
@@ -180,7 +212,8 @@ def run(gslc_dir: Path, work: Path, window: int, ref_lalo: tuple[float, float], 
     t0 = time.time()
     log_path = work / "dolphin_run.log"
     with open(log_path, "w") as fh:
-        p = subprocess.run(cmd, stdout=fh, stderr=subprocess.STDOUT, env={**os.environ, "OMP_NUM_THREADS": "4"})
+        p = subprocess.run(cmd, stdout=fh, stderr=subprocess.STDOUT,
+                           env={**os.environ, "OMP_NUM_THREADS": "4", "XLA_PYTHON_CLIENT_PREALLOCATE": "false"})
     secs = time.time() - t0
     text = log_path.read_text(errors="replace")
     peak_kb = None
@@ -188,7 +221,7 @@ def run(gslc_dir: Path, work: Path, window: int, ref_lalo: tuple[float, float], 
         if "Maximum resident set size" in line:
             peak_kb = int(line.split(":")[-1].strip())
     rec = {"window": int(window), "half_window": (int(window) - 1) // 2, "strides": [int(stride), int(stride)],
-           "workers": int(workers),
+           "workers": int(workers), "gpu_enabled": g["enabled"], "gpu": g,
            "ministack": MINISTACK, "network": f"nearest-{BANDWIDTH}", "unwrap": f"snaphu (smooth, 2 x 2 tiles, {INIT_METHOD.upper()})",
            "init_method": INIT_METHOD, "retired": retired,
            "inversion": "L1", "reference_lalo": list(ref_lalo), "reference_rowcol_input": list(rc),
@@ -212,10 +245,11 @@ def main(argv=None) -> int:
     r.add_argument("--ref", required=True, help="LAT,LON of the reference point")
     r.add_argument("--workers", type=int, default=WORKERS)
     r.add_argument("--stride", type=int, default=STRIDE)
+    r.add_argument("--gpu", choices=("auto", "on", "off"), default=GPU)
     a = ap.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     lat, lon = (float(v) for v in a.ref.split(","))
-    rec = run(Path(a.gslc_dir), Path(a.work), a.window, (lat, lon), a.workers, a.stride)
+    rec = run(Path(a.gslc_dir), Path(a.work), a.window, (lat, lon), a.workers, a.stride, a.gpu)
     print(json.dumps(rec, indent=1))
     return 0
 

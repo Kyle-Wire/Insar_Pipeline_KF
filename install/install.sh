@@ -111,12 +111,15 @@ else
 fi
 
 say "5/8 patched MiaplPy"
-if "$CONDA_BASE/envs/miaplpy/bin/python" "$PKG/patches/miaplpy/check_miaplpy_patch.py" >/dev/null 2>&1; then
-    echo "present and verified"
+LABEL="$(sed -n 's/^VERSION_LABEL="\(.*\)"/\1/p' "$PKG/patches/miaplpy/build_miaplpy.sh")"
+# passing the check is not enough: an older patched build passes it too, and
+# the lock below would then name a build that is not installed (10 Nov 2026)
+CHECK="$("$CONDA_BASE/envs/miaplpy/bin/python" "$PKG/patches/miaplpy/check_miaplpy_patch.py" 2>/dev/null | tail -n 1 || true)"
+if [[ "$CHECK" == *'"patched": true'* && "$CHECK" == *"\"miaplpy_version\": \"${LABEL}\""* ]]; then
+    echo "present and verified (${LABEL})"
     # The pip lock that stops pip replacing the patched build names a file in
     # the folder that built it; point it at this folder, so moving or deleting
     # an old copy of the pipeline never leaves pip a missing constraint file.
-    LABEL="$(sed -n 's/^VERSION_LABEL="\(.*\)"/\1/p' "$PKG/patches/miaplpy/build_miaplpy.sh")"
     echo "miaplpy==${LABEL}" > "$PKG/patches/miaplpy/constraints.txt"
     "$CONDA_BASE/envs/miaplpy/bin/python" -m pip config --site set global.constraint \
         "$PKG/patches/miaplpy/constraints.txt" >/dev/null

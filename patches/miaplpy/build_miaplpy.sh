@@ -8,7 +8,8 @@
 #   MIAPLPY_SRC=/home/kylew/src/MiaplPy build_miaplpy.sh      # build from a local clone (offline)
 #
 # What it does: clones upstream MiaplPy at the pinned commit (or copies
-# MIAPLPY_SRC), applies overlap_window_datum.patch, installs it into the env
+# MIAPLPY_SRC), applies overlap_window_datum.patch then speed.patch
+# (speed only, same estimate: BLAS covariance + one patch pool; README.md), installs it into the env
 # with no dependency changes, writes the env's pip constraint that stops pip
 # replacing it, and runs check_miaplpy_patch.py. Exit non-zero if any step or
 # the check fails. See README.md here for what the patch is and why.
@@ -17,7 +18,7 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ENV_NAME="${1:-miaplpy}"
 UPSTREAM_URL="https://github.com/insarlab/MiaplPy.git"
 UPSTREAM_COMMIT="0d5f4b0cf0de46658c31b850a25c32a5258b773d"
-VERSION_LABEL="0.2.1+overlapdatum"
+VERSION_LABEL="0.2.1+overlapdatum.fast"
 
 set +u                                  # conda's activate hooks (ISCE's) read unset variables
 CONDA_BASE="$(conda info --base 2>/dev/null || echo "${CONDA_EXE:+$(dirname "$(dirname "$CONDA_EXE")")}")"
@@ -38,14 +39,17 @@ cd "$WORK/MiaplPy"
 git checkout -q "$UPSTREAM_COMMIT"
 git apply --check "$HERE/overlap_window_datum.patch"
 git apply "$HERE/overlap_window_datum.patch"
+git apply --check "$HERE/speed.patch"
+git apply "$HERE/speed.patch"
 grep -q "$VERSION_LABEL" src/miaplpy/version.py
 
-# (a constraint already in place pins exactly this build, so it allows this install)
-pip install --no-deps --no-build-isolation --force-reinstall --quiet .
-
-# pin it: any later pip install/upgrade of miaplpy in this env must match this build
+# pin it first: any pip install/upgrade of miaplpy in this env must match this
+# build. Written BEFORE the install, because a lock left by an older build
+# (0.2.1+overlapdatum) refuses this label (10 Nov 2026).
 echo "miaplpy==${VERSION_LABEL}" > "$HERE/constraints.txt"
 pip config --site set global.constraint "$HERE/constraints.txt" >/dev/null
+
+pip install --no-deps --no-build-isolation --force-reinstall --quiet .
 
 cd /
 python "$HERE/check_miaplpy_patch.py"

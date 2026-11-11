@@ -45,6 +45,46 @@ Verified 25 Sep 2026 in simulation (boundary step error 0.22 → 0.03 rad) and o
 real pixels (worst boundaries 0.48–0.58 → 0.66–0.85 coherence). The production
 series passed the export's datum gate: 0.85 inside, 0.71 across.
 
+## The speed patch (`speed.patch`, 10 Nov 2026): faster, same estimate
+
+Applied on top of the datum patch. The build calls itself
+`0.2.1+overlapdatum.fast`. It changes speed only:
+
+- **Covariance through BLAS** (`utils.pyx`, `est_corr_cy`/`est_cov_cy`). The
+  sample covariance `CCG · CCGᴴ / n` was a scalar triple loop. For the full
+  N×N matrix of every pixel that was ~65% of phase-linking time at 445 dates,
+  and it grows with N². It is now one complex64 matrix product.
+- **One worker pool over all patches** (`miaplpyApp.py`, `phase_linking.py`).
+  Upstream splits the patches into `ceil(patches / workers)` jobs and, on one
+  machine, runs them one after another, each waiting for its slowest patch.
+  On study_areav2 (445 dates) workers sat idle 21% of 11.8 h. Now every patch
+  goes to the next free worker (`imap_unordered`, chunksize 1, a fresh process
+  per patch).
+
+**Same estimate, measured.** The test ran 6 real 16×16 boxes (3 places, 279
+and 445 dates) plus a 32-patch `phase_linking.py` run end to end (60 dates),
+each with the old build, the new build, and the old build on input nudged by
+float32 rounding noise (relative 6e-8):
+
+| | SHP / PS masks | phase p99 | phase max | tempCoh max |
+|---|---|---|---|---|
+| old vs new (boxes) | identical | ≤ 0.0023 rad | 0.029 rad | 4e-4 |
+| old vs old + rounding noise (boxes) | identical | ≤ 0.0021 rad | 0.034 rad | 4e-4 |
+| old vs new (32-patch run) | identical | 1.2e-4 rad | 0.065 rad | 8e-4 |
+| old vs old + rounding noise (32-patch run) | 2 patches differ | 1.1e-4 rad | 0.158 rad | 3e-3 |
+
+So the new build sits inside the old build's own float32 sensitivity. The
+largest difference is ~0.3 mm line of sight at C-band, on one pixel.
+`check_miaplpy_patch.py` gives the identical result (ratio 1.29). The linking
+fingerprint therefore treats `.fast` as the same algorithm
+(`miaplpy_backend.SPEED_ONLY_BUILD_SUFFIXES`). A series linked with either
+build resumes under the other, and any other build label is still refused.
+
+**Speed.** Old and new builds were run alternately, 3 runs each, on a 12×12
+real box. Per pixel: 18.9 → 10.0 ms at 279 dates and 38.8 → 20.2 ms at 445
+dates, so **1.9×**. With the scheduling fix, a whole run should be about 2.3×
+faster. That figure has not yet been measured on a full run.
+
 ## How it is protected
 
 1. **Rebuild recipe.** `build_miaplpy.sh [env]` clones upstream at the pinned
@@ -62,7 +102,8 @@ series passed the export's datum gate: 0.85 inside, 0.71 across.
    stack with a known phase history. It compares the phase error across window
    boundaries with the error inside windows. Upstream 0d5f4b0 reads 3.1–3.5×
    and the patched build 1.2–1.3× (3 seeds); the pass line is 2.0. It takes
-   about a second.
+   about a second. (It does not tell `.fast` from the plain datum build: both
+   pass. The installer compares the version label as well.)
    - It takes the project's own settings: `--ministack` (`miaplpy_ministack_size`)
      and `--time-lag` (`miaplpy_time_lag`, the window overlap). Measured 5 Oct
      2026 with the overlap passed explicitly: overlap 3 → 1.29× (pass), 1 →
