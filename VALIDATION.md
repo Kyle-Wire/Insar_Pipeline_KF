@@ -14,11 +14,11 @@ experiment project folders themselves were deleted after the experiments.
 
 | Kind of job | Evidence | Use it? |
 |---|---|---|
-| **Slow subsidence, a few mm/yr** (the Indiana regime) | Houston: rate RMSE **2.9 mm/yr** (95% CI 0.5-4.4) against 7 GNSS stations; single stations differ by up to about **5.8 mm/yr**. Bias **-0.5 mm/yr**, stated uncertainties held 7 of 7. **PASS** | **Yes** - multi-year rates and totals, with the stated uncertainty |
-| **Long-term subsidence, tens of cm** (groundwater basin) | Corcoran: time series within **6.6-9.3 mm** of 7 GNSS stations over 5 years (r 0.99-0.998), unbiased, scale correct; stated uncertainties held 6 of 6 (both directions). Protocol verdict: **FAIL** for both runs (B1 and B3, below) | **Only what passed:** time series and multi-year totals, within the stated uncertainty. Not single-year rates (12-14 mm/yr error) |
+| **Slow subsidence, a few mm/yr** (the Indiana regime) [B2] | Houston: rate RMSE **2.9 mm/yr** (95% CI 0.5-4.4) against 7 GNSS stations; single stations differ by up to about **5.8 mm/yr**. Bias **-0.5 mm/yr**, stated uncertainties held 7 of 7. **PASS** | **Yes** - multi-year rates and totals, with the stated uncertainty |
+| **Long-term subsidence, tens of cm** (groundwater basin) [B1_B3] | Corcoran: time series within **6.6-9.3 mm** of 7 GNSS stations over 5 years (r 0.99-0.998), unbiased, scale correct; stated uncertainties held 6 of 6 (both directions). Protocol verdict: **FAIL** for both runs (B1 and B3, below) | **Only what passed:** time series and multi-year totals, within the stated uncertainty. Not single-year rates (12-14 mm/yr error) |
 | **Vertical vs east-west** (both viewing directions combined) | Corcoran: vertical within **7.1 mm**, bias +0.4 mm/yr, scale 0.98. Assuming all motion is vertical from one direction was worse (9-12.5 mm, bias up to -5 mm/yr) | **Yes** where both directions exist; say "assumes vertical motion" otherwise |
-| **Fast longwall subsidence** (active panels) | Appin: C-band captured only **~40%** of a 219 mm drop at the panel GNSS station; NASA's OPERA product ~25%. The warning flag marks ~half of stable ground, so it cannot single out bad values. **FAIL** | **No** - not with Sentinel-1 C-band. Do not give clients longwall numbers |
-| **NISAR L-band** (new satellite) | Corcoran: time series within **3.7-6.0 mm** of GNSS after <1 year; the slope against GNSS was -4.9 from 3 stations (B5a), too small a sample to judge. Appin: holds signal over every mapped panel; one panel (LW709) moving -18 to -47 mm in 3 months, **unverified** (no public truth for 2026) | Promising, **not yet validated** for longwall or rates (too little data) |
+| **Fast longwall subsidence** (active panels) [A] | Appin: C-band captured only **~40%** of a 219 mm drop at the panel GNSS station; NASA's OPERA product ~25%. The warning flag marks ~half of stable ground, so it cannot single out bad values. **FAIL** | **No** - not with Sentinel-1 C-band. Do not give clients longwall numbers |
+| **NISAR L-band** (new satellite) [B5a] | Corcoran: time series within **3.7-6.0 mm** of GNSS after <1 year; the slope against GNSS was -4.9 from 3 stations (B5a), too small a sample to judge. Appin: holds signal over every mapped panel; one panel (LW709) moving -18 to -47 mm in 3 months, **unverified** (no public truth for 2026) | Promising, **not yet validated** for longwall or rates (too little data) |
 
 **In one line:** for slow to moderate subsidence the pipeline's numbers and
 their stated uncertainties agree with independent GNSS at two sites; for fast
@@ -63,7 +63,9 @@ cannot yet say which numbers are wrong.
 - **Protocol verdict:** **FAIL** for both runs, B1 and B3. What held is the
   time series and the multi-year totals, within the stated uncertainty; that
   is the only use the table above allows.
-- **D1** (B1+B3 split into vertical and east-west): vertical 7.1 mm, as above.
+- **D1** (B1+B3 split into vertical and east-west) [D1]: vertical 7.1 mm, as above.
+  Reported, not graded: the protocol grades D1 only against the official
+  InSAR, and that comparison was never run.
 - **NISAR B5a/B5b:** see table. GNSS shows 2-5 cm/yr of real sideways motion
   here; NISAR (looks left) and Sentinel-1 (looks right) see it with opposite
   sign, which explains their ~60 mm disagreement away from the stations.

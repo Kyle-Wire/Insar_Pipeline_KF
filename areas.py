@@ -22,6 +22,8 @@ import zipfile
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from . import domains
+
 PKG = Path(__file__).resolve().parent
 
 
@@ -1035,8 +1037,8 @@ def client_name_problem(name: str, file_stems=()) -> str | None:
 RESERVED_CONTEXT = ("area_of_interest", "deforming_area", "surface_mines", "underground_mines", "other_movement",
                     "mine_panels", "builder_layers")
 SCREENING_SUFFIX = "_disp_screening"
-MINE_KIND_LABEL = {"underground": "Underground mine workings", "surface": "Surface mines",
-                   "other": "Other known ground movement", "dated": "Dated mined areas"}
+# the default study's layer names (domains.py, S0.4)
+MINE_KIND_LABEL = dict(domains.DEFAULT.wording.source_label)
 
 
 def project_key(name: str, route: str) -> str:
@@ -1092,6 +1094,88 @@ def last_backup(config: Path) -> Path | None:
     config = Path(config)
     baks = sorted(config.parent.glob(f"{config.name}.bak_*"))
     return baks[-1] if baks else None
+
+
+_GEOMETRY_TYPES = {"point": ("Point", "MultiPoint"), "line": ("LineString", "MultiLineString"),
+                   "polygon": ("Polygon", "MultiPolygon")}
+# single-file config fields a study layer may fill (feature_layers takes many)
+_STUDY_LAYER_FIELDS = ("event_polygons", "event_lines", "fast_zone_geojson", "reference_stable_geojson",
+                       "other_movement_geojson")
+
+
+def _write_study_layers(st, layers: dict, doc: dict, ctx: Path, root: Path, bbox: tuple, route: str) -> list:
+    """Write a study's own layers (write_project's study_layers) into context/
+    and the config document `doc`; returns the polygon layers that are kept
+    out of the ramp fit and the comparison ground (as Areas).
+
+      - features are kept whole, with their properties, when they touch the
+        processing box (a pad's start/end, a well's status and plug date are
+        columns the products read); a layer with none inside is refused
+      - each feature's geometry must be the kind's (point, line, polygon)
+      - feature_layers kinds are appended as "kind:path"; any other kind
+        fills its own config field, which two layers may not share
+      - polygons of known movement, sources and dated events (pads, fast
+        zones, pumping areas) join the deramp exclusion like a mine layer:
+        a plane fitted through a field's bowl would take part of it away
+      - a layer that names products (event_polygons, event_lines, wells,
+        faults) turns on event_products for the whole record, unless the
+        study's presets already set windows
+    Raises ValueError before the config is written."""
+    if not layers:
+        return []
+    from shapely.geometry import box, shape
+    kinds = {L.key: L for L in st.layer_kinds}
+    unknown = sorted(set(layers) - set(kinds))
+    if unknown:
+        raise ValueError(f"the {st.key!r} study has no layer kind {unknown[0]!r}; its kinds are {sorted(kinds)}")
+    frame = box(*bbox)
+    filled, parts, events = {}, [], False
+    for key in [L.key for L in st.layer_kinds if L.key in layers]:     # the registry's order, not the caller's
+        L = kinds[key]
+        gj = layers[key]
+        feats = gj.get("features") if isinstance(gj, dict) and gj.get("type") == "FeatureCollection" else None
+        if feats is None:
+            raise ValueError(f"{L.label}: expected a GeoJSON FeatureCollection")
+        keep = []
+        for k, ft in enumerate(feats):
+            g = (ft or {}).get("geometry") or {}
+            if g.get("type") not in _GEOMETRY_TYPES[L.geometry]:
+                raise ValueError(f"{L.label}: feature {k + 1} is a {g.get('type') or 'feature with no geometry'}, "
+                                 f"not a {L.geometry}")
+            try:
+                inside = shape(g).intersects(frame)
+            except (ValueError, TypeError, AttributeError) as exc:
+                raise ValueError(f"{L.label}: feature {k + 1} has unreadable coordinates ({exc})") from None
+            if inside:
+                keep.append({"type": "Feature", "properties": dict(ft.get("properties") or {}), "geometry": g})
+        if not keep:
+            raise ValueError(f"{L.label}: no feature lies inside the processing box")
+        if L.config_field == "fast_zone_geojson" and route not in ("miaplpy", "stack"):
+            raise ValueError(f"{L.label}: fast zones are kept to their nearest pairs on the phase-linked and "
+                             f"stack routes only, not {route!r}")
+        f = ctx / f"study_{key}.geojson"
+        fc = {"type": "FeatureCollection", "features": keep}
+        f.write_text(json.dumps(fc))
+        path = _portable(f, root)
+        if L.config_field == "feature_layers":
+            doc.setdefault("feature_layers", []).append(f"{key}:{path}")
+        elif L.config_field in _STUDY_LAYER_FIELDS:
+            if L.config_field in filled:
+                raise ValueError(f"{L.label} and {filled[L.config_field]} would both fill {L.config_field}; "
+                                 "give one of them")
+            if L.config_field in doc:
+                raise ValueError(f"{L.label}: {L.config_field} is already set for this project")
+            filled[L.config_field] = L.label
+            doc[L.config_field] = path
+        else:
+            raise ValueError(f"{L.label}: write_project cannot fill {L.config_field!r}")
+        if L.product in ("polygon_peak", "profile", "values_at") or L.config_field in ("event_polygons", "event_lines"):
+            events = True
+        if L.geometry == "polygon" and L.role in ("known_movement", "source", "event"):
+            parts.append(_from_geojson(fc, L.label))
+    if events and not doc.get("event_products"):
+        doc["event_products"] = True                       # one window: the whole record
+    return parts
 
 
 def _portable(path: Path, root: Path) -> str:
@@ -1163,7 +1247,8 @@ def write_project(name: str, area: Area, route: str, start: str, end: str, *, tr
                   disp_frame: str = "", swaths: list[int] | None = None, pad_km: float = 5.0,
                   reference_lalo: str = "", mine_sources: dict | None = None, file_stems: tuple = (),
                   overwrite: bool = False, dated: dict | None = None,
-                  projects_root: Path | None = None, configs_dir: Path | None = None) -> Path:
+                  projects_root: Path | None = None, configs_dir: Path | None = None,
+                  study: str = domains.DEFAULT_STUDY, study_layers: dict | None = None) -> Path:
     """Write <configs_dir>/<key>.yaml (and the outlines into the project's
     context/) from the production defaults. Validated by load_config before
     it is returned; an invalid config is not left on disk.
@@ -1182,7 +1267,12 @@ def write_project(name: str, area: Area, route: str, start: str, end: str, *, tr
     dated: the dated mined areas (dated_features: properties mined_year /
     mine_name) for panel_history's mining-year history; written to
     context/mine_panels.geojson, kept out of the ramp fit and the farmland
-    like every mine layer."""
+    like every mine layer.
+    study_layers: {layer kind key: GeoJSON FeatureCollection} for the study's
+    own layer kinds (domains.Study.layer_kinds; not the default study's mine
+    layers, which keep their own arguments). Each is written to
+    context/<kind>.geojson with its properties (the attribute columns) and
+    named in its config field; see _write_study_layers."""
     import os
     import time
 
@@ -1192,6 +1282,12 @@ def write_project(name: str, area: Area, route: str, start: str, end: str, *, tr
     from .config import GNSS_TIE_RADIUS_KM, load_config
     if route not in ROUTES and route != "stack":
         raise ValueError(f"route {route!r} is not one of {list(ROUTES)}")
+    try:
+        st = domains.study(study)
+    except KeyError as exc:
+        raise ValueError(str(exc).strip("'\"")) from None
+    if st.builder_status != "offered":
+        raise ValueError(f"the {st.key!r} study is not offered for client projects yet ({st.builder_reason})")
     problem = client_name_problem(name, file_stems)
     if problem:
         raise ValueError(f"project name {problem}")
@@ -1285,7 +1381,11 @@ def write_project(name: str, area: Area, route: str, start: str, end: str, *, tr
            "start_date": start, "end_date": end, "track": int(track), "orbit_direction": direction.lower(),
            "report_areas": specs, "gnss_tie_radius_km": float(GNSS_TIE_RADIUS_KM), "display_units": "in",
            "deforming_threshold": 0.5, "acceptance_far_field_buffer_m": 2000,
-           "min_temporal_coherence": 0.4, **weather, "gnss_validation": False}
+           "min_temporal_coherence": 0.4, **weather, "gnss_validation": False,
+           # the study and the registry it was written against (domains.py, S0.4)
+           "study": st.key, "study_registry_version": domains.REGISTRY_VERSION}
+    for k, v in st.presets:                                  # applied once, here (domains.PRESET_KEYS)
+        doc[k] = v
     if reference_lalo:
         doc["reference_lalo"] = f"{lat:.5f},{lon:.5f}"      # a spot known to be stable (checked above)
     # the route is in the title: a screening report must not read like the official one
@@ -1324,7 +1424,12 @@ def write_project(name: str, area: Area, route: str, start: str, end: str, *, tr
                         "mined_year_field": "mined_year", "mined_name_field": "mine_name"})
             dated_area = _from_geojson(fc, "dated mined areas")
             sources.append(("dated", dated_area))
-    parts = [a for a in (deforming, *typed.values(), dated_area) if a is not None]
+    try:
+        study_parts = _write_study_layers(st, study_layers or {}, doc, ctx, root, (w, s, e, n), route)
+    except ValueError:
+        _restore_context()
+        raise
+    parts = [a for a in (deforming, *typed.values(), dated_area, *study_parts) if a is not None]
     deforming = merge(parts, "mines and known movement") if parts else None
     if deforming is not None:
         f = ctx / "deforming_area.geojson"
@@ -1399,6 +1504,9 @@ def write_project(name: str, area: Area, route: str, start: str, end: str, *, tr
               f"workers, phase linking {pools['miaplpy_num_processors']}); unset pools follow the machine that runs it.\n"
               + (f"# {weather_note}\n" if weather_note else "")
               + (f"# WARNING: {ff['warning']}\n" if ff["warning"] else ""))
+    if st is not domains.DEFAULT:
+        header += (f"# Study: {st.label} ({st.key}). Its client report is held from release until the study's "
+                   "wording is checked.\n")
     out.write_text(header + yaml.safe_dump(doc, sort_keys=False))
     try:
         load_config(str(out))

@@ -406,29 +406,120 @@ def download_orbits(cfg: PipelineConfig, scene_paths: list[Path], username: str,
     from . import progress
     got, failed = [], []
     workers = max(1, int(getattr(cfg, "download_workers", 4) or 1))
-    n = len(scene_paths)
+    scenes = list(scene_paths)
+    n = len(scenes)
     progress.emit(cfg.project_dir, "orbits", "start", done=0, total=n)
     with ThreadPoolExecutor(max_workers=workers) as pool:
-        for i, (files, fail) in enumerate(pool.map(_one, list(scene_paths)), 1):
+        for i, (files, fail) in enumerate(pool.map(_one, scenes), 1):
             got.extend(files)
             if fail:
                 failed.append(fail)
             progress.emit(cfg.project_dir, "orbits", "running", done=i, total=n,
                           msg=f"{len(failed)} without a precise orbit" if failed else "")
-    progress.emit(cfg.project_dir, "orbits", "failed" if (failed and not got) else "done",
-                  done=n, total=n, msg=f"{len(failed)} without a precise orbit" if failed else "")
 
+    # A download can come back EMPTY without raising (a one-off empty reply
+    # from the orbit service: study_areav2, 10 Nov 2026, scene 20261031). So
+    # the files on disk are checked, not the download results: every scene
+    # needs an orbit file whose validity window covers it, by the same rule
+    # stackSentinel applies. Scenes still uncovered are retried after a pause.
+    missing = orbitless_scenes(scenes, cfg.orbit_dir)
+    for pause in ORBIT_RETRY_PAUSES_S:
+        if not missing:
+            break
+        log.warning("%d scene(s) have no orbit file after staging (%s); "
+                    "retrying in %.0f s", len(missing),
+                    ", ".join(_scene_date(s) for s in missing[:5]), pause)
+        time.sleep(pause)
+        for files, fail in map(_one, missing):
+            got.extend(files)
+            if fail:
+                failed.append(fail)
+        missing = orbitless_scenes(missing, cfg.orbit_dir)
+
+    progress.emit(cfg.project_dir, "orbits", "failed" if missing else "done",
+                  done=n, total=n,
+                  msg=f"{len(missing)} without an orbit" if missing else "")
     if got:
-        log.info("Staged %d precise orbit file(s) into %s", len(got), cfg.orbit_dir)
-    for name, exc in failed:
-        log.warning("No precise orbit for %s: %s: %s — the processor will fall "
-                    "back to a restituted orbit, which is less accurate.",
-                    name, type(exc).__name__, exc or "(no detail)")
-    if failed and not got:
-        raise RuntimeError(
-            f"no orbits could be staged for any of {len(scene_paths)} scenes; "
-            "first error: "
-            f"{type(failed[0][1]).__name__}: {failed[0][1] or '(no detail)'}")
+        log.info("Staged %d orbit file(s) into %s", len(got), cfg.orbit_dir)
+    if not missing:
+        return
+
+    errors = {name: exc for name, exc in failed}
+    for scene in missing:
+        exc = errors.get(scene.name)
+        log.warning("No orbit for %s: %s", scene.name,
+                    f"{type(exc).__name__}: {exc or '(no detail)'}" if exc
+                    else "the orbit service returned no file")
+    dates = ", ".join(_scene_date(s) for s in missing)
+    if _has_copernicus_netrc():
+        # stackSentinel's own fallback (fetchOrbit.py) can log in, so let it try.
+        log.warning("Leaving the orbit for %s to stackSentinel, which will "
+                    "fetch it from Copernicus Data Space during generation.", dates)
+        return
+    raise OrbitsMissing(
+        f"no orbit file could be downloaded for {len(missing)} of {n} scene(s) "
+        f"({dates}) after {len(ORBIT_RETRY_PAUSES_S) + 1} attempts. This is "
+        "usually the orbit service being briefly unavailable; press Resume to "
+        "try again. If it keeps failing for the newest dates, their orbits may "
+        "not be published yet; set stop_date before them.")
+
+
+# Pauses before each re-download of scenes still without an orbit.
+ORBIT_RETRY_PAUSES_S = (30, 120)
+
+_ORBIT_TIME_FMT = "%Y%m%dT%H%M%S"
+
+
+class OrbitsMissing(RuntimeError):
+    """Scenes left without an orbit file that stackSentinel could not fetch
+    itself. Raised past stage_inputs' catch-all: without it, stackSentinel
+    prompts for a Copernicus login at generation and crashes on EOF."""
+
+
+def _scene_date(scene) -> str:
+    parts = Path(scene).name.split("_")
+    return parts[5][:8] if len(parts) > 5 else Path(scene).name
+
+
+def orbitless_scenes(scenes, orbit_dir) -> list:
+    """Scenes with no orbit file in `orbit_dir` that covers them.
+
+    The rule is stackSentinel's (topsStack Stack.get_orbit): same platform
+    prefix (S1A, S1D, ...), and the scene's start/stop must lie inside the
+    file's validity window shrunk by 60 s at each end. Names it cannot parse
+    are treated as covered, leaving the decision to stackSentinel."""
+    from datetime import datetime, timedelta
+
+    margin = timedelta(seconds=60)
+    windows: dict[str, list] = {}
+    for f in Path(orbit_dir).glob("*.EOF"):
+        p = f.name.split("_")
+        try:
+            start = datetime.strptime(p[6].replace("V", ""), _ORBIT_TIME_FMT) + margin
+            stop = datetime.strptime(p[7].replace(".EOF", ""), _ORBIT_TIME_FMT) - margin
+        except (IndexError, ValueError):
+            continue
+        windows.setdefault(p[0], []).append((start, stop))
+    out = []
+    for scene in scenes:
+        p = Path(scene).name.split("_")
+        try:
+            s0 = datetime.strptime(p[5], _ORBIT_TIME_FMT)
+            s1 = datetime.strptime(p[6], _ORBIT_TIME_FMT)
+        except (IndexError, ValueError):
+            continue
+        if not any(a <= s0 and s1 < b for a, b in windows.get(p[0], ())):
+            out.append(scene)
+    return out
+
+
+def _has_copernicus_netrc() -> bool:
+    """True when ~/.netrc has the login fetchOrbit.py looks up."""
+    import netrc
+    try:
+        return "dataspace.copernicus.eu" in netrc.netrc().hosts
+    except (OSError, netrc.NetrcParseError):
+        return False
 
 
 FRAME_FOOTPRINT_FILE = "frame_footprint.json"

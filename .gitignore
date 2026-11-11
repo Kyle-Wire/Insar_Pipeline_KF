@@ -39,6 +39,7 @@ configs/archive/*.yml
 # configs and validation.py read (their sha256s are in configs/experiments/README.md).
 review_*/*
 !review_2026-10-08/protocol_*.yaml
+!review_2026-11-07/protocol_*.yaml
 !review_2026-10-08/truth/
 review_2026-10-08/truth/*
 !review_2026-10-08/truth/*.csv

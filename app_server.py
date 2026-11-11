@@ -920,6 +920,24 @@ RASTERS = (
      "after": "Combine", "combined": True},
 )
 RASTER = {r["id"]: r for r in RASTERS}
+# A study's before/after change map (events.write_event_products, A3 of
+# review_2026-11-07/PLAN_oil_gas_slopes.md): line-of-sight change in mm between
+# the window's two dates, relative to ordinary ground. Listed only when the
+# project has made one (never pending), so a project without event products
+# lists exactly what it did before.
+EVENT_RASTER = {"id": "los_event_change", "label": "Change between two dates (screening)", "group": "Study results",
+                "units": "mm", "style": "div", "files": ("deliverables/events/los_change_mm_*.tif",),
+                "after": "Products & report"}
+RASTER[EVENT_RASTER["id"]] = EVENT_RASTER
+# a study's single-file layer fields (areas._write_study_layers) and their geometry
+STUDY_FIELDS = (("event_polygons", "polygon"), ("event_lines", "line"), ("fast_zone_geojson", "polygon"),
+                ("reference_stable_geojson", "polygon"))
+# a well's reading in the report (client_report.study_point_entries): key, words, colour
+WELL_STATUS = (("moving", "On moving ground (detected)", "#e03131"),
+               ("not_distinguishable", "Not distinguishable from ordinary ground", "#f2f2f2"),
+               ("not_measurable", "Not measurable here", "#8c8c8c"),
+               ("no_number", "No number (too fast for this satellite)", "#000000"),
+               ("no_report", "No number yet (the products run makes it)", "#bdbdbd"))
 # ESA WorldCover 2021 classes and their published colours
 WORLDCOVER = {10: ("Tree cover", "#006400"), 20: ("Shrubland", "#ffbb22"), 30: ("Grassland", "#ffff4c"),
               40: ("Cropland", "#f096ff"), 50: ("Built-up", "#fa0000"), 60: ("Bare / sparse", "#b4b4b4"),
@@ -977,6 +995,109 @@ def _outline_files(cfg) -> list[tuple[str, str, str, Path]]:
     return out
 
 
+def _short(label: str) -> str:
+    """A layer kind's label for the map: 'Wells (status, plug date, type by column)' -> 'Wells'."""
+    return label.split(" (", 1)[0]
+
+
+def study_layers(cfg) -> list[dict]:
+    """The project's study layers from its config (feature_layers, event_polygons,
+    event_lines, fast_zone_geojson, reference_stable_geojson): [{id, label,
+    geometry, style, kind, files}], labelled from the study's layer kinds
+    (domains.py). [] when the config names none (a default-study project)."""
+    from . import domains
+    try:
+        st = domains.study_of(cfg)
+    except KeyError:
+        st = domains.study(domains.DEFAULT_STUDY)
+    by_field = {L.config_field: L for L in st.layer_kinds if L.config_field != "feature_layers"}
+    by_kind = {L.key: L for L in st.layer_kinds}
+    out: dict = {}
+
+    def add(key, label, geometry, field, f):
+        if not f or not Path(f).exists():
+            return
+        style = ("study_point" if geometry == "point" else "study_line" if geometry == "line"
+                 else "fast_zone" if field == "fast_zone_geojson" else "stable" if field == "reference_stable_geojson"
+                 else "study_poly")
+        row = out.setdefault(f"study_{key}", {"id": f"study_{key}", "label": label, "geometry": geometry,
+                                              "style": style, "kind": key, "files": []})
+        row["files"].append(Path(f))
+    for spec in getattr(cfg, "feature_layers", ()) or ():
+        try:
+            k, f = domains.split_feature_layer(spec)
+        except ValueError:
+            continue
+        L = by_kind.get(k)
+        add(k, _short(L.label) if L else k.replace("_", " ").capitalize(), L.geometry if L else "point",
+            "feature_layers", f)
+    for field, geometry in STUDY_FIELDS:
+        L = by_field.get(field)
+        add(L.key if L else field, _short(L.label) if L else field.replace("_geojson", "").replace("_", " ").capitalize(),
+            L.geometry if L else geometry, field, getattr(cfg, field, "") or "")
+    return list(out.values())
+
+
+def well_status(row: dict | None) -> str:
+    """A study point's reading (client_report.study_point_entries): detected
+    moving, not distinguishable, not measurable, or no number (refused)."""
+    if row is None:
+        return "no_report"
+    if row.get("refused"):
+        return "no_number"
+    if row.get("relative_vertical_mm_yr") is None:
+        return "not_measurable"
+    return "moving" if row.get("detected") is True else "not_distinguishable"
+
+
+def _study_points(cfg, L: dict) -> dict:
+    """A study's point layer (wells) for the map: each point with its reading
+    from client_report.json's study_points when the products have run, else
+    as listed in its file (no number yet)."""
+    from . import events
+    P = Path(cfg.project_dir)
+    rep = _load_json(P / "deliverables" / "client_report.json") or {}
+    rows = [r for r in rep.get("study_points") or [] if isinstance(r, dict) and r.get("layer") == L["kind"]]
+    words = {k: w for k, w, _ in WELL_STATUS}
+    pts = []
+    if rows:
+        for r in rows:
+            if r.get("lat") is None:
+                continue
+            st = well_status(r)
+            v, rng = r.get("relative_vertical_mm_yr"), r.get("range95_mm_yr")
+            pts.append({"id": r.get("id"), "lat": r["lat"], "lon": r["lon"], "status": st, "status_words": words[st],
+                        "attributes": r.get("attributes") or {}, "value_mm_yr": v,
+                        "value_in_yr": round(v / MM_IN, 3) if v is not None else None,
+                        "range_mm_yr": rng, "range_in_yr": [round(x / MM_IN, 3) for x in rng] if rng else None,
+                        "shared_with": r.get("shared_with") or [], "tier": r.get("tier"),
+                        "reason": r.get("refused_reason") or r.get("not_testable_reason") or ""})
+    else:
+        attrs = ()
+        try:
+            from . import domains
+            attrs = next((k.attributes for k in domains.study_of(cfg).layer_kinds if k.key == L["kind"]), ())
+        except KeyError:
+            pass
+        for p in events.study_points([(L["kind"], str(f)) for f in L["files"]]):
+            a = p.get("attributes") or {}
+            pts.append({"id": p["id"], "lat": p["lat"], "lon": p["lon"], "status": "no_report",
+                        "status_words": words["no_report"],
+                        "attributes": {k: (None if a.get(k) in (None, "") else str(a[k])) for k in attrs},
+                        "value_mm_yr": None, "value_in_yr": None, "range_mm_yr": None, "range_in_yr": None,
+                        "shared_with": [], "tier": None, "reason": ""})
+    seen = {p["status"] for p in pts}
+    return {"kind": "study_points", "points": pts, "from_report": bool(rows),
+            "legend": {"classes": [{"name": w, "color": c} for k, w, c in WELL_STATUS if k in seen], "units": ""}}
+
+
+def _study_geojson(files: list) -> dict:
+    feats = []
+    for f in files:
+        feats += _geojson(Path(f))["features"]
+    return {"type": "FeatureCollection", "features": feats}
+
+
 def layer_list(cfg) -> list[dict]:
     """Every layer the live map can show, in drawing order, with whether it
     is there yet and, if not, which part of the run makes it."""
@@ -996,6 +1117,9 @@ def layer_list(cfg) -> list[dict]:
         if kind == "box":
             L.append({"id": f"report_{i}", "label": f"Report area: {name}", "group": "Project", "ready": True,
                       "style": "report", "since": ""})
+    for sl in study_layers(cfg):                             # a study's own layers (wells, pads, faults, ...)
+        L.append({"id": sl["id"], "label": sl["label"], "group": "Study layers", "ready": True, "style": sl["style"],
+                  "since": _when(max(_mtime(f) or 0 for f in sl["files"]))})
     if comb:
         for spec in RASTERS:
             if spec.get("combined"):
@@ -1022,6 +1146,12 @@ def layer_list(cfg) -> list[dict]:
     if water.exists():
         L.append({"id": "water", "label": "Water (OpenStreetMap)", "group": "Context", "ready": True, "style": "water",
                   "since": _when(_mtime(water))})
+    f, _ = raster_file(cfg, EVENT_RASTER["id"])
+    if f is not None:                                        # a study's before/after map, once made
+        L.append({"id": EVENT_RASTER["id"], "label": EVENT_RASTER["label"], "group": EVENT_RASTER["group"], "ready": True,
+                  "style": "raster", "since": _when(_mtime(f)), "after": EVENT_RASTER["after"], "source": "event products",
+                  "about": f"line-of-sight change in mm between the two dates in its name ({f.name}), relative to "
+                           "ordinary ground; a screening product"})
     rj = P / "deliverables" / "client_report.json"
     L.append({"id": "features", "label": "Features the report lists", "group": "Results so far",
               "ready": rj.exists(), "style": "feature", "since": _when(_mtime(rj)), "after": "Products & report"})
@@ -1182,6 +1312,13 @@ def api_layer(body: dict) -> dict:
     for oid, label, _, f in _outline_files(cfg):
         if oid == lid:
             return {"kind": "geojson", "data": _geojson(f)}
+    if lid.startswith("study_"):
+        sl = next((x for x in study_layers(cfg) if x["id"] == lid), None)
+        if sl is None:
+            raise ValueError(f"no layer {lid!r}")
+        if sl["geometry"] == "point":
+            return _study_points(cfg, sl)
+        return {"kind": "geojson", "data": _study_geojson(sl["files"])}
     if lid.startswith("report_"):
         from .config import split_area_spec
         i = int(lid.split("_", 1)[1])

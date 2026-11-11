@@ -214,6 +214,26 @@ def validate_main(argv) -> int:
     return int(validation.main(argv, cfg=cfg) or 0)
 
 
+def studies_main(argv) -> int:
+    """`insar studies [<study>]`: every study's card, or one (domains.py,
+    evidence.yaml). Read-only. 0 shown, 2 unknown study."""
+    sys.path.insert(0, str(PARENT))
+    from insar_pipeline import domains, evidence
+    ev = evidence.load()
+    if argv:
+        try:
+            chosen = [domains.study(argv[0])]
+        except KeyError:
+            print(f"no study {argv[0]!r}; known: {', '.join(domains.STUDY_KEYS)}")
+            return 2
+    else:
+        chosen = list(domains.STUDIES)
+    for s in chosen:
+        print("\n".join(evidence.card(s, ev)))
+        print()
+    return 0
+
+
 def storage_main(argv) -> int:
     """`insar storage [keep-results|delete] ...` (storage.py): the overview of
     every project, and keep-results-only / delete, each a dry run unless

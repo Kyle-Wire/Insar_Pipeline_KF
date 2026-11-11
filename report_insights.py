@@ -75,21 +75,22 @@ from pathlib import Path
 
 import numpy as np
 
+from . import domains
+
 log = logging.getLogger(__name__)
 MM_IN = 25.4
 Z95 = 1.959964
 MIN_FEATURE_KM2 = 0.25      # smaller than this is a few fields; chance makes plenty
 STRONG = 2.0                # a feature's peak must pass this many farmland bands
 MAX_FEATURES = 5
-KIND_LABEL = {"underground": "underground workings", "surface": "surface mines",
-              "other": "other known movement", "mapped": "mine areas"}
+# the default study's wording and limits live in domains.py (S0.4, 8 Nov 2026)
+KIND_LABEL = dict(domains.DEFAULT.wording.feature_noun)
 # the nearest one of each, for "1.8 km from the nearest mapped mine area"
-NEAREST_LABEL = {"underground": "underground workings", "surface": "surface mine",
-                 "other": "ground known to move", "mapped": "mine area"}
+NEAREST_LABEL = dict(domains.DEFAULT.wording.nearest_noun)
 # "Next to" mapped mining - and the mining causes and sideways-movement
 # caveat that go with it - only this close to a mapped outline (M2, final
 # check of 7 Oct 2026; relation_to_mines). 2 km until then.
-NEAR_MINE_KM = 0.5
+NEAR_MINE_KM = domains.DEFAULT.limits.near_km
 # The band needs enough farmland to be a measurement: ~40 independent 500 m
 # patches. Below it the map has no grey band and no feature can be assessed.
 MIN_BAND_KM2 = 10.0
@@ -185,11 +186,11 @@ YEARLY_NOISE_FACTOR = 2.6
 
 # A feature at least this share on a surface-mine layer is "change on
 # surface-mine ground" (relation_to_mines' own "on" rule).
-ON_LAYER_SHARE = 0.3
+ON_LAYER_SHARE = domains.DEFAULT.limits.on_layer_share
 # Mining-induced horizontal movement at a subsidence trough's flanks, as a
 # share of the vertical (the textbook 0.3-0.4 of NCB-style profiles; the
 # review's methodology-15 figure). It sets the "+/- X%" of the LOS limitation.
-MINING_HORIZONTAL_SHARE = 0.35
+MINING_HORIZONTAL_SHARE = domains.DEFAULT.limits.horizontal_share
 # "Ground reshaped since the elevation model" (E1, trust review 7 Oct 2026):
 # MintPy's DEM error takes up the part of the movement its quadratic model
 # does not fit (bperp runs -242 to +232 m and correlates with time), so over
@@ -491,6 +492,10 @@ def mine_layers(cfg) -> list[dict]:
     return out
 
 
+# the study-neutral name (S0.4); callers move to it in Phase 1a
+study_layers = mine_layers
+
+
 def polygon_masks(ctx, layers: list[dict]) -> dict:
     """key -> boolean grid of the layer's polygons (not limited to coherent cells)."""
     from .stack_backend import _polygon_mask
@@ -645,7 +650,7 @@ def relation_to_mines(comp: np.ndarray, poly: dict, pixel_m: tuple, near_km: flo
     near_km = NEAR_MINE_KM if near_km is None else float(near_km)
     from scipy.ndimage import distance_transform_edt
     if not poly:
-        return {"phrase": "no mine outlines were supplied for this project", "inside": {}, "nearest_km": None, "key": None}
+        return {"phrase": domains.DEFAULT.wording.no_layer_phrase, "inside": {}, "nearest_km": None, "key": None}
     n = comp.sum()
     inside = {k: round(float((comp & m).sum()) / max(1, n), 2) for k, m in poly.items()}
     best = max(inside, key=inside.get)
@@ -674,6 +679,10 @@ def relation_to_mines(comp: np.ndarray, poly: dict, pixel_m: tuple, near_km: flo
         key = "none"
     return {"phrase": phrase, "inside": inside, "nearest_km": round(dist[nearest], 2) if nearest else None,
             "nearest": nearest, "key": key}
+
+
+# the study-neutral name (S0.4); callers move to it in Phase 1a
+relation_to_layers = relation_to_mines
 
 
 def _components(field: np.ndarray, where: np.ndarray, sm: dict, sign: int, px_km2: float):
@@ -1824,28 +1833,8 @@ def cells_sentence(stand: float | None, chance: float | None, n_cells: int | Non
 
 
 def _cause_base(relation_key: str, sign: int, shape: str | None) -> str:
-    if sign > 0:
-        if relation_key == "surface":
-            return ("Rising ground on a surface mine is usually spoil or stockpiles being built up. Radar cannot "
-                    "follow ground built up by metres, so treat the figure as a sign that this ground changed during "
-                    "the record, not as a measured rate; the mine's records would show what was placed there.")
-        return ("Rising ground is usually spoil or stockpiles being built up, swelling soils, or rebound after "
-                "pumping stops.")
-    if relation_key == "surface":
-        return ("Backfilled spoil in reclaimed surface mines compacts under its own weight for years, fastest at "
-                "first and slowing over time" + (", which matches this record." if shape == "slowing" else ".")
-                + " If the ground was dug out or filled during the record, radar cannot follow it and the figure "
-                "is not a settlement rate. The mine's mining and reclamation dates would settle which it is.")
-    if relation_key == "underground":
-        return ("Subsidence over underground workings usually follows the mining of each panel; the panels' "
-                "mining dates would show whether the timing matches.")
-    if relation_key.startswith("near_"):
-        return ("It is beside mapped mining; mining just outside the mapped outlines, spoil, or water-level "
-                "changes from nearby operations are possible causes.")
-    if relation_key == "other":
-        return "It lies on ground already known to move."
-    return ("The mapped mines do not explain it. Groundwater pumping, drainage, soft soils, construction or "
-            "unmapped mining are possible causes; a site visit would settle it.")
+    """The default study's suggested cause (domains.GROUND_SUBSIDENCE causes)."""
+    return domains.cause_text(domains.DEFAULT, relation_key, sign, shape)
 
 
 # ------------------------------------------------------------------ corrections
@@ -1855,7 +1844,7 @@ _CORRECTION_WORDS = (
     ("HRRR", "weather delays (NOAA HRRR weather model)"),
     ("GACOS", "weather delays (GACOS)"),
     ("tropHgt", "weather delays (height-correlated, estimated from the data)"),
-    ("ramp", "long-range tilts from orbits and atmosphere (a planar ramp, fitted away from mapped mines)"),
+    ("ramp", domains.DEFAULT.wording.correction_ramp),
     ("demErr", "differences between the elevation model and today's ground"),
     ("SET", "solid-earth tides"),
     ("GIM", "ionosphere (global ionosphere maps)"),
@@ -1943,9 +1932,12 @@ def corrections_applied(cfg, ts_file: Path | None) -> list[str]:
     if era5 is None and ("ERA5" in tokens or "HRRR" in tokens):
         era5 = corr.get("troposphere")                       # written by verify_era5_coverage for this run
     out = []
+    ramp = domains.study_of(cfg).wording.correction_ramp
     for tok, words in _CORRECTION_WORDS:
         if tok == "ion" and "GIM" in tokens:
             continue
+        if tok == "ramp":
+            words = ramp
         if tok in tokens:
             if tok in ("ERA5", "HRRR") and str((era5 or {}).get("model") or "ERA5").upper() == tok:
                 words = _era5_words(era5, _series_dates(ts_file), words) or words
@@ -2187,7 +2179,7 @@ def _average_total_range(f: dict, v, avg):
     return [lo * span, hi * span]
 
 
-def feature_text(i: int, f: dict) -> str:
+def feature_text(i: int, f: dict, wording=None) -> str:
     """The Observations paragraph for feature i (1-based). Totals are the
     MEASURED change over the record (significance.record_change); when the
     pace changed, the rate is said in the past tense as an average and the
@@ -2248,7 +2240,7 @@ def feature_text(i: int, f: dict) -> str:
                 txt += (f"; at its average rate it would have moved {abs(avg) / MM_IN:.1f} in"
                         + _total_range_clause(avg, _average_total_range(f, v, avg)))
         txt += ". " + OUTLINE_CAVEAT.rstrip(".")
-    txt += ". " + where_sentence(mines)
+    txt += ". " + where_sentence(mines, wording)
     from . import landcover
     txt += landcover.wooded_sentence(f.get("land_cover"))
     dc = f.get("dem_change") or {}
@@ -2347,7 +2339,8 @@ def observations(rep: dict) -> list[dict]:
     ground = ground_word(rep)
     for i, f in enumerate(rep.get("features") or [], 1):
         head = f"Feature {i}: {feature_kind(f)}, about {f['area_km2']:.1f} km² near {lalo_txt(f['lat'], f['lon'])}"
-        obs.append({"title": head, "text": f.get("text") or feature_text(i, f), "kind": "feature"})
+        obs.append({"title": head, "text": f.get("text") or feature_text(i, f, domains.wording_of(rep)),
+                    "kind": "feature"})
     weak = rep.get("features_within_chance") or []
     if weak:
         # "weaker" only when every one is slower than every listed feature
@@ -2422,13 +2415,13 @@ def observations(rep: dict) -> list[dict]:
     return obs
 
 
-def where_sentence(mines: dict | None) -> str:
+def where_sentence(mines: dict | None, wording=None) -> str:
     """'It lies over mapped underground workings.' - or, with no mine
     outlines, that it cannot be related to mining ('It lies no mine outlines
     were supplied' was printed until 5 Oct 2026)."""
     mines = mines or {}
     if not mines.get("key") and not mines.get("inside"):
-        return "No mine outlines were supplied, so it cannot be related to mining."
+        return (wording or domains.DEFAULT.wording).no_layer_feature
     return f"It lies {mines.get('phrase', '')}."
 
 

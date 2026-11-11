@@ -2990,6 +2990,11 @@ def stage_inputs(cfg: PipelineConfig, username=None, password=None,
 
     try:
         da.download_orbits(cfg, paths, username, password)
+    except da.OrbitsMissing:
+        # Scenes without an orbit and no Copernicus login for stackSentinel's
+        # fallback: it would crash at generation on a login prompt. Stop here,
+        # with the plain cause, before the DEM and generation.
+        raise
     except Exception as exc:                      # noqa: BLE001
         log.warning("Orbit pre-staging failed (%s). stackSentinel will fall back "
                     "to fetching them itself during generation, which is slow "

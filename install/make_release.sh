@@ -64,6 +64,9 @@ WHITELIST=(
     patches/miaplpy/check_miaplpy_patch.py patches/miaplpy/overlap_window_datum.patch
     patches/miaplpy/speed.patch
     "tests/*.py"                            # less tests/test_local_*.py (SKIP below)
+    # the evidence record the tier rule reads (evidence.py, 8 Nov 2026) and the hashed
+    # names test_domains checks tracked files against
+    evidence.yaml "tests/data/*.sha256"
     # the retired topsApp runbook, kept for the record (INSAR_RUNBOOK.md links it);
     # the archived configs beside it stay out
     configs/archive/INSAR_RUNBOOK_topsApp_2026.md

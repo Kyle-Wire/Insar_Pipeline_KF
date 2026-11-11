@@ -1333,6 +1333,27 @@ def null_checks(vals, where: dict | None, area: float, reg: np.ndarray, med: flo
     return out
 
 
+def rescore_null(sig: dict, value: float) -> dict:
+    """assess()'s result for another region of the same size class: its null
+    (median, threshold, limits, spread) kept and `value` (the region's mean)
+    tested against it, the rule of assess. The placement diagnostics are not
+    recomputed (local_null and coherence_null None; p_two_sided None). A
+    null that was not testable stays so, with this value."""
+    out = dict(sig, value_mm_yr=round(float(value), 2), local_null=None, coherence_null=None, p_two_sided=None,
+               percentile_in_farmland=None, null_checks_note="not computed (a shared null of the region's size class)")
+    if not sig.get("testable"):
+        return out
+    med, c95 = float(sig["null_median_mm_yr"]), float(sig["threshold_95_mm_yr"])
+    sd = float(sig["farmland_spread_1sigma_mm_yr"])
+    x = float(value) - med
+    distinct = bool(abs(x) >= c95) if c95 > 0 else bool(x != 0)
+    out.update({"excess_mm_yr": round(x, 2), "signal_to_threshold": round(abs(x) / c95, 2) if c95 > 0 else None,
+                "z": round(x / sd, 2) if sd > 0 else None, "distinguishable_from_farmland": distinct,
+                "verdict": ("distinguishable from the surrounding ground" if distinct
+                            else "within the spread of ordinary ground")})
+    return out
+
+
 def assess(field: np.ndarray, far: np.ndarray, region: np.ndarray, min_valid: float = 0.5,
            min_independent: int = 10, tc: np.ndarray | None = None, attrs: dict | None = None) -> dict:
     """

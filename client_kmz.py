@@ -108,6 +108,8 @@ from pathlib import Path
 
 import numpy as np
 
+from . import domains
+
 log = logging.getLogger(__name__)
 
 MM_IN = 25.4
@@ -681,6 +683,87 @@ def feature_heading(i: int, f: dict) -> str:
     return f"Feature {i}: {kind}, about {f['area_km2']:.1f} km² near {where}"
 
 
+# a study point's colour by its reading (KML aabbggrr): sinking red, within
+# variation grey-green, not measurable grey, no number (fast zone) black
+_STUDY_POINT_STYLES = (("sp_moving", "ff1c1cd6"), ("sp_quiet", "ff6a9a4a"), ("sp_untested", "ff9a9a9a"),
+                       ("sp_refused", "ff202020"))
+
+
+def _study_point_style(r: dict) -> str:
+    if r.get("refused"):
+        return "sp_refused"
+    if not r.get("testable"):
+        return "sp_untested"
+    return "sp_moving" if r.get("detected") else "sp_quiet"
+
+
+def study_folders(cfg, rep: dict) -> str:
+    """The study's own folders (A3, PLAN_oil_gas_slopes.md): one placemark per
+    listed point (wells) with the report's reading, and the dated pads'
+    outlines with their largest change - the record's numbers
+    (client_report.study_point_entries / study_event_entries), word for word.
+    "" for the default study or a record without them, so its KMZ is as
+    before."""
+    from . import client_report as cr
+    e = html.escape
+    pts, evs = rep.get("study_points"), rep.get("study_events")
+    if not pts and not (evs or {}).get("pads"):
+        return ""
+    out = []
+    if pts:
+        styles = "".join(f"<Style id='{k}'><IconStyle><color>{c}</color><scale>0.9</scale><Icon><href>"
+                         "https://maps.google.com/mapfiles/kml/shapes/placemark_circle.png</href></Icon></IconStyle>"
+                         "</Style>" for k, c in _STUDY_POINT_STYLES)
+        pms = []
+        for r in pts:
+            attrs = "".join(f"<br>{e(k.replace('_', ' ').capitalize())}: {e(str(v))}"
+                            for k, v in (r.get("attributes") or {}).items() if v)
+            shared = (f"<br>Shares one value with {e(', '.join(map(str, r['shared_with'])))} (too close to tell apart)"
+                      if r.get("shared_with") else "")
+            pms.append(f"<Placemark><name>{e(str(r['id']))}</name><styleUrl>#{_study_point_style(r)}</styleUrl>"
+                       f"<description><![CDATA[{e(cr._well_reading(r))}{attrs}{shared}<br>Ground within "
+                       f"{int(r.get('radius_m') or 100)} m of the point; not a rate for the point itself. "
+                       f"Tier: {e(str(r.get('tier') or '').lower() or 'not stated')}.]]></description>"
+                       f"<Point><coordinates>{r['lon']:.6f},{r['lat']:.6f},0</coordinates></Point></Placemark>")
+        label = next((r.get("layer_label") for r in pts if r.get("layer_label")), "Listed points").split(" (")[0]
+        out.append(f"<Folder><name>{e(label)} (screening)</name><open>0</open>{styles}{''.join(pms)}</Folder>")
+    pads = (evs or {}).get("pads") or []
+    src = str(getattr(cfg, "event_polygons", "") or "").strip()
+    if pads and src:
+        from . import events as ev_mod
+        geoms = {}
+        try:
+            for ft in ev_mod.load_features(src, "polygon"):
+                geoms[ft["name"]] = ft["geom"]
+        except (OSError, ValueError, KeyError, TypeError):
+            geoms = {}
+        pms = []
+        for p_ in pads:
+            g = geoms.get(p_.get("name"))
+            if g is None:
+                continue
+            rings = []
+            for poly in getattr(g, "geoms", [g]):
+                coords = " ".join(f"{x:.6f},{y:.6f},0" for x, y in poly.exterior.coords)
+                rings.append(f"<Polygon><outerBoundaryIs><LinearRing><coordinates>{coords}</coordinates>"
+                             "</LinearRing></outerBoundaryIs></Polygon>")
+            v = p_.get("max_relative_vertical_mm")
+            val = ("no value" if v is None else
+                   f"{abs(v) / MM_IN:.2f} in {'down' if v < 0 else 'up'} ({v:+.1f} mm) at its deepest, relative to the "
+                   "ground around it")
+            pms.append(f"<Placemark><name>{e(str(p_.get('name')))}</name><styleUrl>#sp_pad</styleUrl>"
+                       f"<description><![CDATA[{e(str(p_.get('window_start')))} to {e(str(p_.get('window_end')))}: "
+                       f"{e(val)}; reached by {e(str(p_.get('date_of_max') or '-'))}. Tier: "
+                       f"{e(str(p_.get('tier') or '').lower() or 'not stated')}.]]></description>"
+                       + (rings[0] if len(rings) == 1 else f"<MultiGeometry>{''.join(rings)}</MultiGeometry>")
+                       + "</Placemark>")
+        if pms:
+            out.append("<Folder><name>Dated pads (screening)</name><open>0</open><Style id='sp_pad'><LineStyle>"
+                       "<color>ff0080ff</color><width>2</width></LineStyle><PolyStyle><fill>0</fill></PolyStyle>"
+                       f"</Style>{''.join(pms)}</Folder>")
+    return "".join(out)
+
+
 def feature_description(i: int, f: dict, rep: dict, png: str | None = None) -> str:
     """Feature i's balloon: the report's own paragraph (f['text'] =
     report_insights.feature_text(i, f)) word for word, its figures and chart.
@@ -692,7 +775,7 @@ def feature_description(i: int, f: dict, rep: dict, png: str | None = None) -> s
     text = f.get("text")
     if not text:
         try:
-            text = ri.feature_text(i, f)
+            text = ri.feature_text(i, f, domains.wording_of(rep))
         except (KeyError, TypeError, AttributeError) as exc:  # a report built before 5 Oct 2026
             log.warning("Feature %d has no report text (%s)", i, exc)
             text = ""
@@ -1796,7 +1879,7 @@ def build(cfg, out: Path | None = None, out_dir: Path | None = None, rep: dict |
                 f"<description><![CDATA[{html.escape(note)}]]></description><styleUrl>#hide</styleUrl>{ov}{leg}</Folder>")
 
     kml = (f"<?xml version='1.0' encoding='UTF-8'?><kml xmlns='http://www.opengis.net/kml/2.2'><Document>"
-           f"<name>{html.escape(doc_name(cfg, rep, final, screening))}</name><open>1</open>"
+           f"<name>{html.escape(doc_name(cfg, rep, final, screening or rep.get('study') is not None))}</name><open>1</open>"
            f"<LookAt><longitude>{(w + e) / 2:.6f}</longitude><latitude>{(s_ + n) / 2:.6f}</latitude><altitude>0</altitude>"
            f"<range>{1.6 * max((n - s_) * 111e3, (e - w) * 111e3 * math.cos(math.radians((s_ + n) / 2))):.0f}</range>"
            f"<tilt>0</tilt><heading>0</heading></LookAt>"
@@ -1813,9 +1896,10 @@ def build(cfg, out: Path | None = None, out_dir: Path | None = None, rep: dict |
            f"<Folder><name>Features</name><open>1</open>"
            + (f"<description><![CDATA[{html.escape(feat_note)}]]></description>" if feat_note else "")
            + f"{''.join(feat_pm)}</Folder>"
+           + study_folders(cfg, rep)
            # the points are off when the file opens (26 Oct 2026, Kyle: they made
            # Google Earth slow to load); the 15 m cell layer below is what shows
-           f"<Folder><name>Measurement points: vertical movement (every ~{spacing:.0f} m)</name>"
+           + f"<Folder><name>Measurement points: vertical movement (every ~{spacing:.0f} m)</name>"
            f"<visibility>0</visibility><open>0</open>"
            f"<styleUrl>#hide</styleUrl><description><![CDATA[{html.escape(field_note)}]]></description>"
            f"{''.join(field_pms)}</Folder>"

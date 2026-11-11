@@ -2274,6 +2274,27 @@ def preflight_checks(cfg, config: str, kind: str = "full", say=None) -> list[tup
     elif cfg.backend != "miaplpy":
         add("warn", f"the {cfg.backend} route is for comparison only; official numbers come from the "
                     "phase-linked route")
+    # the study (domains.py): what it will and will not give; nothing for the default
+    from . import domains
+    st = domains.study_of(cfg)
+    if st is not domains.DEFAULT:
+        from . import evidence
+        for line in evidence.card(st, route=cfg.backend):
+            add("info", line)
+        if st.wording.held_sentence:
+            add("warn", f"the {st.key} study gives a screening report: it is sent only after your sign-off, and "
+                        "its figures show where to look, not survey values")
+        else:
+            add("warn", f"the {st.key} study's client report is held from release until its wording is checked")
+        # a field-wide vertical figure in a GNSS frame needs >= 3 datum stations (needs datum_stations>=3)
+        if any("datum_stations>=3" in o.needs for o in st.outputs):
+            n = len([x for x in (getattr(cfg, "reference_gnss_stations", None) or []) if str(x).strip()])
+            if str(getattr(cfg, "reference_mode", "") or "").lower() != "gnss_absolute" or n < 3:
+                add("info", "the field-wide vertical figure needs at least 3 GNSS stations (reference_mode: "
+                            "gnss_absolute, reference_gnss_stations; set with e); without them every figure is "
+                            "relative to the surrounding ground")
+        if st.directions == "both_required":
+            add("warn", "this study needs both viewing directions for client figures; this project has one")
 
     # downloads: the login Earthdata and ASF both accept, not a .netrc line;
     # servers that did not answer say nothing about the login (a warning)
@@ -2628,6 +2649,10 @@ insar builder              the map builder: draw/upload the area and mines, crea
 insar viewer               the results map: every measurement point, click for its movement, draw polygons, export
 insar doctor [--projects DIR]   check the installation (and set the projects folder)
 insar cleanup <config> [--level 1|2|3] [--delete [--force] [--yes]]   free disk space on a finished project
+insar studies [<study>]    the studies a project can answer: what each will and will not give
+insar events <config> [--between FROM TO] [--record] [--polygons F] [--lines F] [--points F] [--out DIR]
+                           change maps, dated-panel peaks, line profiles and values at points (a study's
+                           wells and faults included) from a finished run
 insar storage              every project on this machine: size, state, delivered?, what can be freed; the free disk
 insar storage keep-results <name> [--apply]   keep a finished project's results, delete its processing files
 insar storage delete <name> [--no-archive] [--apply]   delete a whole project (a small archive is kept first)
@@ -2663,6 +2688,14 @@ def main() -> None:
         # read-only on the project, so no lock; refuses while a run holds it (cli.validate_main)
         from . import cli
         sys.exit(cli.validate_main(sys.argv[2:]))
+    if sub == "events":
+        # read-only on the products; refuses while a run holds the project (events.main)
+        from . import events
+        sys.exit(events.main(sys.argv[2:]))
+    if sub == "studies":
+        # read-only: every study, what it will and will not give (domains.py, evidence.yaml)
+        from . import cli
+        sys.exit(cli.studies_main(sys.argv[2:]))
     if sub == "storage":
         # overview of every project and the two ways to free disk (storage.py); dry run unless --apply
         from . import cli

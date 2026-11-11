@@ -128,6 +128,8 @@ TOO_FAST_LAYER = "quality_too_fast_to_measure.tif"
 
 _START_KEYS = ("start", "event_start", "mined_start", "date_start", "start_date", "from")
 _END_KEYS = ("end", "event_end", "mined_end", "date_end", "end_date", "to")
+STUDY_POINTS_FULL_SERIES = 200           # a study's points up to this many get every SAR date in values_at.csv
+STUDY_POINTS_THIN_STEP = 8
 _NAME_KEYS = ("name", "panel", "Name", "NAME", "id", "ID", "label", "line", "title", "objectid", "OBJECTID",
               "fid")
 _EPOCH0 = date(1970, 1, 1)
@@ -1159,7 +1161,8 @@ def _points_list(points) -> list[dict]:
             out.append({"id": str(pt["id"]), "lat": float(pt["lat"]), "lon": float(pt["lon"]), "epochs": ep})
         elif isinstance(it, dict):
             out.append({"id": str(it.get("id", f"point_{k + 1}")), "lat": float(it["lat"]), "lon": float(it["lon"]),
-                        "epochs": it.get("epochs")})
+                        "epochs": it.get("epochs"),
+                        **({"layer": it["layer"], "attributes": it.get("attributes") or {}} if "layer" in it else {})})
         else:
             out.append({"id": f"point_{k + 1}", "lat": float(it[0]), "lon": float(it[1]), "epochs": None})
     return out
@@ -1167,7 +1170,7 @@ def _points_list(points) -> list[dict]:
 
 def values_at(cfg, points, epochs=None, radius_m: float = POINT_RADIUS_M, *, floor=None,
               min_cells: int = MIN_CELLS, min_independent: int = MIN_INDEPENDENT,
-              max_gap_days: float = MAX_GAP_DAYS, _prod=None):
+              max_gap_days: float = MAX_GAP_DAYS, attributes: tuple = (), _prod=None):
     """
     The time series at points, at any epochs (survey or digitised dates).
 
@@ -1195,6 +1198,11 @@ def values_at(cfg, points, epochs=None, radius_m: float = POINT_RADIUS_M, *, flo
     cells_within_radius, reliable_cells, and the flag layers' share of the
     point's reliable cells (aliasing_risk_share, too_fast_share; None when
     the layer is absent).
+
+    Points from study_points (a study's layer, e.g. wells) add a `layer`
+    column and one attr_<name> column per name in `attributes` (the layer
+    kind's attribute columns: status, plug_date, type), None where a point
+    has no such property. They are the point's own words, never read.
     """
     import pandas as pd
     from .validation import cells_near
@@ -1209,13 +1217,18 @@ def values_at(cfg, points, epochs=None, radius_m: float = POINT_RADIUS_M, *, flo
     R = np.concatenate([f[0] for f in found]) if found else np.array([], int)
     C = np.concatenate([f[1] for f in found]) if found else np.array([], int)
     all_ids, _ = prod.dlv.radar_pixel_ids(prod.cfg, R, C, prod.shape) if R.size else (np.array([], np.int64), "")
-    rows, k0 = [], 0
+    # every point's reliable cells in one chunk-aligned read (one read per
+    # point is minutes each on a field of thousands)
+    rel_all = prod.reliable[R, C] if R.size else np.array([], bool)
+    store = prod.cells(R[rel_all], C[rel_all])
+    rows, k0, s0 = [], 0, 0
     for p, (r, c, _) in zip(pts, found):
         ids = all_ids[k0:k0 + r.size]
         k0 += r.size
         rel = prod.reliable[r, c] if r.size else np.array([], bool)
         rr, cc, ids = r[rel], c[rel], ids[rel]
-        ts = prod.cells(rr, cc)
+        ts = store[:, s0:s0 + rr.size]
+        s0 += rr.size
         fin = np.isfinite(ts)
         n_cells = fin.sum(1)
         n_ind = (np.array([np.unique(ids[fin[i] & (ids >= 0)]).size for i in range(ts.shape[0])])
@@ -1256,6 +1269,11 @@ def values_at(cfg, points, epochs=None, radius_m: float = POINT_RADIUS_M, *, flo
                    "los_east": vec[0], "los_north": vec[1], "los_up": vec[2], "incidence_deg": incd,
                    "vertical_assumed_mm": None, "cells_within_radius": int(r.size), "reliable_cells": int(rr.size),
                    **fsh}
+            if "layer" in p:
+                rec["layer"] = p["layer"]
+                for a_name in attributes:
+                    v = (p.get("attributes") or {}).get(a_name)
+                    rec[f"attr_{a_name}"] = None if v in (None, "") else str(v)
             if s["why"] is None:
                 a, b, w = s["i0"], s["i1"], s["w"]
                 rec.update(sar_before=prod.iso(a), sar_after=prod.iso(b), weight_after=round(w, 4),
@@ -1284,10 +1302,69 @@ def values_at(cfg, points, epochs=None, radius_m: float = POINT_RADIUS_M, *, flo
 
 # ------------------------------------------------------------------ settings
 def settings(cfg) -> dict:
-    """The config's event keys, read (event_products, event_polygons, event_lines)."""
+    """The config's event keys, read (event_products, event_polygons,
+    event_lines), plus the study's own layers from feature_layers
+    (domains.Study.layer_kinds): "points" [(kind, path)] for kinds whose
+    product is values_at (wells), "study_lines" [(kind, path)] for line kinds
+    whose product is a profile (faults). An unknown study or a malformed
+    spec gives none here; config.validate_config reports it."""
+    from . import domains
+    points, study_lines = [], []
+    try:
+        st = domains.study_of(cfg)
+        kinds = {L.key: L for L in st.layer_kinds if L.config_field == "feature_layers"}
+        for spec in getattr(cfg, "feature_layers", ()) or ():
+            k, path = domains.split_feature_layer(spec)
+            L = kinds.get(k)
+            if L is None:
+                continue
+            if L.product == "values_at" and L.geometry == "point":
+                points.append((k, path))
+            elif L.product == "profile" and L.geometry == "line":
+                study_lines.append((k, path))
+    except (KeyError, ValueError):
+        points, study_lines = [], []
     return {"windows": parse_windows(getattr(cfg, "event_products", None)),
             "polygons": str(getattr(cfg, "event_polygons", "") or "").strip(),
-            "lines": str(getattr(cfg, "event_lines", "") or "").strip()}
+            "lines": str(getattr(cfg, "event_lines", "") or "").strip(),
+            "points": points, "study_lines": study_lines}
+
+
+def study_points(sources) -> list[dict]:
+    """[{id, lat, lon, epochs: None, layer, attributes}] from [(kind, GeoJSON
+    path)] (settings()["points"]): every Point (each part of a MultiPoint)
+    with the layer kind and its properties kept, so a well's status, plug
+    date and type reach values_at.csv. Ids repeated across or within the
+    files get " (2)", " (3)" ... in reading order."""
+    out, seen = [], {}
+    for kind, path in sources:
+        data = _read_geojson(Path(str(path)).expanduser())
+        epsg = _geojson_epsg(data)
+        to_ll = None
+        if epsg:
+            from pyproj import Transformer
+            to_ll = Transformer.from_crs(f"EPSG:{epsg}", "EPSG:4326", always_xy=True).transform
+        feats = data.get("features") or [] if data.get("type") == "FeatureCollection" else [data]
+        for k, ft in enumerate(feats):
+            g = (ft or {}).get("geometry") or {}
+            coords = ([g.get("coordinates")] if g.get("type") == "Point"
+                      else list(g.get("coordinates") or []) if g.get("type") == "MultiPoint" else [])
+            props = dict((ft or {}).get("properties") or {})
+            base = next((str(props[c]) for c in _NAME_KEYS if props.get(c) not in (None, "")), f"{kind}_{k + 1}")
+            for j, xy in enumerate(coords):
+                x, y = (float(v) for v in xy[:2])
+                if to_ll is not None:
+                    x, y = to_ll(x, y)
+                if abs(x) > 180 or abs(y) > 90:
+                    raise ValueError(f"{path}: {base}: the coordinates are not longitude/latitude (GeoJSON is "
+                                     "lon/lat; a projected file must name its CRS)")
+                pid = base if len(coords) == 1 else f"{base} part {j + 1}"
+                n = seen.get(pid, 0) + 1
+                seen[pid] = n
+                if n > 1:
+                    pid = f"{pid} ({n})"
+                out.append({"id": pid, "lat": y, "lon": x, "epochs": None, "layer": kind, "attributes": props})
+    return out
 
 
 def check_settings(cfg) -> list[str]:
@@ -1505,6 +1582,16 @@ def write_event_products(cfg, out_dir=None, *, windows=None, polygons=None, line
     wins = parse_windows(windows) if windows is not None else st["windows"]
     polys = st["polygons"] if polygons is None else str(polygons or "")
     lns = st["lines"] if lines is None else str(lines or "")
+    # the study's own layers (feature_layers: wells, faults) join a products
+    # run's write; a keyword argument (the command line) replaces them
+    line_srcs = ([("event_lines", lns)] if lns else []) + (list(st["study_lines"]) if lines is None else [])
+    point_attrs, point_srcs = (), []
+    if points is None and st["points"]:
+        point_srcs = list(st["points"])
+        from . import domains
+        points = study_points(st["points"])
+        kinds = {L.key: L for L in domains.study_of(cfg).layer_kinds}
+        point_attrs = tuple(dict.fromkeys(a for k, _ in st["points"] for a in kinds[k].attributes))
     if not wins and not points:
         return None
     from . import deliverables as dlv
@@ -1520,11 +1607,14 @@ def write_event_products(cfg, out_dir=None, *, windows=None, polygons=None, line
                        "last": prod.iso(-1), **prod.datum()},
            "coherence_floor": prod.floor, "units": "mm LOS", "sign": SIGN,
            "settings": {"windows": wins, "polygons": polys or None, "polygons_sha256": _sha256(polys) if polys else None,
-                        "lines": lns or None, "lines_sha256": _sha256(lns) if lns else None},
+                        "lines": lns or None, "lines_sha256": _sha256(lns) if lns else None,
+                        "study_layers": [{"kind": k, "path": str(p), "sha256": _sha256(p)}
+                                         for k, p in [*point_srcs, *(st["study_lines"] if lines is None else [])]]
+                                        or None},
            "earlier_write_moved_to": str(moved) if moved else None,
            "maps": [], "panels": [], "profiles": None, "values_at": None, "files": [], "errors": []}
     overlays = []
-    for src, kind in ((polys, "polygon"), (lns, "line")):
+    for src, kind in ((polys, "polygon"), *((p, "line") for _, p in line_srcs)):
         if src:
             try:
                 overlays += [(f["geom"], f["name"]) for f in load_features(src, kind)]
@@ -1634,15 +1724,18 @@ def write_event_products(cfg, out_dir=None, *, windows=None, polygons=None, line
         except Exception as exc:                                  # noqa: BLE001
             fail(f"panels ({polys})", exc)
 
-    if lns:
+    if line_srcs:
         try:
             import pandas as pd
             frames = []
             for w in wins or [{"name": "record", "start": None, "end": None}]:
                 s0, s1 = prod.window_epochs(w["start"], w["end"])
-                df = profile(cfg, lns, [prod.dates[s0["i0"]], prod.dates[s1["i1"]]], _prod=prod)
-                df.insert(0, "window", w["name"])
-                frames.append(df)
+                for layer, src in line_srcs:
+                    df = profile(cfg, src, [prod.dates[s0["i0"]], prod.dates[s1["i1"]]], _prod=prod)
+                    df.insert(0, "window", w["name"])
+                    if len(line_srcs) > 1 or layer != "event_lines":
+                        df.insert(1, "layer", layer)
+                    frames.append(df)
             prof = pd.concat(frames, ignore_index=True)
             formula_safe_frame(prof).to_csv(out / "profiles.csv", index=False)
             man["files"].append("profiles.csv")
@@ -1656,11 +1749,19 @@ def write_event_products(cfg, out_dir=None, *, windows=None, polygons=None, line
                 except Exception as exc:                          # noqa: BLE001
                     fail(f"profile_{ln}.png", exc)
         except Exception as exc:                                  # noqa: BLE001
-            fail(f"profiles ({lns})", exc)
+            fail(f"profiles ({', '.join(str(p) for _, p in line_srcs)})", exc)
 
     if points:
         try:
-            va = values_at(cfg, points, None, radius_m, _prod=prod)
+            # a field of thousands of wells: every STUDY_POINTS_THIN_STEP-th date and the
+            # last, or the CSV is a million rows; the map and report read other figures
+            eps = None
+            if point_srcs and len(points) > STUDY_POINTS_FULL_SERIES:
+                eps = list(prod.dates[::STUDY_POINTS_THIN_STEP])
+                if prod.dates[-1] not in eps:
+                    eps.append(prod.dates[-1])
+                man["values_at_thinned_to_every_nth_date"] = STUDY_POINTS_THIN_STEP
+            va = values_at(cfg, points, eps, radius_m, attributes=point_attrs, _prod=prod)
             formula_safe_frame(va).to_csv(out / "values_at.csv", index=False)
             man["files"].append("values_at.csv")
             man["values_at"] = {"points": int(va["id"].nunique()), "rows": int(len(va)),
@@ -1701,11 +1802,12 @@ def record_failure(out_dir, exc) -> None:
 # ------------------------------------------------------------------ command line
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(
-        prog="python -m insar_pipeline.events",
+        prog="insar events",
         description="Event products of a finished run: change maps between dates, the largest subsidence and its "
                     "date per panel, profiles along lines, values at survey epochs. Reads the run's products; "
                     "writes into --out (default <project>/deliverables/events). The options replace the "
-                    "config's event_products / event_polygons / event_lines.")
+                    "config's event_products / event_polygons / event_lines; the study's own layers "
+                    "(feature_layers: wells, faults) are used unless --points / --lines replace them.")
     ap.add_argument("config")
     ap.add_argument("--between", nargs=2, action="append", metavar=("FROM", "TO"),
                     help="a window (YYYY-MM-DD YYYY-MM-DD); repeat for more")

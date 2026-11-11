@@ -12,6 +12,8 @@ import typing
 
 import yaml
 
+from . import domains
+
 log = logging.getLogger(__name__)
 
 # Default radius (km) for anchoring rates to continuous GNSS (gnss_tie.py).
@@ -356,6 +358,17 @@ class PipelineConfig:
     # farmland; "groundwater_basin" also says that figures relative to the far
     # field cancel motion shared by the whole area.
     site_profile: str = "farmland"
+    # The study the project answers (domains.py; S0.4, 8 Nov 2026): which
+    # outputs and wording its reports use. "ground_subsidence" (default) is the
+    # mining study and today's behaviour; a config without it behaves exactly so.
+    study: str = domains.DEFAULT_STUDY
+    # The study registry version write_project stamped (domains.REGISTRY_VERSION);
+    # 0 = written before the registry existed.
+    study_registry_version: int = 0
+    # The study's layers that have no field of their own, as "kind:path" (a
+    # GeoJSON per entry), e.g. "wells:/data/wells.geojson"; the kinds a study
+    # takes are domains.feature_layer_kinds(study).
+    feature_layers: tuple = ()
     # The fixed validation protocol (a YAML under review_2026-10-08/) that the
     # validation harness reads after the quality assessment. Experiment runs
     # only (purpose: experiment); empty = no validation stage.
@@ -1259,6 +1272,7 @@ _ENUMS = {
     "miaplpy_gpu": ("auto", "on", "off"),
     "purpose": PURPOSES,
     "site_profile": SITE_PROFILES,
+    "study": domains.STUDY_KEYS,
 }
 # MiaplPy matches these names exactly (case included). sequential_* is the
 # patched overlapping-window estimator the official route uses.
@@ -1419,6 +1433,10 @@ def validate_config(cfg: "PipelineConfig") -> list:
         v = getattr(cfg, name, None)
         if v is not None and str(v).lower() not in allowed:
             problems.append(f"{name} = {v!r}; expected one of {list(allowed)}")
+    v = getattr(cfg, "study_registry_version", 0)
+    if isinstance(v, int) and not isinstance(v, bool) and not 0 <= v <= domains.REGISTRY_VERSION:
+        problems.append(f"study_registry_version = {v}; this program knows versions 0-{domains.REGISTRY_VERSION} "
+                        "(a newer config needs a newer program)")
     for name in _UNIT_INTERVAL:
         v = getattr(cfg, name, None)
         if v is not None and not (0.0 <= float(v) <= 1.0):
@@ -1583,6 +1601,25 @@ def validate_config(cfg: "PipelineConfig") -> list:
         problems.append("validation_protocol is set but purpose is not 'experiment': the validation harness runs "
                         "only on experiment runs. Set purpose: experiment, or remove validation_protocol.")
 
+    # the study (domains.py): a study not offered yet runs only as an experiment,
+    # and feature_layers names only that study's kinds
+    sk = str(getattr(cfg, "study", "") or domains.DEFAULT_STUDY).strip().lower()
+    if sk in domains.STUDY_KEYS:
+        st = domains.study(sk)
+        if st.builder_status != "offered" and not is_experiment(cfg):
+            problems.append(f"study {sk!r} is not offered for client projects yet ({st.builder_reason}); "
+                            "run it with purpose: experiment, or choose another study")
+        kinds = domains.feature_layer_kinds(st)
+        for spec in getattr(cfg, "feature_layers", ()) or ():
+            try:
+                k, _p = domains.split_feature_layer(spec)
+            except ValueError as exc:
+                problems.append(f"feature_layers: {exc}")
+                continue
+            if k not in kinds:
+                problems.append(f"feature_layers: {k!r} is not a layer of the {sk!r} study"
+                                + (f" (it takes {list(kinds)})" if kinds else " (it takes none)"))
+
     # what relative figures are relative to (B1): the mode, and what each mode
     # needs (significance.check_reference_settings). A missing polygon file is
     # validate_inputs' message (_INPUT_FILES), not repeated here.
@@ -1732,6 +1769,29 @@ def validate_inputs(cfg: "PipelineConfig") -> list:
                             "fitted through the deformation and subtracted from it.")
 
     bbox = list(cfg.bbox or [])
+    for spec in getattr(cfg, "feature_layers", ()) or ():
+        try:
+            kind, val = domains.split_feature_layer(spec)
+        except ValueError:
+            continue                                       # validate_config reports it
+        p = Path(val)
+        if re.match(r"^[A-Za-z]:[\\/]|^\\\\", val):
+            problems.append(f"feature_layers: {kind!r} layer {val} is a Windows path; give it as this machine "
+                            "sees it (e.g. /mnt/c/...)")
+        elif not p.is_absolute():
+            problems.append(f"feature_layers: {kind!r} layer {val} is a relative path; give it in full")
+        elif not p.exists():
+            problems.append(f"feature_layers: {kind!r} layer {val} does not exist")
+        else:
+            try:
+                b = _geojson_bounds(p)
+            except (OSError, ValueError, AttributeError, TypeError, IndexError) as exc:
+                problems.append(f"feature_layers: {kind!r} layer {p} is not readable GeoJSON ({exc})")
+                continue
+            if b is None:
+                problems.append(f"feature_layers: {kind!r} layer {p} has no coordinates")
+            elif len(bbox) == 4 and not _overlaps(b, bbox):
+                problems.append(f"feature_layers: {kind!r} layer {p} lies outside the bbox {bbox}")
     for field_name, allow_full in (("report_areas", True), ("focus_sites_lalo", False)):
         for spec in getattr(cfg, field_name, ()) or ():
             try:

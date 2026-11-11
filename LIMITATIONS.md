@@ -11,19 +11,19 @@ in [USER_GUIDE.md](USER_GUIDE.md).
 These have not been checked against independent ground truth, or failed
 when they were.
 
-- **Fast longwall subsidence from C-band (Sentinel-1).** It fails. At Appin
+- **Fast longwall subsidence from C-band (Sentinel-1).** [A] It fails. At Appin
   the C-band record caught only about 40% of a 219 mm drop at the panel GNSS
   station, and NASA's OPERA product about 25%. Quiet periods matched within a
   few mm; the failure is during fast sinking (VALIDATION.md, experiment A).
-- **NISAR L-band.** Unverified. Time series at Corcoran agree with GNSS
+- **NISAR L-band.** [B5a] Unverified. Time series at Corcoran agree with GNSS
   within 3.7-6.0 mm after less than a year, but the slope against GNSS rests
   on 3 stations, too few to judge. At Appin no public truth exists for 2026.
   Every NISAR client page is labelled "Comparison - NISAR, not validated".
 - **Indiana-type rain-fed cropland.** Not tested as such. Its coherence is
   lower than Houston's, so expect wider error bars. The program measures and
   states its own noise.
-- **Single-year rates.** Not to better than about 12 mm/yr (12-14 mm/yr error
-  at Corcoran). Multi-year rates and totals are what passed.
+- **Single-year rates.** [B1_B3] Failed: not to better than about 12 mm/yr
+  (12-14 mm/yr error at Corcoran). Multi-year rates and totals are what held.
 - **NOAA HRRR weather correction.** The default for new continental-US
   projects since 24 Oct 2026 (`areas.weather_default`). It has not yet been
   checked against GNSS here: the validation used ERA5.
@@ -39,7 +39,7 @@ check of the last two items.
 
 Use these to decide where to look, then confirm by other means.
 
-- **Local change layer** (`local_change.py`, USER_GUIDE 6.10). On 22 Oct 2026
+- **Local change layer** (`local_change.py`, USER_GUIDE 6.10). [LC] On 22 Oct 2026
   it failed its validation against the vendor at Site D, against criteria
   fixed in advance, in both configurations tried. Its 12-day steps keep the
   farmland drift.
@@ -48,7 +48,7 @@ Use these to decide where to look, then confirm by other means.
   coherence within about 6 months, so it could not judge them. It works on
   coherent ground; it cannot yet confirm or reject a farmland feature.
 - **East-west movement in a combined ascending + descending project**
-  (28 Oct 2026). Indicative: no client threshold, limit or uncertainty. Its
+  (28 Oct 2026). [P0.3b] Indicative: no client threshold, limit or uncertainty. Its
   first injection test caught movement at the stated limit 63% of the time
   against 70% required. A pre-registered re-test passed (78%, 4.4% false
   alarms) on 38 sites instead of 60 and awaits sign-off. The vertical part of
@@ -56,7 +56,7 @@ Use these to decide where to look, then confirm by other means.
 - **OPERA DISP-S1 route** (`backend: disp`). A quick look at where movement
   might be. The release gate never releases its report. At Appin it missed
   more of the longwall drop than the main route (VALIDATION.md, A2).
-- **Phase-linked NISAR route** (`nisar_phase_linked: true`, 28 Oct 2026).
+- **Phase-linked NISAR route** (`nisar_phase_linked: true`, 28 Oct 2026). [N3]
   Its validation gate (Gate 3) is not passed: better than the GUNW route on
   every measure, but short of two thresholds (section 5).
 

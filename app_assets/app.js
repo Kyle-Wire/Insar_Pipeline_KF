@@ -101,9 +101,15 @@
     report: {color: '#d0d0d0', weight: 2, fill: false, dashArray: '2 5'},
     frame: {color: '#9a9a9a', weight: 2, fill: false, dashArray: '14 6'},
     water: {color: '#bdbdbd', weight: 1, fillColor: '#bdbdbd', fillOpacity: 0.35},
+    // a study's own layers (app_server.study_layers): pads, faults, fast zones, the stable area
+    study_poly: {color: '#ffffff', weight: 2, fill: false, dashArray: '1 5', lineCap: 'round'},
+    study_line: {color: '#ffffff', weight: 2.5, dashArray: '10 4 2 4'},
+    fast_zone: {color: '#ffffff', weight: 2, fillColor: '#000000', fillOpacity: 0.35},
+    stable: {color: '#bdbdbd', weight: 2, fill: false, dashArray: '4 4'},
   };
   const SWATCH = {bbox: '#8c8c8c', aoi: '#f2f2f2', mine: '#f2f2f2', report: '#bdbdbd', frame: '#8c8c8c',
-                  raster: '#f2f2f2', points: '#f2f2f2', gnss: '#f2f2f2', water: '#bdbdbd', feature: '#f2f2f2'};
+                  raster: '#f2f2f2', points: '#f2f2f2', gnss: '#f2f2f2', water: '#bdbdbd', feature: '#f2f2f2',
+                  study_point: '#f2f2f2', study_poly: '#f2f2f2', study_line: '#f2f2f2', fast_zone: '#6a6a6a', stable: '#bdbdbd'};
 
   // ------------------------------------------------------------ the mist
   // The one colour on the page: a small interferogram, 64 x 24 pixels, of two
@@ -518,7 +524,7 @@
     // before the products exist, the quality picture is the one to watch
     const hasVert = list.some(x => x.id === 'vertical' && x.ready);
     for (const L0 of list) {
-      const st = layerState[L0.id] || (layerState[L0.id] = {on: ON_BY_DEFAULT.has(L0.id) || L0.id.startsWith('report_') ||
+      const st = layerState[L0.id] || (layerState[L0.id] = {on: ON_BY_DEFAULT.has(L0.id) || L0.id.startsWith('report_') || L0.id.startsWith('study_') ||
         (!hasVert && L0.id === 'coherence'), since: null, ready: false});
       st.meta = L0;
       const changed = L0.ready && (st.since !== L0.since || !st.ready);
@@ -565,6 +571,19 @@
           .bindTooltip(f.text).addTo(g);
       }
       layer = g;
+    } else if (d.kind === 'study_points') {
+      // a study's points (wells), coloured by the report's reading of each
+      const g = L.layerGroup();
+      const col = Object.fromEntries((d.legend.classes || []).map(c => [c.name, c.color]));
+      for (const p of d.points) {
+        const fill = col[p.status_words] || '#bdbdbd';
+        L.circleMarker([p.lat, p.lon], {radius: 6, color: fill === '#000000' ? '#ffffff' : '#000000', weight: 2,
+                                        fillColor: fill, fillOpacity: p.status === 'no_report' ? 0.4 : 1})
+          .bindTooltip(`${meta.label}: ${p.id}`).bindPopup(() => wellPopup(p)).addTo(g);
+      }
+      layer = g;
+      layerState[id].legend = d.legend;
+      layerState[id].source = d.from_report ? `${d.points.length} from the report` : `${d.points.length} listed; numbers after Products & report`;
     } else if (d.kind === 'gnss') {
       const g = L.layerGroup();
       for (const s of d.stations) {
@@ -577,6 +596,20 @@
     if (layerState[id] && layerState[id].legend) { legendOrder = legendOrder.filter(x => x !== id); legendOrder.push(id); }
     if (mapLayers.bbox && id !== 'bbox') mapLayers.bbox.bringToFront && mapLayers.bbox.bringToFront();
     showLegend();
+  }
+  // a well's popup: id, its own columns, the reading, value and 95% range, shared values, tier
+  function wellPopup(p) {
+    const n = v => (v == null ? '' : (v > 0 ? '+' : '') + Number(v).toFixed(2));
+    const attrs = Object.entries(p.attributes || {}).filter(([, v]) => v != null && v !== '');
+    return h('div', {class: 'wellpop'},
+      h('b', {}, p.id),
+      attrs.length ? h('div', {}, attrs.map(([k, v]) => `${k.replace(/_/g, ' ')}: ${v}`).join(' · ')) : null,
+      h('div', {}, p.status_words),
+      p.value_in_yr != null ? h('div', {}, `${n(p.value_in_yr)} in/yr vertical, relative to ordinary ground` +
+        (p.range_in_yr ? ` (95% range ${n(p.range_in_yr[0])} to ${n(p.range_in_yr[1])})` : '')) : null,
+      p.reason ? h('div', {class: 'muted'}, p.reason) : null,
+      (p.shared_with || []).length ? h('div', {class: 'muted'}, `Shared value with ${p.shared_with.join(', ')}: not a per-well rate`) : null,
+      p.tier ? h('div', {class: 'muted'}, `Tier: ${p.tier}`) : null);
   }
   function diverging(t) {   // -1 red (sinking / away) .. 0 white .. +1 blue
     const a = [178, 24, 43], m = [247, 247, 247], b = [33, 102, 172];

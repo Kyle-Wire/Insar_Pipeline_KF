@@ -12,6 +12,7 @@
   --bg: #f3f5f4; --panel: #ffffff; --ink: #18221f; --muted: #5b6a65; --line: #d9e0dd; --soft: #eef2f0;
   --accent: #0f766e; --accent-ink: #ffffff; --warn: #a15c07; --bad: #b42318; --good: #13795b;
   --area: #2563eb; --mine: #d92d20; --surface: #c026d3; --other: #64748b; --dated: #b54708; --report: #d97706; --ref: #13795b; --gnss: #7c3aed; --box: #475467;
+  --study1: #0e7490; --study2: #be185d; --study3: #4d7c0f; --study4: #b42318; --study5: #13795b;
   --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 }
@@ -108,6 +109,25 @@ main { position: relative; }
 .spin { display: inline-block; width: 12px; height: 12px; border: 2px solid var(--line); border-top-color: var(--accent);
         border-radius: 50%; animation: sp .8s linear infinite; vertical-align: -2px; }
 @keyframes sp { to { transform: rotate(360deg); } }
+.studies { display: flex; flex-direction: column; gap: 4px; }
+.study { display: grid; grid-template-columns: 18px 1fr; gap: 2px 6px; align-items: start; font-size: 13px;
+         padding: 5px 6px; border-radius: 6px; cursor: pointer; }
+.study:hover { background: var(--soft); }
+.study input { margin-top: 3px; }
+.study .q { grid-column: 2; font-size: 12px; color: var(--muted); }
+.study.off { cursor: not-allowed; opacity: .55; }
+.study.off:hover { background: transparent; }
+details.notyet summary { cursor: pointer; padding: 4px 6px; }
+.badge { display: inline-block; font-size: 10.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+         border: 1px solid var(--warn); color: var(--warn); border-radius: 4px; padding: 0 5px; margin-left: 6px;
+         vertical-align: 1px; }
+.badge.grey { border-color: var(--line); color: var(--muted); }
+.cards { display: grid; grid-template-columns: 1fr; gap: 8px; }
+.card { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font-size: 12.5px; background: var(--panel); }
+.card h3 { margin: 0 0 4px; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.card ul { margin: 0; padding-left: 18px; } .card li { margin: 1px 0; }
+.card .sub { margin: 6px 0 2px; font-weight: 600; font-size: 12px; }
+.card.cannot { border-left: 3px solid var(--bad); } .card.get { border-left: 3px solid var(--good); }
 @media (max-width: 760px) {
   body { grid-template-columns: 1fr; grid-template-rows: 55vh auto; }
   main { grid-row: 1; } aside { grid-row: 2; border-right: 0; }
@@ -125,6 +145,13 @@ main { position: relative; }
     </div>
   </header>
 
+  <section class="step" id="studyStep">
+    <h2><span class="n">0</span> Study</h2>
+    <p class="hint">What the project is for. Mining subsidence is today's builder; a study marked Screening gives a
+      screening report. The choice sets which map layers step 2 asks for, nothing else.</p>
+    <div class="studies" id="studyList"><p class="empty">Loading the studies…</p></div>
+  </section>
+
   <section class="step">
     <h2><span class="n">1</span> Project area</h2>
     <p class="hint">The ground you want numbers for. Draw it, or upload the outline. The processing box adds a margin
@@ -138,7 +165,8 @@ main { position: relative; }
   </section>
 
   <section class="step">
-    <h2><span class="n">2</span> Mines and known movement <span class="opt">optional, recommended</span></h2>
+    <h2><span class="n">2</span> <span id="step2Title">Mines and known movement</span> <span class="opt">optional, recommended</span></h2>
+    <div id="mineSlots" style="display:contents">
     <p class="hint">Everything here is kept out of the ramp fit (so real movement isn't removed as "atmosphere") and
       out of the farmland it is compared with. Keep underground and surface mines apart if you have both: the report
       then says whether a feature sits over workings or on surface-mine ground. Statewide layers are fine: only what
@@ -156,6 +184,8 @@ main { position: relative; }
     <div class="row"><button data-draw="poly" data-role="mine" data-kind="underground">Draw underground</button>
       <button data-draw="poly" data-role="mine" data-kind="surface">Draw surface</button>
       <button data-draw="poly" data-role="mine" data-kind="other">Draw other</button></div>
+    </div>
+    <div id="studySlots" style="display:none"></div>
   </section>
 
   <section class="step">
@@ -203,6 +233,7 @@ main { position: relative; }
     <h2><span class="n">6</span> Check the satellite archive</h2>
     <p class="hint">Sentinel-1 passes over the area by track (with the sub-swaths that cover the processing box), OPERA
       DISP-S1 frames, and GNSS stations within <span class="gnssR">40</span> km (shown on the map).</p>
+    <div id="studyCards" class="cards" hidden></div>
     <div class="row"><button id="checkBtn" class="primary" disabled>Check archive and GNSS</button><span id="checkState" class="hint"></span></div>
     <div id="checkOut"></div>
   </section>
@@ -237,9 +268,10 @@ main { position: relative; }
   </div>
   <div class="legend">
     <span style="--c:var(--area)">Project area</span>
-    <span style="--c:var(--mine)">Underground workings</span>
-    <span style="--c:var(--surface)">Surface mines</span>
-    <span style="--c:var(--other)">Other known movement</span>
+    <span class="legMine" style="--c:var(--mine)">Underground workings</span>
+    <span class="legMine" style="--c:var(--surface)">Surface mines</span>
+    <span class="legMine" style="--c:var(--other)">Other known movement</span>
+    <span id="legStudy" style="--c:var(--study1)" hidden>Study layers</span>
     <span style="--c:var(--report)">Report areas</span>
     <span class="dash" style="--c:var(--box)">Processing box (area + margin)</span>
     <span style="--c:var(--gnss)">GNSS station</span>
@@ -251,14 +283,20 @@ main { position: relative; }
 <script src="assets/vendor/leaflet.min.js"></script>
 <script src="assets/vendor/leaflet.draw.js"></script>
 <script>
+const DEFAULT_STUDY = 'ground_subsidence';                 // domains.DEFAULT_STUDY; /api/studies confirms it
 const $ = id => document.getElementById(id);
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const KIND = {underground: {label: 'Underground workings', color: '--mine'}, surface: {label: 'Surface mines', color: '--surface'},
               other: {label: 'Other known movement', color: '--other'}, dated: {label: 'Dated mined areas', color: '--dated'}};
 const ROLE = {area: {label: 'Project area', color: '--area'}, mine: {label: 'Mines', color: '--mine'},
-              report: {label: 'Report area', color: '--report'}};
-const state = {layers: [], ref: null, check: null, track: null, seq: 0, existing: null, gnssR: 40, nameProblem: null};
+              report: {label: 'Report area', color: '--report'}, study: {label: 'Study layer', color: '--study1'}};
+const state = {layers: [], ref: null, check: null, track: null, seq: 0, existing: null, gnssR: 40, nameProblem: null,
+               study: DEFAULT_STUDY, studies: []};
+// the chosen study's row from /api/studies (domains.STUDIES; map_builder.api_studies)
+function curStudy() { return state.studies.find(x => x.key === state.study) || null; }
+function studyKind(kind) { return ((curStudy() || {}).layer_kinds || []).find(k => k.key === kind) || null; }
+const NOUN = {point: ['point', 'points'], line: ['line', 'lines'], polygon: ['polygon', 'polygons']};
 
 // Names the client reads (project title, every report row) - the same rules as
 // areas.client_name_problem on the server, which has the last word: 'project_zone'
@@ -277,6 +315,11 @@ function nameProblem(n, stems = []) {
 function inReport(l) { return l.role === 'area' || l.role === 'report' || (l.role === 'mine' && l.report); }
 function reportName(l) { return l.role === 'area' ? ((l.name || '').trim() || $('name').value.trim()) : (l.name || '').trim(); }
 function layerProblem(l) {
+  // the study's own layers, and the mine layers, belong to their study (step 0)
+  if (l.role === 'study' && !studyKind(l.kind))
+    return `This layer belongs to another study than ${(curStudy() || {}).label || 'the one chosen'}: choose its study in step 0, or remove it`;
+  if (l.role === 'mine' && state.study !== DEFAULT_STUDY)
+    return 'Mine layers belong to the mining subsidence study: remove this layer, or choose that study in step 0';
   // a layer reopened from a project made before mine types: Update waits for one
   if (l.role === 'mine' && !l.kind) return 'Choose the type of this mine layer (the project saved it without one)';
   if (l.role === 'mine' && l.kind === 'dated' && !l.year_field)
@@ -345,8 +388,17 @@ $('searchForm').onsubmit = async e => {
 };
 
 // ------------------------------------------------------------------ layers
-function colorOf(role, kind) { return role === 'mine' && kind ? KIND[kind].color : ROLE[role].color; }
-function labelOf(role, kind) { return role === 'mine' && kind ? KIND[kind].label : ROLE[role].label; }
+function colorOf(role, kind) {
+  if (role === 'study') {
+    const i = ((curStudy() || {}).layer_kinds || []).findIndex(k => k.key === kind);
+    return `--study${(i < 0 ? 0 : i % 5) + 1}`;
+  }
+  return role === 'mine' && kind ? KIND[kind].color : ROLE[role].color;
+}
+function labelOf(role, kind) {
+  if (role === 'study') return (studyKind(kind) || {}).label || kind;
+  return role === 'mine' && kind ? KIND[kind].label : ROLE[role].label;
+}
 function style(role, kind) { const c = css(colorOf(role, kind)); return {color: c, weight: 2, fillColor: c, fillOpacity: role === 'mine' ? .28 : .12}; }
 function nPolys(gj) { return (gj.features || []).length; }
 
@@ -355,10 +407,14 @@ function addLayer({role, name, geojson, upload_id = null, report = false, note =
   if (role === 'area') state.layers.filter(l => l.role === 'area').forEach(removeLayer);
   const id = ++state.seq;
   // a reopened layer keeps no type when it had none (not 'other known movement')
+  const asked = kind;
   kind = role === 'mine' ? (kind || (reopened ? null : 'other')) : null;
+  if (role === 'study') kind = asked;                         // a study layer keeps its layer kind
   // the object first: Leaflet calls style() while it builds the layer
   const layer = {id, role, kind, name, geojson, upload_id, report, note, source, stem, fields, year_field, name_field, reopened};
-  const leaflet = layer.leaflet = L.geoJSON(geojson, {style: () => style(role, layer.kind)}).addTo(map);
+  const leaflet = layer.leaflet = L.geoJSON(geojson, {style: () => style(role, layer.kind),
+    // a study's points (wells) as dots, not the marker image
+    pointToLayer: (f, ll) => L.circleMarker(ll, {...style(role, layer.kind), radius: 5, fillOpacity: .8})}).addTo(map);
   leaflet.bindTooltip(() => `${labelOf(role, layer.kind)}: ${esc(reportName(layer) || layer.name)}`, {sticky: true});
   state.layers.push(layer);
   if (role !== 'area') leaflet.bringToFront(); else leaflet.bringToBack();
@@ -371,21 +427,40 @@ function removeLayer(l) {
   changed(l.role === 'area');
 }
 function areaLayer() { return state.layers.find(l => l.role === 'area'); }
+// BODY-BEGIN: what the page sends to /api/create. Pure (no page, no map): run in
+// node by tests/test_builder_studies.py. Map layers and the study choice only -
+// never a processing setting (the builder is map-only; Gate A5(a)).
 function payload(l) {
+  if (l.role === 'study') {
+    // a study's layer: its kind and its features; the attribute columns
+    // (status, plug date, type) are read from the file on the server
+    const sb = {role: 'study', kind: l.kind, name: l.name || ''};
+    return l.upload_id ? {...sb, upload_id: l.upload_id} : {...sb, geojson: l.geojson};
+  }
   const base = {role: l.role, kind: l.kind, name: l.name, report: l.report, source: l.source || '',
                 ...(l.reopened ? {reopened: true} : {}),
                 ...(l.kind === 'dated' ? {year_field: l.year_field || '', name_field: l.name_field || ''} : {})};
   return l.upload_id ? {...base, upload_id: l.upload_id} : {...base, geojson: l.geojson};
 }
+function createBody(f, layers, study, overwrite) {
+  const body = {name: f.name, route: f.route, start: f.start, end: f.end, pad_km: f.pad_km,
+                track: f.track, direction: f.direction, disp_frame: f.disp_frame, reference: f.reference,
+                layers: layers.map(payload), overwrite};
+  // the default study's request is today's, key for key; another study names itself
+  if (study && study !== DEFAULT_STUDY) body.study = study;
+  return body;
+}
+// BODY-END
 
 function renderLayers() {
   const box = $('layers');
   if (!state.layers.length) { box.innerHTML = '<p class="empty">Nothing yet. Start with the project area.</p>'; return; }
   box.innerHTML = '';
-  const order = {area: 0, mine: 1, report: 2};
+  const order = {area: 0, mine: 1, study: 1, report: 2};
   [...state.layers].sort((a, b) => order[a.role] - order[b.role]).forEach(l => {
     const el = document.createElement('div'); el.className = 'layer';
     const n = nPolys(l.geojson);
+    if (l.role === 'study') { box.appendChild(studyLayerRow(el, l, n)); return; }
     const lbl = l.role === 'area' ? 'Name in client report (blank = the project name)'
       : l.role === 'report' ? 'Name in client report' : 'Name (in the client report when ticked below)';
     el.innerHTML = `<span class="lbl">${lbl}</span><span class="sw" style="background:var(${colorOf(l.role, l.kind)})"></span>
@@ -417,6 +492,29 @@ function renderLayers() {
     el.querySelector('[data-a=del]').onclick = () => removeLayer(l);
     box.appendChild(el);
   });
+}
+
+// a study layer's row: its kind, its features, the columns the file has (never typed here)
+function studyLayerRow(el, l, n) {
+  const k = studyKind(l.kind), g = (k || {}).geometry || 'polygon', noun = NOUN[g] || NOUN.polygon;
+  // the layer's columns: as the upload reported them, else from the features (a reopened layer)
+  const have = new Set((l.fields ? l.fields.columns || [] : (l.geojson.features || []).flatMap(f => Object.keys(f.properties || {})))
+                       .map(c => String(c).toLowerCase()));
+  const want = k ? k.attributes : [], found = want.filter(a => have.has(a.toLowerCase())), missing = want.filter(a => !have.has(a.toLowerCase()));
+  const cols = !want.length ? '' : found.length
+      ? `columns read: ${found.join(', ')}` + (missing.length ? ` (not in the layer: ${missing.join(', ')})` : '')
+      : have.size ? `none of ${want.join(', ')} in the layer` : 'no columns (drawn)';
+  el.innerHTML = `<span class="lbl">${esc(labelOf('study', l.kind))}</span><span class="sw" style="background:var(${colorOf('study', l.kind)})"></span>
+    <span>${esc(l.name || labelOf('study', l.kind))}</span>
+    <span class="row" style="gap:2px"><button class="ghost" data-a="zoom" title="Zoom to">⤢</button><button class="ghost danger" data-a="del" title="Remove">✕</button></span>
+    <span class="meta"><span>${n.toLocaleString()} ${noun[n === 1 ? 0 : 1]}</span>${l.upload_id ? '<span>uploaded</span>' : ''}
+      ${l.note ? `<span>${esc(l.note)}</span>` : ''}${cols ? `<span>${esc(cols)}</span>` : ''}</span>
+    <span class="why" hidden></span>`;
+  const why = el.querySelector('.why');
+  l.mark = () => { const p = layerProblem(l); why.hidden = !p; why.textContent = p || ''; }; l.mark();
+  el.querySelector('[data-a=zoom]').onclick = () => map.fitBounds(l.leaflet.getBounds(), {maxZoom: 15});
+  el.querySelector('[data-a=del]').onclick = () => removeLayer(l);
+  return el;
 }
 
 function processingBox() {
@@ -454,17 +552,35 @@ document.querySelectorAll('input[name=route]').forEach(r => r.onchange = () => {
 
 // ------------------------------------------------------------------ drawing
 let drawing = null;
-document.querySelectorAll('[data-draw]').forEach(b => b.onclick = () => {
-  if (drawing) drawing.disable();
-  const role = b.dataset.role, kind = b.dataset.kind || null, opts = {shapeOptions: style(role, kind), showArea: false};
-  drawing = b.dataset.draw === 'rect' ? new L.Draw.Rectangle(map, opts) : new L.Draw.Polygon(map, {...opts, allowIntersection: false});
-  drawing.role = role; drawing.kind = kind; drawing.enable();
-  toast(b.dataset.draw === 'rect' ? 'Click and drag on the map.' : 'Click the corners; click the first point to finish.');
-});
+function bindDraw(b) {
+  b.onclick = () => {
+    if (drawing) drawing.disable();
+    const role = b.dataset.role, kind = b.dataset.kind || null, opts = {shapeOptions: style(role, kind), showArea: false};
+    const how = b.dataset.draw;
+    // a study's points and lines (wells, faults) besides today's rectangles and polygons
+    drawing = how === 'rect' ? new L.Draw.Rectangle(map, opts)
+      : how === 'point' ? new L.Draw.Marker(map, {icon: L.divIcon({className: '', iconSize: [12, 12], iconAnchor: [6, 6],
+          html: `<div style="width:12px;height:12px;border-radius:50%;background:${css(colorOf(role, kind))};border:2px solid #fff"></div>`})})
+      : how === 'line' ? new L.Draw.Polyline(map, {shapeOptions: style(role, kind)})
+      : new L.Draw.Polygon(map, {...opts, allowIntersection: false});
+    drawing.role = role; drawing.kind = kind; drawing.enable();
+    toast(how === 'rect' ? 'Click and drag on the map.' : how === 'point' ? 'Click the spot.'
+          : how === 'line' ? 'Click along the line; click the last point again to finish.'
+          : 'Click the corners; click the first point to finish.');
+  };
+}
+document.querySelectorAll('[data-draw]').forEach(bindDraw);
 map.on(L.Draw.Event.CREATED, e => {
   if (drawing && drawing.role === 'ref') { setRef(e.layer.getLatLng()); drawing = null; return; }
   const role = drawing ? drawing.role : 'area', kind = drawing ? drawing.kind : null; drawing = null;
   const gj = {type: 'FeatureCollection', features: [e.layer.toGeoJSON()]};
+  if (role === 'study') {
+    // one drawn feature per layer row; no attribute columns (those come from a file)
+    gj.features[0].properties = {};
+    const count = state.layers.filter(l => l.role === 'study' && l.kind === kind).length + 1;
+    addLayer({role, kind, geojson: gj, name: `${labelOf(role, kind)} ${count} (drawn)`});
+    return;
+  }
   const count = state.layers.filter(l => l.role === role).length + 1;
   // report and area names are typed by the user (the client reads them); a
   // mine's name is internal unless it is reported
@@ -494,6 +610,7 @@ function readB64(file) {
     r.onload = () => ok(String(r.result).split(',', 2)[1] || ''); r.onerror = () => bad(r.error); r.readAsDataURL(file); });
 }
 async function upload(files, role, kind = null) {
+  if (role === 'study') return uploadStudy(files, kind);
   files = [...files]; if (!files.length) return;
   const exts = files.map(f => f.name.toLowerCase().split('.').pop());
   if (exts.includes('shp') && !(exts.includes('dbf') && exts.includes('shx'))) {
@@ -519,13 +636,89 @@ async function upload(files, role, kind = null) {
     } catch (err) { toast(err.message, true); }
   }
 }
-document.querySelectorAll('.drop').forEach(z => {
+function bindDrop(z) {
   const role = z.dataset.role, kind = z.dataset.kind || null, inp = z.querySelector('input[type=file]');
   inp.onchange = () => { upload(inp.files, role, kind); inp.value = ''; };
   z.ondragover = e => { e.preventDefault(); z.classList.add('over'); };
   z.ondragleave = () => z.classList.remove('over');
   z.ondrop = e => { e.preventDefault(); z.classList.remove('over'); upload(e.dataTransfer.files, role, kind); };
-});
+}
+document.querySelectorAll('.drop').forEach(bindDrop);
+// a study's layer file: kept whole with its columns (map_builder.study_features)
+async function uploadStudy(files, kind) {
+  files = [...files]; if (!files.length) return;
+  const exts = files.map(f => f.name.toLowerCase().split('.').pop());
+  if (exts.includes('shp') && !(exts.includes('dbf') && exts.includes('shx'))) {
+    return toast('A shapefile is several files: select the .shp, .dbf, .shx and .prj together (or zip them).', true);
+  }
+  const groups = exts.includes('shp') ? [files] : files.map(f => [f]);
+  for (const g of groups) {
+    toast(`Reading ${g.map(f => f.name).join(', ')}…`, false, 60000);
+    try {
+      const data = await Promise.all(g.map(async f => ({name: f.name, data: await readB64(f), lastModified: f.lastModified})));
+      const d = await api('/api/outline', {files: data, study: state.study, study_kind: kind});
+      const l = addLayer({role: 'study', kind, name: d.stem, geojson: d.geojson, upload_id: d.upload_id, stem: d.stem,
+                          fields: {found: d.found || [], missing: d.missing || [], columns: d.columns || []},
+                          note: [`from ${d.files.find(n => n.startsWith(d.stem)) || d.stem}`,
+                                 d.thinned ? 'map shows a thinned copy; the full detail is kept' : ''].filter(Boolean).join(' · ')});
+      map.fitBounds(areaLayer() ? processingBox().pad(0.05) : l.leaflet.getBounds(), {maxZoom: 15});
+      const noun = NOUN[d.geometry] || NOUN.polygon;
+      toast(`${d.label}: ${d.stem} (${d.features.toLocaleString()} ${noun[d.features === 1 ? 0 : 1]})`);
+    } catch (err) { toast(err.message, true); }
+  }
+}
+
+// ------------------------------------------------------------------ study (step 0)
+function renderStudies() {
+  const box = $('studyList');
+  if (!state.studies.length) { box.innerHTML = '<p class="empty">Mining subsidence (this server lists no other study).</p>'; return; }
+  const row = x => `<label class="study${x.selectable ? '' : ' off'}" title="${esc(x.reason ? 'Not offered yet: ' + x.reason : x.question)}">
+      <input type="radio" name="study" value="${esc(x.key)}" ${x.key === state.study ? 'checked' : ''} ${x.selectable ? '' : 'disabled'}>
+      <span><b>${esc(x.label)}</b>${x.badge ? `<span class="badge">${esc(x.badge)}</span>` : ''}${!x.selectable ? '<span class="badge grey">not yet</span>' : ''}</span>
+      <span class="q">${esc(x.selectable ? x.question : 'Not offered yet: ' + x.reason)}</span></label>`;
+  // the studies not offered yet: greyed out with their reasons, folded away so step 1 stays in view
+  const off = state.studies.filter(x => !x.selectable);
+  box.innerHTML = state.studies.filter(x => x.selectable).map(row).join('') + (off.length
+    ? `<details class="notyet"><summary class="hint">${off.length} more ${off.length === 1 ? 'study' : 'studies'}, not offered yet</summary>${off.map(row).join('')}</details>` : '');
+  box.querySelectorAll('input[name=study]').forEach(r => r.onchange = () => setStudy(r.value));
+}
+function setStudy(key) {
+  state.study = key || DEFAULT_STUDY;
+  const st = curStudy(), other = state.study !== DEFAULT_STUDY && st;
+  document.querySelectorAll('input[name=study]').forEach(r => r.checked = r.value === state.study);
+  // step 2: today's mine slots for the default study, else one slot per layer kind
+  $('mineSlots').style.display = other ? 'none' : 'contents';
+  $('studySlots').style.display = other ? 'contents' : 'none';
+  $('step2Title').textContent = other ? `${st.label}: map layers` : 'Mines and known movement';
+  document.querySelectorAll('.legMine').forEach(e => e.hidden = !!other);
+  $('legStudy').hidden = !other;
+  if (other) {
+    const verb = {point: 'Place point', line: 'Draw line', polygon: 'Draw polygon'};
+    $('studySlots').innerHTML = `<p class="hint">Each layer is kept as uploaded, with its attribute columns (read from
+        the file, not typed here). Polygons of moving ground are kept out of the ramp fit and the comparison ground. Only
+        what lies inside the processing box is kept.</p>` + st.layer_kinds.map(k => `
+      <div class="drop" data-role="study" data-kind="${esc(k.key)}"><span><b style="color:var(${colorOf('study', k.key)})">${esc(k.label)}</b>:
+        ${esc(NOUN[k.geometry][1])}${k.attributes.length ? `; columns read when present: ${esc(k.attributes.join(', '))}` : ''}</span>
+        <span class="row" style="gap:4px"><button data-draw="${k.geometry === 'polygon' ? 'poly' : k.geometry}" data-role="study" data-kind="${esc(k.key)}">${verb[k.geometry]}</button>
+        <label class="btn">Upload<input type="file" multiple></label></span></div>`).join('');
+    $('studySlots').querySelectorAll('.drop').forEach(bindDrop);
+    $('studySlots').querySelectorAll('[data-draw]').forEach(bindDraw);
+  } else $('studySlots').innerHTML = '';
+  renderCards();
+  state.layers.forEach(l => l.leaflet && l.leaflet.setStyle && l.leaflet.setStyle(style(l.role, l.kind)));
+  renderLayers(); updateCreate();
+}
+// step 6: what the study will give, and what it cannot tell you (evidence.card)
+function renderCards() {
+  const st = curStudy(), box = $('studyCards');
+  if (!st || state.study === DEFAULT_STUDY) { box.hidden = true; box.innerHTML = ''; return; }
+  const li = a => a.map(t => `<li>${esc(t)}</li>`).join('');
+  box.hidden = false;
+  box.innerHTML = `<div class="card get"><h3>What you will get</h3>${st.badge ? `<p class="hint">A ${esc(st.badge.toLowerCase())} report: each output carries its tier.</p>` : ''}
+      <ul>${li(st.will_give || [])}</ul>${(st.notes || []).length ? `<p class="hint" style="margin-top:4px">${(st.notes || []).map(esc).join('<br>')}</p>` : ''}</div>
+    <div class="card cannot"><h3>What this cannot tell you</h3><ul>${li(st.cannot || [])}</ul>
+      ${(st.not_yet || []).length ? `<div class="sub">Not yet</div><ul>${li(st.not_yet)}</ul>` : ''}</div>`;
+}
 document.addEventListener('dragover', e => e.preventDefault());
 document.addEventListener('drop', e => e.preventDefault());
 
@@ -650,9 +843,9 @@ async function create(overwrite = false) {
   const route = document.querySelector('input[name=route]:checked').value;
   const [direction, track] = state.track.split(':');
   const frame = dispFrame();
-  const body = {name: $('name').value.trim(), route, start: $('start').value, end: $('end').value, pad_km: +$('pad').value,
-                track: +track, direction, disp_frame: frame ? String(frame.frame) : '', reference: state.ref || '',
-                layers: state.layers.map(payload), overwrite};
+  const body = createBody({name: $('name').value.trim(), route, start: $('start').value, end: $('end').value,
+                           pad_km: +$('pad').value, track: +track, direction, disp_frame: frame ? String(frame.frame) : '',
+                           reference: state.ref || ''}, state.layers, state.study, overwrite);
   $('createBtn').disabled = true;
   $('createOut').innerHTML = '<p class="hint"><span class="spin"></span> writing the project…</p>';
   try {
@@ -677,8 +870,9 @@ async function create(overwrite = false) {
       <dt>Route</dt><dd>${esc(d.route)}</dd>
       <dt>Title</dt><dd>${esc(d.title || '')}</dd>
       <dt>Report</dt><dd>${d.report_areas.map(esc).join(' · ')}</dd>
-      <dt>Mines</dt><dd>${mines}${(d.mine_layers_outside_box || []).length ? `<div class="note warn">Nothing of ${esc(d.mine_layers_outside_box.join(', '))} lies in the processing box: left out.</div>` : ''}
-        ${d.dated_polygons ? `<div>${d.dated_polygons.toLocaleString()} dated mined area(s): the report gets their mining-year history.</div>` : ''}</dd>
+      ${d.study ? `<dt>Study</dt><dd>${esc(d.study)}${(d.study_layers || []).map(x => `<div>${esc(x.label)}: ${x.features.toLocaleString()} in the processing box</div>`).join('')}</dd>` : ''}
+      ${d.study ? '' : `<dt>Mines</dt><dd>${mines}${(d.mine_layers_outside_box || []).length ? `<div class="note warn">Nothing of ${esc(d.mine_layers_outside_box.join(', '))} lies in the processing box: left out.</div>` : ''}
+        ${d.dated_polygons ? `<div>${d.dated_polygons.toLocaleString()} dated mined area(s): the report gets their mining-year history.</div>` : ''}</dd>`}
       ${d.far_field && d.far_field.warning ? `<dt>Farmland</dt><dd><div class="note warn">${esc(d.far_field.warning)}</div></dd>` : ''}
       ${(d.mine_layer_sources || []).length ? `<dt>Sources</dt><dd>${d.mine_layer_sources.map(esc).join('<br>')}</dd>` : ''}
       ${d.swaths ? `<dt>Sub-swaths</dt><dd>IW${d.swaths.join(', IW')}</dd>` : ''}
@@ -708,13 +902,14 @@ $('openSel').onchange = async e => {
     const d = await api('/api/project', {config: cfg});
     reset(false);
     state.existing = cfg;
+    setStudy(d.study || DEFAULT_STUDY);
     // the project's own dates and margin: the form's defaults would rewrite
     // its record window (and its processing box) on Update
     if (d.start) $('start').value = d.start;
     if (d.end) $('end').value = d.end;
     if (d.pad_km) $('pad').value = d.pad_km;
     d.layers.forEach(l => addLayer({role: l.role, kind: l.kind || null, name: l.name, geojson: l.geojson, report: !!l.report, source: l.source || '',
-                                    fields: l.fields || null, year_field: l.year_field || '', name_field: l.name_field || '',
+                                    fields: l.role === 'study' ? null : l.fields || null, year_field: l.year_field || '', name_field: l.name_field || '',
                                     reopened: true}));
     if (d.reference) { const [la, lo] = d.reference.split(',').map(Number); setRef(L.latLng(la, lo)); }
     $('name').dataset.touched = '1'; setName(d.name);
@@ -730,6 +925,7 @@ function reset(clearSel = true) {
   // the form's default dates and margin again (an opened project set its own)
   $('start').value = '2016-01-01'; if (state.defaultEnd) $('end').value = state.defaultEnd; $('pad').value = 5;
   if (clearSel) $('openSel').value = '';
+  if (state.study !== DEFAULT_STUDY) setStudy(DEFAULT_STUDY);
   changed(true);
 }
 $('newBtn').onclick = () => reset(true);
@@ -740,6 +936,11 @@ $('newBtn').onclick = () => reset(true);
     $('end').value = state.defaultEnd = i.default_end || i.today;
     if (i.gnss_radius_km) { state.gnssR = i.gnss_radius_km; document.querySelectorAll('.gnssR').forEach(e => e.textContent = i.gnss_radius_km); }
   } catch (err) { $('end').value = state.defaultEnd = new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 10); toast(err.message, true); }
+  try {
+    const d = await api('/api/studies');
+    state.studies = d.studies || [];
+  } catch (err) { state.studies = []; }
+  renderStudies(); setStudy(DEFAULT_STUDY);
   refreshProjects(); renderLayers(); updateCreate();
 })();
 </script>

@@ -61,6 +61,7 @@ import functools
 import html
 import json
 import logging
+import math
 import os
 import re
 from datetime import datetime
@@ -68,6 +69,7 @@ from pathlib import Path
 
 import numpy as np
 
+from . import domains
 from .version import png_metadata          # the build, in every PNG (OUT-01)
 
 log = logging.getLogger(__name__)
@@ -173,6 +175,20 @@ DISCLAIMER = ("This report describes ground movement measured by satellite radar
               "inspection on the ground, and should not be used on its own for design, valuation or legal "
               "decisions. Every figure is an estimate: area, feature and mine-ground figures and every total carry a "
               "95% range; map values are set against ordinary ground.")
+
+
+def disclaimer(rep: dict | None = None) -> str:
+    """DISCLAIMER in the report's study's words (the default study's is DISCLAIMER itself)."""
+    w = domains.wording_of(rep or {})
+    return DISCLAIMER.replace(domains.DEFAULT.wording.figure_kinds, w.figure_kinds)
+
+
+# the study whose words compute's helpers print (tested_fields' reasons); set by compute
+_WORDING = contextvars.ContextVar("client_report_wording", default=None)
+
+
+def _wording() -> "domains.Wording":
+    return _WORDING.get() or domains.DEFAULT.wording
 
 
 def parse_areas(cfg) -> list[tuple[str, str]]:
@@ -667,8 +683,8 @@ def tested_fields(sig: dict | None, up: float, cov: dict | None = None) -> dict:
     if testable and cov is not None:
         if cov["measured_percent"] < MIN_MEASURED_PERCENT:
             testable, reason = False, (
-                f"Only {cov['measured_percent']:.0f}% of this area could be measured; the rest (water, woodland, "
-                "active workings or fresh spoil) changes too much between images to measure and may be moving")
+                f"Only {cov['measured_percent']:.0f}% of this area could be measured; the rest "
+                f"({_wording().unmeasured_or}) changes too much between images to measure and may be moving")
         elif not cov.get("coverage_balanced", True):
             testable, reason = False, ("The measurements cover only part of this area: one side of it is almost "
                                        "unmeasured, so one figure cannot stand for the whole")
@@ -1011,6 +1027,401 @@ def untested_uncertainty(sig: dict | None, up: float, bg_u: float | None = None)
     return float(np.hypot.reduce(parts)) if len(parts) > 1 else parts[0], " and ".join(words)
 
 
+# a study point's sampling: the cells whose centres lie within its layer
+# kind's buffer (wells: 100 m); two points whose reliable cells overlap by at
+# least this share of the smaller set are not told apart and share one value
+STUDY_POINT_MIN_CELLS = 5
+STUDY_POINT_SHARED_OVERLAP = 0.5
+# up to this many groups each gets its own comparison-ground test; above it,
+# one test per size class of measured cells (each class this ratio wider), run
+# on the class's smallest group, so a class's null is never narrower for size
+# (Gate A2b: a full-grid test per well is hours on a field of thousands)
+STUDY_POINT_OWN_TEST_MAX_GROUPS = 100
+STUDY_POINT_SIZE_RATIO = 1.25
+# rows of the report's table; the full list is events/study_points.csv
+STUDY_POINT_TABLE_MAX_ROWS = 200
+
+
+def _fast_zone_polygons(cfg, st):
+    """[(layer label, shapely geometry)] of the fast-regime layers a project
+    gives (fast_zone_geojson and any feature_layers kind with a regime): a
+    point inside one gets no number (evidence rule 3)."""
+    from shapely.geometry import shape
+    out = []
+    for L in st.layer_kinds:
+        if L.regime not in domains.FAST_REGIMES or L.geometry != "polygon":
+            continue
+        for kind, path in domains.layer_files(st, cfg):
+            if kind != L.key:
+                continue
+            gj = json.loads(Path(os.path.expanduser(str(path))).read_text())
+            for ft in gj.get("features") or [gj]:
+                g = (ft or {}).get("geometry") or {}
+                if g.get("type") in ("Polygon", "MultiPolygon"):
+                    out.append((L.label, L.regime, shape(g)))
+    return out
+
+
+def _group_study_points(pts: list, rels: list, radius_m: float) -> np.ndarray:
+    """Each point's group number (the index of the group's first point). In
+    id order, an ungrouped point starts a group and takes the ungrouped
+    points whose reliable cells overlap its own by >=
+    STUDY_POINT_SHARED_OVERLAP of the smaller set; only points closer than
+    two radii can overlap (a KD tree finds them). A star, not a chain: two
+    members are at most about twice the shared distance apart."""
+    from scipy.spatial import cKDTree
+    n = len(pts)
+    lat0 = float(np.mean([p["lat"] for p in pts]))
+    xy = np.array([[p["lon"] * 111_320.0 * math.cos(math.radians(lat0)), p["lat"] * 110_574.0] for p in pts])
+    near = [[] for _ in range(n)]
+    if n > 1:
+        for i, j in cKDTree(xy).query_pairs(2.0 * radius_m * 1.05, output_type="ndarray"):
+            near[int(i)].append(int(j))
+            near[int(j)].append(int(i))
+    out = np.full(n, -1, np.int64)
+    for i in sorted(range(n), key=lambda k: (str(pts[k]["id"]), k)):
+        if out[i] >= 0:
+            continue
+        out[i] = i
+        a = rels[i]
+        if not a.size:
+            continue
+        for j in near[i]:
+            b = rels[j]
+            if out[j] < 0 and b.size and (np.intersect1d(a, b, assume_unique=True).size
+                                          >= STUDY_POINT_SHARED_OVERLAP * min(a.size, b.size)):
+                out[j] = i
+    return out
+
+
+def study_point_entries(cfg, ctx, aoi, los_up_map, imaged, px_km2: float, up_med: float) -> list | None:
+    """
+    The study's point layers (domains: geometry "point", product values_at;
+    oil_gas: wells) as report rows, A2 of review_2026-11-07/PLAN_oil_gas_slopes.md.
+
+    Each point is sampled like values_at: the cells whose centres lie within
+    its layer kind's buffer_m (validation.cells_near), kept where reliable.
+    Its figure is the report areas' own: the multi-year rate's farmland test
+    (significance.assess on ctx.r_null over those cells, as a report area or
+    the mine ground), the vertical relative rate, its 95% range
+    (mine_ground_range: on the test's frame, else the untested range) and
+    `detected` (the test's distinguishable). "On moving ground" is that test
+    and nothing else.
+
+    Points are grouped when a point's reliable cells overlap those of the
+    group's first point (in id order) by >= STUDY_POINT_SHARED_OVERLAP of the
+    smaller set. Every member overlaps that first point, so groups cannot
+    chain across a dense field. A group shares one figure over the union of
+    its cells: `shared_with` names the others, and the value is never a
+    per-point rate. A point inside a fast-regime layer gets no number
+    (`refused`, evidence.output_tier rule 3). Fewer than
+    STUDY_POINT_MIN_CELLS reliable cells: not measurable.
+
+    Above STUDY_POINT_OWN_TEST_MAX_GROUPS groups the comparison-ground test
+    is run once per size class (significance.rescore_null) and each row's
+    `test_basis` says so. Cells are held as sorted grid indices, never one
+    full-grid mask per point.
+
+    None when the study has no point layer with points. Never a reading of
+    the point's own columns (status, plug date, type), which are carried as
+    given."""
+    from shapely.geometry import Point
+
+    from . import evidence
+    from . import events as ev_mod
+    from . import significance as sg
+    from .validation import cells_near
+    st = domains.study_of(cfg)
+    srcs = ev_mod.settings(cfg)["points"]
+    if not srcs:
+        return None
+    kinds = {L.key: L for L in st.layer_kinds}
+    pts = ev_mod.study_points(srcs)
+    if not pts:
+        return None
+    fast = _fast_zone_polygons(cfg, st)
+    out_key = next((o.key for o in st.outputs if o.producer == "events.values_at"), None)
+    try:
+        evid = evidence.load()
+    except Exception:                                           # noqa: BLE001 - the tier is then not stated
+        evid = None
+    shape_ = ctx.good.shape
+    width = shape_[1]
+    keep = ctx.good & aoi
+    foots, rels = [], []
+    for p in pts:
+        L = kinds[p["layer"]]
+        r, c, _ = cells_near(ctx.attrs, shape_, p["lat"], p["lon"], float(L.buffer_m or 100.0))
+        r, c = np.asarray(r, np.int64), np.asarray(c, np.int64)
+        foots.append(np.sort(r * width + c))
+        rels.append(np.sort(r[keep[r, c]] * width + c[keep[r, c]]))
+    member_of = _group_study_points(pts, rels, max(float(kinds[p["layer"]].buffer_m or 100.0) for p in pts))
+    groups = {}
+    for i, g_ in enumerate(member_of):
+        groups.setdefault(int(g_), []).append(i)
+    union = {g_: (np.unique(np.concatenate([foots[i] for i in ms])), np.unique(np.concatenate([rels[i] for i in ms])))
+             for g_, ms in groups.items()}
+    own_test = len(groups) <= STUDY_POINT_OWN_TEST_MAX_GROUPS
+    grid = np.zeros(shape_, bool)                             # the one full-grid mask, cleared after each use
+
+    def assess_cells(flat):
+        rr, cc = flat // width, flat % width
+        grid[rr, cc] = True
+        try:
+            return sg.assess(ctx.r_null, ctx.far_wide, grid, tc=ctx.tc, attrs=ctx.attrs)
+        finally:
+            grid[rr, cc] = False
+    # one test per size class: on the class's smallest group
+    class_rep = {}
+    if not own_test:
+        for g_, (_, m) in union.items():
+            if m.size >= STUDY_POINT_MIN_CELLS:
+                k = int(math.floor(math.log(m.size) / math.log(STUDY_POINT_SIZE_RATIO)))
+                if k not in class_rep or m.size < union[class_rep[k]][1].size:
+                    class_rep[k] = g_
+        class_sig = {k: assess_cells(union[g_][1]) for k, g_ in class_rep.items()}
+    figures = {}
+    for g_, (fp_, m) in union.items():
+        if not fp_.size:                                      # the point lies off the grid
+            figures[g_] = {"cells": 0, "n_cells": 0, "testable": False, "detected": None,
+                           "not_testable_reason": "it lies outside the area the satellite imaged",
+                           "relative_vertical_mm_yr": None, "range95_mm_yr": None}
+            continue
+        rf, cf = fp_ // width, fp_ % width
+        r0, r1, c0, c1 = int(rf.min()), int(rf.max()) + 1, int(cf.min()), int(cf.max()) + 1
+        win = (slice(r0, r1), slice(c0, c1))
+        foot_w = np.zeros((r1 - r0, c1 - c0), bool)
+        foot_w[rf - r0, cf - c0] = True
+        m_w = np.zeros_like(foot_w)
+        rm, cm = m // width, m % width
+        m_w[rm - r0, cm - c0] = True
+        cov = coverage(m_w, foot_w, imaged[win] if imaged is not None else None, px_km2)
+        up = float(np.nanmedian(los_up_map[rm, cm])) if m.size else up_med
+        if m.size < STUDY_POINT_MIN_CELLS:
+            figures[g_] = {**cov, "n_cells": int(m.size), "testable": False, "detected": None,
+                           "not_testable_reason": f"fewer than {STUDY_POINT_MIN_CELLS} reliable points measured",
+                           "relative_vertical_mm_yr": None, "range95_mm_yr": None}
+            continue
+        if own_test:
+            sig, basis = assess_cells(m), "its own comparison-ground test"
+        else:
+            vals = ctx.r_null[rm, cm]
+            vals = vals[np.isfinite(vals)]
+            k = int(math.floor(math.log(m.size) / math.log(STUDY_POINT_SIZE_RATIO)))
+            if vals.size < 5:
+                sig = assess_cells(m)
+            else:
+                sig = sg.rescore_null(class_sig[k], float(vals.mean()))
+            basis = "the comparison-ground test of its size class"
+        tf = tested_fields(sig, up, cov)
+        v = float(sig["value_mm_yr"]) / up if sig.get("value_mm_yr") is not None else None
+        rng, rbasis = mine_ground_range(tf, sig, up, v) if v is not None else (None, None)
+        figures[g_] = {**cov, "n_cells": int(m.size), **tf, "los_up": round(up, 3), "test_basis": basis,
+                       "relative_vertical_mm_yr": round(v, 2) if v is not None else None,
+                       "range95_mm_yr": rng, "range_untested_basis": rbasis}
+    rows = []
+    for i, p in enumerate(pts):
+        L = kinds[p["layer"]]
+        members = groups[int(member_of[i])]
+        inside = next(((lab, reg) for lab, reg, g in fast if g.covers(Point(p["lon"], p["lat"]))), None)
+        tier = None
+        if evid is not None and out_key:
+            tier, _ = evidence.output_tier(st, st.output(out_key), evid, route=getattr(cfg, "backend", "miaplpy"),
+                                           regime=inside[1] if inside else "")
+        row = {"id": p["id"], "layer": p["layer"], "layer_label": L.label, "lat": round(p["lat"], 6),
+               "lon": round(p["lon"], 6),
+               "attributes": {a: (None if (p["attributes"] or {}).get(a) in (None, "") else str(p["attributes"][a]))
+                              for a in L.attributes},
+               "radius_m": float(L.buffer_m or 100.0),
+               "shared_with": [pts[j]["id"] for j in members if j != i], "tier": tier}
+        if inside:
+            row.update({"refused": True, "refused_reason": f"inside {inside[0].lower()}: faster than this "
+                        "satellite can follow, so no number is given", "testable": False, "detected": None,
+                        "relative_vertical_mm_yr": None, "range95_mm_yr": None})
+        else:
+            row.update({"refused": False, **figures[int(member_of[i])]})
+        # what the report prints: never a number inside a fast zone, and rising
+        # ground stands out without a rate until the uplift check (Gate 2)
+        v = row.get("relative_vertical_mm_yr")
+        rising = bool(row.get("detected")) and v is not None and v > 0
+        row["rising_not_checked"] = rising
+        row["shown_vertical_mm_yr"] = None if (row.get("refused") or rising) else v
+        rows.append(row)
+    return rows
+
+
+def study_event_entries(cfg, up_med: float) -> dict | None:
+    """The products run's event products (deliverables/events/, events.py) a
+    study reads into its report: the dated pads' deepest change relative to
+    the ground around each (panel_max.json, LOS mm, and /up as vertical), the
+    change map's window and file, and the profiled lines. They are read as
+    written, so the report, the KMZ and the side files give one number. None
+    when the run wrote none; a failed write is said in `status`."""
+    from . import events as ev_mod
+    from . import evidence
+    folder = Path(cfg.project_dir) / "deliverables" / ev_mod.EVENTS_DIR
+    man_f = folder / "events.json"
+    if not man_f.exists():
+        return None
+    man = json.loads(man_f.read_text())
+    st = domains.study_of(cfg)
+    tiers = {}
+    try:
+        evd = evidence.load()
+        for o in st.outputs:
+            if o.producer in ("events.panel_max", "events.cumulative_between", "events.profile"):
+                tiers[o.producer] = evidence.output_tier(st, o, evd, route=getattr(cfg, "backend", "miaplpy"))[0]
+    except Exception:                                       # noqa: BLE001 - tiers are then not stated
+        pass
+    pads = []
+    pm = folder / "panel_max.json"
+    if pm.exists():
+        for r in json.loads(pm.read_text()).get("panels") or []:
+            w = r.get("window") or {}
+            rel = r.get("max_mm_relative_to_ring")
+            pads.append({"name": r.get("panel"), "window_start": w.get("epoch_start"), "window_end": w.get("epoch_end"),
+                         "window_source": w.get("source"), "max_los_mm": r.get("max_mm"),
+                         "max_relative_los_mm": rel,
+                         "max_relative_vertical_mm": (round(float(rel) / up_med, 1) if rel is not None and up_med
+                                                      else None),
+                         "date_of_max": r.get("date_of_max"), "reliable_cells": r.get("n_reliable_cells"),
+                         "too_fast_share": ((r.get("flags") or {}).get(ev_mod.TOO_FAST_LAYER) or {}).get("share_flagged"),
+                         "reason": r.get("reason"), "tier": tiers.get("events.panel_max")})
+    maps = [{"file": m.get("file"), "start": m.get("epoch_start"), "end": m.get("epoch_end"),
+             "reliable_cells": m.get("reliable_cells"), "tier": tiers.get("events.cumulative_between")}
+            for m in man.get("maps") or []]
+    prof = man.get("profiles") or {}
+    return {"status": man.get("status"), "errors": man.get("errors") or [], "pads": pads, "maps": maps,
+            "profile_lines": prof.get("lines") or [], "profile_tier": tiers.get("events.profile"),
+            "study_layers": (man.get("settings") or {}).get("study_layers") or []}
+
+
+def _well_reading(r: dict) -> str:
+    """One well row's reading, in the report's words: never a per-well rate
+    when the value is shared, never a number inside a fast zone."""
+    if r.get("refused"):
+        return "No number: " + str(r.get("refused_reason") or "inside a fast zone")
+    if not r.get("testable"):
+        why = str(r.get("not_testable_reason") or "too few points measured")
+        return "Not measurable: " + why[:1].lower() + why[1:]
+    v, rng = r.get("relative_vertical_mm_yr"), r.get("range95_mm_yr")
+    rr = (f" (95% range {_s(rng[0] / MM_IN)} to {_s(rng[1] / MM_IN)} in/yr)" if rng else "")
+    if r.get("detected") and v is not None and v > 0:
+        return ("On rising ground (not yet checked): it stands out from the surrounding ground, but rising ground "
+                "is given no rate until the uplift check is done")
+    if r.get("detected"):
+        return (f"On moving ground: sinking about {abs(v) / MM_IN:.2f} in/yr relative to the surrounding "
+                f"ground{rr}")
+    return f"Within normal ground variation{rr}"
+
+
+def write_study_points_csv(rep: dict, folder: Path) -> Path | None:
+    """events/study_points.csv under the report's folder: every listed point's
+    row of the record, with the report's reading. None without any."""
+    pts = rep.get("study_points")
+    if not pts:
+        return None
+    import pandas as pd
+
+    from .areas import formula_safe_frame
+    rows = [{"id": r.get("id"), "layer": r.get("layer"), "lat": r.get("lat"), "lon": r.get("lon"),
+             **{f"attr_{k}": v for k, v in (r.get("attributes") or {}).items()},
+             "reading": _well_reading(r), "vertical_mm_yr_shown": r.get("shown_vertical_mm_yr"),
+             "range95_low_mm_yr": (r.get("range95_mm_yr") or [None, None])[0],
+             "range95_high_mm_yr": (r.get("range95_mm_yr") or [None, None])[1],
+             "detected": r.get("detected"), "cells": r.get("n_cells"),
+             "shared_with": "; ".join(map(str, r.get("shared_with") or [])), "tier": r.get("tier"),
+             "test_basis": r.get("test_basis")} for r in pts]
+    d = Path(folder) / "events"
+    d.mkdir(parents=True, exist_ok=True)
+    f = d / "study_points.csv"
+    formula_safe_frame(pd.DataFrame(rows)).to_csv(f, index=False)
+    return f
+
+
+def study_section_html(cfg, rep: dict) -> str:
+    """The study's own section (A3, PLAN_oil_gas_slopes.md), between Movement
+    over time and How confident: the frame the figures are on, the listed
+    wells, the dated pads and the change map. "" for the default study or
+    when the study gave no points or events."""
+    e = html.escape
+    pts, evs = rep.get("study_points"), rep.get("study_events")
+    if not pts and not evs:
+        return ""
+    st = domains.study_of(cfg)
+    gnss_abs = str(getattr(cfg, "reference_mode", "") or "").lower() == "gnss_absolute"
+    if gnss_abs:
+        frame = ("The field-wide figures on the vertical map are tied to the GNSS stations listed in the "
+                 "configuration (an absolute frame). Values near wells are still compared with the surrounding "
+                 "ground.")
+    else:
+        frame = ("Every figure here is measured against the ordinary ground around the field. If the whole field "
+                 "area sinks together, these figures show only how each place differs from its surroundings; a "
+                 "field-wide figure needs at least three GNSS stations to tie it to.")
+    parts = [f"<section class='prose'><h2>{e(st.label)}: wells and dated pads (screening)</h2>",
+             f"<p class='small'>{e(frame)} These figures show where to look, not survey values: no well's "
+             "condition can be read from them, and a quiet reading does not show that a well is sound.</p>"]
+    if pts:
+        attrs = []
+        for r in pts:
+            for k in (r.get("attributes") or {}):
+                if k not in attrs:
+                    attrs.append(k)
+        head = "".join(f"<th>{e(k.replace('_', ' ').capitalize())}</th>" for k in attrs)
+        rows = []
+        order = sorted(pts, key=lambda r: (not r.get("detected"), str(r.get("id"))))
+        for r in order[:STUDY_POINT_TABLE_MAX_ROWS]:
+            shared = (f"Shares one value with {', '.join(e(str(x)) for x in r['shared_with'])} (too close to tell "
+                      "apart)" if r.get("shared_with") else "")
+            rows.append(f"<tr><td>{e(str(r['id']))}</td>"
+                        + "".join(f"<td>{e(str((r.get('attributes') or {}).get(k) or '—'))}</td>" for k in attrs)
+                        + f"<td>{e(_well_reading(r))}</td><td class='small'>{shared}</td>"
+                          f"<td class='small'>{e(str(r.get('tier') or '').lower() or '—')}</td></tr>")
+        radius = int(pts[0].get("radius_m") or 100)
+        parts.append(f"<h3>Values near the listed wells</h3><p class='small muted'>The ground within {radius} m of "
+                     "each well, compared with ordinary ground the same way as a report area. This is not a rate "
+                     "for the well itself. Status, plug date and type are as supplied.</p>"
+                     f"<div class='tablewrap'><table class='small'><thead><tr><th>Well</th>{head}"
+                     "<th>Reading</th><th>Shared</th><th>Tier</th></tr></thead><tbody>" + "".join(rows)
+                     + "</tbody></table></div>")
+        if len(order) > STUDY_POINT_TABLE_MAX_ROWS:
+            parts.append(f"<p class='small'>The first {STUDY_POINT_TABLE_MAX_ROWS} of {len(order)} listed points are "
+                         f"shown, those on moving ground first; all {len(order)} are in events/study_points.csv "
+                         "beside this report and in the map file.</p>")
+        if any("size class" in str(r.get("test_basis") or "") for r in pts):
+            parts.append("<p class='small muted'>With this many points, each is compared with ordinary ground using "
+                         "the test of points with a similar number of measurements, not one test each.</p>")
+    if evs:
+        if evs.get("pads"):
+            rows = []
+            for p_ in evs["pads"]:
+                v = p_.get("max_relative_vertical_mm")
+                val = ("—" if v is None else f"{abs(v) / MM_IN:.2f} in {'down' if v < 0 else 'up'}"
+                       f" <span class='small muted'>({_s(v, 1)} mm)</span>")
+                rows.append(f"<tr><td>{e(str(p_.get('name')))}</td><td>{e(str(p_.get('window_start') or '—'))} to "
+                            f"{e(str(p_.get('window_end') or '—'))}</td><td class='num'>{val}</td>"
+                            f"<td>{e(str(p_.get('date_of_max') or '—'))}</td>"
+                            f"<td class='small'>{e(str(p_.get('tier') or '').lower() or '—')}</td></tr>")
+            parts.append("<h3>Dated pads</h3><p class='small muted'>The largest change inside each pad over its own "
+                         "dates, relative to the ground around it (as vertical movement, assuming the ground moved "
+                         "straight up or down).</p><div class='tablewrap'><table class='small'><thead><tr>"
+                         "<th>Pad</th><th>Dates</th><th>Largest change</th><th>Reached by</th><th>Tier</th></tr>"
+                         "</thead><tbody>" + "".join(rows) + "</tbody></table></div>")
+        for m in evs.get("maps") or []:
+            parts.append(f"<p class='small'>A map of the change between {e(str(m.get('start')))} and "
+                         f"{e(str(m.get('end')))} is delivered beside this report ({e(str(m.get('file')))}; "
+                         "screening).</p>")
+        if evs.get("profile_lines"):
+            parts.append("<p class='small'>Profiles of the change along "
+                         + ", ".join(e(str(x)) for x in evs["profile_lines"])
+                         + " are delivered beside this report (screening).</p>")
+        if evs.get("status") not in (None, "written"):
+            parts.append(f"<p class='small'>Some of these products could not be made ({e(str(evs.get('status')))}); "
+                         "see the technical record.</p>")
+    parts.append("</section>")
+    return "".join(parts)
+
+
 def mine_ground_range(tf: dict, sig: dict | None, up: float, v: float) -> tuple[list | None, str | None]:
     """(95% range, basis) of the mapped mine ground's average rate v
     (vertical mm/yr, relative): on its farmland test's frame, as a report
@@ -1285,7 +1696,20 @@ def _with_omitted_list(fn):
     return run
 
 
+def _with_study_wording(fn):
+    """Run compute with the study's words in place for its helpers (tested_fields)."""
+    @functools.wraps(fn)
+    def wrapper(cfg, *a, **k):
+        tok = _WORDING.set(domains.study_of(cfg).wording)
+        try:
+            return fn(cfg, *a, **k)
+        finally:
+            _WORDING.reset(tok)
+    return wrapper
+
+
 @_with_omitted_list
+@_with_study_wording
 def compute(cfg) -> dict:
     """(record, context, masks, outlines) of the report. The record's
     'omitted' list names every optional block that failed - the list
@@ -1611,6 +2035,16 @@ def compute(cfg) -> dict:
         mine_ground.append({**base, "relative_vertical_mm_yr": round(summ["rate_mm_yr"] / up_med, 2), **tf,
                             "range95_mm_yr": mrng, "range_untested_basis": mbasis})
 
+    # ---- a study's own point layers (wells): one entry per point or group
+    # of points too close to tell apart; the default study has none, so its
+    # record is unchanged
+    study_points = None
+    if domains.study_of(cfg) is not domains.DEFAULT:
+        study_points = _optional(lambda: study_point_entries(cfg, ctx, aoi, los_up_map, imaged, px_km2, up_med),
+                                 "study_points")
+    study_events = (_optional(lambda: study_event_entries(cfg, up_med), "study_events")
+                    if domains.study_of(cfg) is not domains.DEFAULT else None)
+
     # ---- the features
     features = []
     for i, f in enumerate(listed):
@@ -1648,7 +2082,7 @@ def compute(cfg) -> dict:
                                              reshaped_since_dem=fe["ground_reshaped_since_dem"])
         features.append(fe)
     for n_, fe in enumerate(features, 1):
-        fe["text"] = ri.feature_text(n_, fe)
+        fe["text"] = ri.feature_text(n_, fe, domains.study_of(cfg).wording)
     brief = lambda f: {k: f.get(k) for k in ("sign", "area_km2", "mean_rel_vertical_mm_yr", "beyond_farmland_mm_yr",  # noqa: E731
                                              "lat", "lon", "bbox", "quality_standout")} | {"selection_p": (f.get("chance") or {}).get("p")}
 
@@ -1665,6 +2099,9 @@ def compute(cfg) -> dict:
     out = {"project": portable(str(P)), "generated": datetime.now().isoformat(timespec="minutes"),
            "title": ident["title"], "location": ident["location"],
            "route": _route(cfg), "backend": cfg.backend,
+           **({"study": domains.study_of(cfg).key} if domains.study_of(cfg) is not domains.DEFAULT else {}),
+           **({"study_points": study_points} if study_points is not None else {}),
+           **({"study_events": study_events} if study_events is not None else {}),
            "mine_layers": [L["label"] for L in layers], "mine_ground": mine_ground,
            "features": features, "features_assessed": features_assessed,
            "features_reason": None if features_assessed else sm.get("reason"),
@@ -2651,6 +3088,9 @@ OPTIONAL_BLOCKS = {
     "footer_version": "the software version in the page footer",
     "footer_identity": "who prepared the report, in the page footer",
     "credits_section": "the data sources and credits section",
+    "study_points": "the table of values near the study's listed points (wells)",
+    "study_events": "the dated pads, change map and line profiles of the study's event products",
+    "study_section": "the study's own section of the report",
 }
 
 
@@ -3155,6 +3595,15 @@ def _reading_colour(row: list[str], area: dict) -> str:
     return "#16803a" if area.get("kind") == "area" else "#1c2530"
 
 
+def _where_phrase(f: dict, rep: dict) -> str:
+    """A feature's 'where' clause: its relation phrase, or with no layers at
+    all the study's own words (the default study's are the relation's own)."""
+    mines = f.get("mines") or {}
+    if not mines.get("key") and not mines.get("inside") and mines.get("phrase") == domains.DEFAULT.wording.no_layer_phrase:
+        return domains.wording_of(rep).no_layer_phrase
+    return mines.get("phrase", "")
+
+
 def summary_table(rep, path, cfg=None) -> None:
     """The report areas as one graphic, in the client report's own numbers
     (vertical, GNSS-anchored when tied) - the table to put in front of a
@@ -3214,7 +3663,7 @@ def summary_table(rep, path, cfg=None) -> None:
                 f", about {abs(v) / MM_IN:.2f} in/yr{' (' + rr + ')' if rr else ''} {'down' if v < 0 else 'up'} "
                 f"relative to {ground}")
         note += (f"\nFeature {i}: {what}, about {f['area_km2']:.1f} km² at {ri.lalo_txt(f['lat'], f['lon'])}"
-                 f"{rate}; {(f.get('mines') or {}).get('phrase', '')}.")
+                 f"{rate}; {_where_phrase(f, rep)}.")
     if any(not f.get("ground_reshaped") for f in feats3):
         # M4: each outline is drawn from the same data
         note += ("\nEach feature's outline was drawn from these same measurements, so its rate and range are for that "
@@ -3732,8 +4181,8 @@ def methods_stages(cfg, rep: dict) -> list[tuple[str, str]]:
         reft = "Movement is measured from a fixed reference point. "
     reft += f"No figure in this report depends on it: each is measured against the surrounding {e(ground)}."
     buf = ref.get("far_field_buffer_m") or getattr(cfg, "acceptance_far_field_buffer_m", None)
-    buf_t = (f"more than {float(buf) / 1000:g} km from any mapped mine or known movement" if buf
-             else "away from any mapped mine or known movement")
+    noun = domains.wording_of(rep).known_movement_noun
+    buf_t = (f"more than {float(buf) / 1000:g} km from any {noun}" if buf else f"away from any {noun}")
     anchored = bool(rep.get("anchored"))
     reg = regional_gnss(rep)
     # only an area whose figures were widened is said to be (findings 36/49:
@@ -3834,7 +4283,7 @@ def limitations(cfg, rep: dict) -> list[str]:
              f"No report area could be compared with ordinary {e(ri.ground_word(rep))}, so no detection limit can "
              "be stated: movement there, steady or not, may be missed.")
     out = [first,
-           "Ground that could not be measured (water, woodland, active workings, fresh spoil) is not covered by any "
+           f"Ground that could not be measured ({domains.wording_of(rep).unmeasured_list}) is not covered by any "
            "figure; each area says how much of it was measured."]
     res = rep.get("resolution") or {}
     if res.get("text"):
@@ -3880,6 +4329,27 @@ def limitations(cfg, rep: dict) -> list[str]:
         out.append("This is a COMPARISON report from NISAR's ready-made interferograms (PROVISIONAL release, "
                    "under a year of data). NISAR figures have not yet been validated against independent "
                    "measurements; use them beside the Sentinel-1 results, not for decisions.")
+    out += study_limitations(cfg, rep)
+    return out
+
+
+# the reason tags of a study's card, in the report's words (domains.CANNOT_TAGS, NOT_YET_TAGS)
+TAG_WORDS = {"physics": "physics", "sensor": "the satellite's limits", "geometry": "the viewing geometry",
+             "failed": "failed its test", "validation": "not yet validated", "producer": "not built yet"}
+
+
+def study_limitations(cfg, rep: dict) -> list[str]:
+    """A study's "What this cannot tell you" card as Limitations items (A3:
+    every cannot and not_yet line, with its reason tag). [] for the default
+    study, whose limitations are the list above."""
+    st = domains.study_of(cfg)
+    if st is domains.DEFAULT or rep.get("study") is None:
+        return []
+    e = html.escape
+    out = [f"This is a screening report for the {e(st.label.lower())} study: its figures show where to look, not "
+           "survey values, and a reviewer signs it off before it is sent."]
+    out += [f"This report cannot tell you {e(t)} (reason: {e(TAG_WORDS.get(tag, tag))})." for t, tag in st.cannot]
+    out += [f"Not yet checked: {e(t)} (reason: {e(TAG_WORDS.get(tag, tag))})." for t, tag in st.not_yet]
     return out
 
 
@@ -3897,8 +4367,7 @@ def glossary(rep: dict) -> list[tuple[str, str]]:
                           "movement along it; this report converts it to up or down."),
         ("GNSS", "Global navigation satellite systems (GPS and others). Permanent stations measure their own position "
                  "to millimetres and give the regional movement."),
-        ("Comparison ground", f"Ordinary {ground} around the site, away from mapped mines, measured in the same record. "
-                              "Every area is compared with it."),
+        ("Comparison ground", domains.wording_of(rep).comparison_ground.format(ground=ground)),
         ("95% range", "Where the true value lies with 95% confidence, given this record's own measured noise."),
         ("1 sigma", "The typical size of a figure's error: the true value lies within ± that amount about two times "
                     "in three. A 95% range is about twice as wide."),
@@ -3947,7 +4416,7 @@ def footer_html(cfg, rep: dict, final: bool) -> str:
                # visible on every draft until set (clientout-9); release.blockers
                # holds a final report for it
                else "<p><b>Prepared by: not set</b> (insar doctor --firm ... --preparer ...). ") + rv + "</p>"
-            + f"<p>{e(GENERATED_NOTE)}</p><p>{e(DISCLAIMER)}</p><p>{e(TECHNICAL_RECORD_NOTE)}</p></footer>")
+            + f"<p>{e(GENERATED_NOTE)}</p><p>{e(disclaimer(rep))}</p><p>{e(TECHNICAL_RECORD_NOTE)}</p></footer>")
 
 
 def colour_steps_text(ms: dict) -> str:
@@ -3978,7 +4447,7 @@ def mine_outlines_line(rep: dict) -> str:
     e = html.escape
     info = rep.get("mine_layer_info") or [{"label": x, "source": None} for x in rep.get("mine_layers") or []]
     if not info:
-        return "No mine outlines were supplied, so features cannot be related to mining."
+        return e(domains.wording_of(rep).no_layer_sentence)
     return ("Mine and known-movement outlines used (as supplied): " + "; ".join(
         e(L["source"]) if L.get("key") == "mapped" and re.match(r"[a-z][a-z ]* \(", str(L.get("source") or ""))
         else e(L["label"]) + " - " + e(L.get("source") or "source and date not recorded") for L in info) + ".")
@@ -4387,6 +4856,7 @@ def page(cfg, rep, figs) -> str:
     # farmland: compute's _years_since_mining) - a record with panel
     # history's line-of-sight, first-pass table prints none
     yrs = (rep.get("by_years_since_mining") or []) if rep.get("by_years_since_mining_frame") == "vertical" else []
+    study_html = _optional(lambda: study_section_html(cfg, rep), "study_section") or ""
     yrs_html = ""
     if yrs:
         yrs_html = ("<section class=\"prose\"><h2>Movement by years since mining</h2><p class=\"small muted\">How fast "
@@ -4420,10 +4890,15 @@ def page(cfg, rep, figs) -> str:
     if figs.get("basemap_credit"):
         credits_html += f'<ul class="credits"><li>{e(figs["basemap_credit"])}: basemap.nationalmap.gov</li></ul>'
     nisar = rep.get("backend") == "nisar"
+    # a study other than the default is a screening report whatever its route (A4, decision G1)
+    study_scr = rep.get("study") is not None
     kicker = ("<span class=\"flag\">Screening - not the full processing</span> · " if screening else "") + \
+             (f"<span class=\"flag\">Screening report - {e(domains.study_of(cfg).label.lower())}</span> · "
+              if study_scr else "") + \
              ("<span class=\"flag\">Comparison - NISAR, not validated</span> · " if nisar else "") + \
              f"Ground movement survey · {sensor_name(rep.get('backend'))} satellite radar · {ymd(d0)} – {ymd(d1)}"
-    h1 = f"{e(title)} ground movement report" + (" (screening)" if screening and "screening" not in title.lower() else "") \
+    h1 = f"{e(title)} ground movement report" + (" (screening)" if (screening or study_scr)
+                                                  and "screening" not in title.lower() else "") \
         + (" (NISAR comparison)" if nisar and "comparison" not in title.lower() else "")
     gloss = "".join(f"<dt>{e(k)}</dt><dd>{e(v)}</dd>" for k, v in glossary(rep))
     lim_html = "".join(f"<li>{x}</li>" for x in limitations(cfg, rep))
@@ -4488,7 +4963,7 @@ def page(cfg, rep, figs) -> str:
   <figure><img src="data:image/png;base64,{_b64(figs['series'])}" alt="Charts of vertical movement over time">
   <figcaption>{series_caption}</figcaption></figure>
 </section>
-{yrs_html}
+{yrs_html}{study_html}
 <section class="prose">
   <h2>How confident are these numbers?</h2>
   <p>Over {e(ground)}, radar measurements of small areas differ from the true movement by a few millimetres per year, because crops and soil moisture change the signal from season to season. We measured that variation directly on ordinary {e(ground)} around the site, moving each report area's outline across it.</p>
@@ -4700,7 +5175,7 @@ def area_pdf(cfg, rep: dict, ctx, outlines: dict, path: Path, figs: dict | None 
                         break
                     for d_ in drawn_:
                         d_.remove()
-            fig.text(0.06, 0.085, _wrap(DISCLAIMER, 150), fontsize=7, color="#58636e", va="top")
+            fig.text(0.06, 0.085, _wrap(disclaimer(rep), 150), fontsize=7, color="#58636e", va="top")
             _stamp(fig, cfg, rep, final)
             _ri().tidy_figure(fig, rep.get("control_ground_label"))
             pdf.savefig(fig)
@@ -4828,7 +5303,7 @@ def area_pdf(cfg, rep: dict, ctx, outlines: dict, path: Path, figs: dict | None 
                 axs.set_axis_off()
                 axs.text(0.5, 0.5, "No series: too little of this area could be measured.", ha="center",
                          transform=axs.transAxes)
-            fig.text(0.06, 0.085, _wrap(DISCLAIMER, 150), fontsize=7, color="#58636e", va="top")
+            fig.text(0.06, 0.085, _wrap(disclaimer(rep), 150), fontsize=7, color="#58636e", va="top")
             _stamp(fig, cfg, rep, final)
             _ri().tidy_figure(fig, rep.get("control_ground_label"))
             pdf.savefig(fig)
@@ -5090,6 +5565,7 @@ def build(cfg, out: Path | None = None, out_dir: Path | None = None) -> Path:
             _refresh_omitted_items(rep)
             text = page(cfg, rep, figs)
     (D / "client_report.json").write_text(json.dumps(rep, indent=1))
+    _optional(lambda: write_study_points_csv(rep, D), "study_points")
     # written aside and moved into place whole: a failure leaves no PDF, never
     # the last build's beside this client_report.json or a truncated one
     pdf, part = D / PDF_NAME, D / (PDF_NAME + ".partial")

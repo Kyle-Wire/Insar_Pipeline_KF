@@ -47,8 +47,15 @@ SERVE_DIR = Path.home() / ".cache" / "insar_builder"
 UPLOADS = SERVE_DIR / "uploads"
 MAX_UPLOAD = 300 * 1024 * 1024                      # a statewide mine layer is ~100 MB
 DISPLAY_POINTS = 150_000                            # thin the map copy above this; never the saved one
-ROLES = ("area", "mine", "report")
+ROLES = ("area", "mine", "report", "study")
 MINE_KINDS = ("underground", "surface", "other", "dated")
+# The studies step 0 offers besides the default (A5 of
+# review_2026-11-07/PLAN_oil_gas_slopes.md, "oil_gas only"): every other study,
+# offered in domains.py or not, is listed greyed out with its reason, since its
+# report wording has not been checked yet (decision G2).
+BUILDER_STUDIES = ("oil_gas",)
+NOT_IN_BUILDER = "its report wording is not checked yet; the builder offers oil and gas fields first"
+STUDY_SUFFIXES = (".geojson", ".json", ".zip", ".kml", ".kmz", ".shp", ".gpkg", ".fgb")
 _SERVER: dict = {}
 # the page's map library, served from the package's vendored copy, as the results
 # map does (results_viewer.ASSETS; checked against cdnjs's published SRI hashes):
@@ -127,6 +134,8 @@ def api_outline(body: dict) -> dict:
         except (TypeError, ValueError, OSError):
             pass
     main = _upload_main(uid)
+    if body.get("study_kind"):
+        return _study_upload(uid, main, d, body)
     if main.suffix.lower() not in areas.POLYGON_SUFFIXES:
         shutil.rmtree(d)
         raise ValueError(f"{main.name}: upload a shapefile (.shp with .dbf .shx .prj, or zipped), "
@@ -144,6 +153,182 @@ def api_outline(body: dict) -> dict:
         # the attribute table: which field holds the year mined (and the name)
         out["fields"] = areas.attribute_fields(main)
     return out
+
+
+_GEOMETRY_TYPES = {"point": ("Point", "MultiPoint"), "line": ("LineString", "MultiLineString"),
+                   "polygon": ("Polygon", "MultiPolygon")}
+
+
+def _study_kind(study_key: str, kind: str):
+    """The domains.LayerKind `kind` of the study, or ValueError."""
+    from . import domains
+    try:
+        st = domains.study(study_key)
+    except KeyError as exc:
+        raise ValueError(str(exc).strip("'\"")) from None
+    for L in st.layer_kinds:
+        if L.key == kind:
+            return L
+    raise ValueError(f"the {st.label} study has no layer {kind!r}")
+
+
+def _gis_features(path: str) -> dict:
+    import geopandas as gpd
+    df = gpd.read_file(path)
+    if df.crs is None:
+        df = df.set_crs(4326)
+    return json.loads(df[df.geometry.notna()].to_crs(4326).to_json())
+
+
+def study_features(src: Path, geometry: str, label: str) -> dict:
+    """A study layer's file as a lon/lat FeatureCollection WITH its attribute
+    columns (a well's status, plug date and type are read from the file, never
+    typed into a form). Only features of the layer's geometry (point, line or
+    polygon) are kept; a file holding none of them is refused. The outline
+    files' own checks (size, content against extension) run first."""
+    from . import areas
+    p = areas.normalize_path(src)
+    areas._open_outline(p)
+    suf = p.suffix.lower()
+    if suf not in STUDY_SUFFIXES:
+        raise ValueError(f"{p.name}: upload a shapefile (.shp with .dbf .shx .prj, or zipped), GeoJSON, "
+                         "GeoPackage or KML/KMZ")
+    if suf in (".geojson", ".json"):
+        fc = areas._read_json_file(p)
+        crs = str(((fc.get("crs") or {}).get("properties") or {}).get("name") or "")
+        if crs and not re.search(r"CRS84|EPSG:+4326$|EPSG::?4326\b", crs, re.I):
+            fc = _gis_features(str(p))
+    elif suf == ".zip":
+        with areas._open_zip(p) as z:
+            names = [n for n in z.namelist() if not n.startswith("__MACOSX")]
+        inner = next((n for ext in (".shp", ".gpkg", ".geojson", ".json", ".kml") for n in names
+                      if n.lower().endswith(ext)), None)
+        if inner is None:
+            raise ValueError(f"{p.name} holds no shapefile, GeoPackage, GeoJSON or KML")
+        fc = _gis_features(f"zip://{p}!{inner}")
+    elif suf == ".kmz":
+        with areas._open_zip(p) as z:
+            inner = next((n for n in z.namelist() if n.lower().endswith(".kml")), None)
+        if inner is None:
+            raise ValueError(f"{p.name} holds no KML")
+        fc = _gis_features(f"zip://{p}!{inner}")
+    else:
+        fc = _gis_features(str(p))
+    if fc.get("type") == "Feature":
+        fc = {"type": "FeatureCollection", "features": [fc]}
+    feats = fc.get("features") or []
+    want = _GEOMETRY_TYPES[geometry]
+    keep = [{"type": "Feature", "properties": dict(f.get("properties") or {}), "geometry": f["geometry"]}
+            for f in feats if (f.get("geometry") or {}).get("type") in want]
+    if not keep:
+        found = sorted({str((f.get("geometry") or {}).get("type")) for f in feats}) or ["no features"]
+        raise ValueError(f"{label}: needs {geometry}s; {p.name} holds {', '.join(found)}")
+    areas._check_features(len(keep), label)
+    from shapely.geometry import shape
+    for k, f in enumerate(keep):
+        try:
+            x0, y0, x1, y1 = shape(f["geometry"]).bounds
+        except (ValueError, TypeError, AttributeError) as exc:
+            raise ValueError(f"{label}: feature {k + 1} has unreadable coordinates ({exc})") from None
+        if max(abs(x0), abs(x1)) > 180 or max(abs(y0), abs(y1)) > 90:
+            raise ValueError(f"{label}: the coordinates are not longitude/latitude; a projected file must name "
+                             "its coordinate system (a .prj beside a shapefile)")
+    return {"type": "FeatureCollection", "features": keep}
+
+
+def _thin_any(c, k: int):
+    """Every k-th vertex of every ring or line (ends kept), at any nesting depth."""
+    if not c or isinstance(c[0], (int, float)):
+        return c
+    if isinstance(c[0], list) and c[0] and isinstance(c[0][0], (int, float)):
+        return (c[::k] + [c[-1]]) if len(c) > 4 * k else c
+    return [_thin_any(x, k) for x in c]
+
+
+def _study_upload(uid: str, main: Path, d: Path, body: dict) -> dict:
+    """An uploaded study layer: its features with their columns, which of the
+    layer's attribute columns the file has, and a thinned copy for the map."""
+    L = _study_kind(str(body.get("study") or ""), str(body.get("study_kind")))
+    try:
+        fc = study_features(main, L.geometry, L.label)
+    except Exception:
+        shutil.rmtree(d)
+        raise
+    cols = sorted({k for f in fc["features"] for k in f["properties"]})
+    low = {c.lower(): c for c in cols}
+    n = sum(1 for f in fc["features"] for _ in _bounds(f["geometry"]["coordinates"]))
+    k = -(-n // DISPLAY_POINTS) if n > DISPLAY_POINTS else 1
+    show = {"type": "FeatureCollection", "features": [
+        {"type": "Feature", "properties": {},
+         "geometry": {"type": f["geometry"]["type"], "coordinates": _thin_any(f["geometry"]["coordinates"], k)}}
+        for f in fc["features"]]} if k > 1 else fc
+    xs = [b for f in fc["features"] for b in _bounds(f["geometry"]["coordinates"])]
+    return {"upload_id": uid, "label": L.label, "stem": main.stem, "geojson": show, "features": len(fc["features"]),
+            "geometry": L.geometry, "thinned": k > 1, "files": sorted(x.name for x in d.iterdir()),
+            "columns": cols, "found": [a for a in L.attributes if a.lower() in low],
+            "missing": [a for a in L.attributes if a.lower() not in low],
+            "bbox": [min(x[0] for x in xs), min(x[1] for x in xs), max(x[0] for x in xs), max(x[1] for x in xs)]
+            if xs else None, "source": _upload_source(uid)}
+
+
+def _bounds(c):
+    """Every (lon, lat) of a coordinate array, at any nesting depth."""
+    if c and isinstance(c[0], (int, float)):
+        yield (float(c[0]), float(c[1]))
+        return
+    for x in c or []:
+        yield from _bounds(x)
+
+
+def _card_sections(lines: list) -> dict:
+    """evidence.card's lines as the two step-6 cards: what the study will give
+    (each output with its tier) and what it cannot tell you / not yet."""
+    out = {"will_give": [], "cannot": [], "not_yet": [], "notes": []}
+    sec = None
+    for ln in lines[1:]:
+        t = ln.strip()
+        if t in ("Will give:", "Cannot tell you:", "Not yet:"):
+            sec = {"Will give:": "will_give", "Cannot tell you:": "cannot", "Not yet:": "not_yet"}[t]
+        elif t.startswith("- ") and sec:
+            out[sec].append(t[2:])
+        elif t and not t.startswith(("Layers:", "Not offered yet:")):
+            sec = None
+            out["notes"].append(t)
+    return out
+
+
+def api_studies(_: dict) -> dict:
+    """Step 0: the default study first (today's builder), then the studies the
+    builder offers with their tier badge and their two cards, then the rest
+    greyed out with the reason. Map layers and the study choice only: nothing
+    here is a processing setting."""
+    from . import domains, evidence
+    try:
+        ev = evidence.load()
+    except Exception:                                        # noqa: BLE001 - the cards then say so
+        ev = None
+    order = ([domains.study(domains.DEFAULT_STUDY)] + [domains.study(k) for k in BUILDER_STUDIES]
+             + [s for s in domains.STUDIES if s.key != domains.DEFAULT_STUDY and s.key not in BUILDER_STUDIES])
+    out = []
+    for st in order:
+        default = st.key == domains.DEFAULT_STUDY
+        selectable = default or (st.key in BUILDER_STUDIES and st.builder_status == "offered")
+        row = {"key": st.key, "label": st.label, "question": st.question, "default": default,
+               "selectable": selectable, "badge": None if default else ("Screening" if selectable else None),
+               "reason": "" if selectable else (st.builder_reason if st.builder_status != "offered"
+                                                else NOT_IN_BUILDER),
+               "layer_kinds": [{"key": L.key, "label": L.label, "geometry": L.geometry,
+                                "attributes": list(L.attributes)} for L in st.layer_kinds]}
+        if selectable and not default:
+            try:
+                row.update(_card_sections(evidence.card(st, ev)) if ev is not None else
+                           {"will_give": [], "cannot": [t for t, _ in st.cannot], "not_yet": [t for t, _ in st.not_yet],
+                            "notes": ["evidence.yaml could not be read: tiers not shown"]})
+            except Exception as exc:                         # noqa: BLE001 - shown on the card
+                row.update({"will_give": [], "cannot": [f"{t} ({g})" for t, g in st.cannot],
+                            "not_yet": [f"{t} ({g})" for t, g in st.not_yet], "notes": [f"tiers not shown: {exc}"]})
+        out.append(row)
+    return {"default": domains.DEFAULT_STUDY, "studies": out}
 
 
 def _upload_source(uid: str) -> str:
@@ -245,6 +430,7 @@ def api_create(body: dict) -> dict:
     area_layers = [L for L in layers if L["role"] == "area"]
     if len(area_layers) != 1:
         raise ValueError("exactly one project area is needed")
+    study_key, study_layers = _study_of_body(body, layers)
     stems = tuple(s for s in (_stem_of(L) for L in layers) if s)
     # the project area's row in the report: its own name if one was typed,
     # else the project's (an uploaded area no longer takes the file's name)
@@ -295,6 +481,9 @@ def api_create(body: dict) -> dict:
         srcs = [_layer_source(L) for L in layers if L["role"] == "mine" and (L.get("kind") or "other") == k]
         if srcs:
             sources[k] = "; ".join(dict.fromkeys(srcs))
+    # a study other than the default names itself and its layers; the default
+    # study's call is today's, argument for argument
+    extra = {"study": study_key, "study_layers": study_layers} if study_key else {}
     out = areas.write_project(
         name, area, route, body.get("start") or "2016-01-01", body.get("end") or date.today().isoformat(),
         track=track, direction=direction, disp_frame=body.get("disp_frame") or "",
@@ -304,7 +493,7 @@ def api_create(body: dict) -> dict:
         underground=areas.merge(kinds["underground"], "underground workings") if kinds["underground"] else None,
         surface=areas.merge(kinds["surface"], "surface mines") if kinds["surface"] else None,
         dated={"type": "FeatureCollection", "features": dated_fc} if dated_fc else None,
-        pad_km=float(body.get("pad_km") or 5), reference_lalo=(body.get("reference") or "").strip())
+        pad_km=float(body.get("pad_km") or 5), reference_lalo=(body.get("reference") or "").strip(), **extra)
     backup = areas.last_backup(out) if existing else None
     cfg = load_config(str(out))                              # paths are $INSAR_PROJECTS-relative in the file
     ctx = Path(cfg.project_dir) / "context"
@@ -315,6 +504,8 @@ def api_create(body: dict) -> dict:
             shutil.copytree(UPLOADS / L["upload_id"], dst)
     saved, empty = [], []
     for L in layers:                                         # what the builder reopens; mines cut to the box
+        if L["role"] == "study":
+            continue                                         # saved below, one per kind, as the project keeps it
         if L["role"] == "mine" and L.get("kind") == "dated":
             # reopened with its years: the project's own normalised copy
             mp = Path(cfg.mined_year_geojson) if cfg.mined_year_geojson else None
@@ -334,13 +525,25 @@ def api_create(body: dict) -> dict:
         saved.append({"role": L["role"], "name": L.get("name") or "", "report": bool(L.get("report")),
                       "kind": L.get("kind") or ("other" if L["role"] == "mine" else ""),
                       "source": _layer_source(L) if L["role"] == "mine" else "", "geojson": a.geojson()})
-    (ctx / "builder_layers.json").write_text(json.dumps(
-        {"name": name, "reference": body.get("reference") or "", "pad_km": float(body.get("pad_km") or 5),
-         "layers": saved}))
+    kept_study = {}
+    for key in (study_layers or {}):
+        # the project's own copy (areas._write_study_layers: the features in the
+        # box, with their columns), reopened with them
+        f = ctx / f"study_{key}.geojson"
+        if f.exists():
+            fc = json.loads(f.read_text())
+            kept_study[key] = len(fc.get("features") or [])
+            saved.append({"role": "study", "kind": key, "name": _study_kind(study_key, key).label, "report": False,
+                          "source": "", "geojson": fc})
+    doc = {"name": name, "reference": body.get("reference") or "", "pad_km": float(body.get("pad_km") or 5),
+           "layers": saved}
+    if study_key:
+        doc["study"] = study_key
+    (ctx / "builder_layers.json").write_text(json.dumps(doc))
     runs._remember(out)
     kept = cfg.deramp_exclude_geojson
     n_mine = len(json.loads(Path(kept).read_text())["features"]) if kept else 0
-    return {"config": str(out), "project_dir": str(cfg.project_dir), "backup": str(backup) if backup else None,
+    res = {"config": str(out), "project_dir": str(cfg.project_dir), "backup": str(backup) if backup else None,
             "report_areas": labels, "mine_polygons_kept": n_mine, "mine_layers_outside_box": empty,
             "mine_polygons_uploaded": sum(len(m.rings) for m in mines), "swaths": cfg.stack_swaths.split()
             if route != "disp" else None, "mine_layer_sources": list(cfg.mine_layer_sources),
@@ -350,6 +553,51 @@ def api_create(body: dict) -> dict:
             "far_field": areas.far_field_check(areas.box(cfg.bbox[1], cfg.bbox[0], cfg.bbox[3], cfg.bbox[2]),
                                                areas.load_polygon(kept, "mines") if kept else None,
                                                report, float(cfg.acceptance_far_field_buffer_m))}
+    if study_key:
+        from . import domains
+        st = domains.study(study_key)
+        res["study"] = st.label
+        res["study_layers"] = [{"kind": k, "label": _study_kind(study_key, k).label, "features": n}
+                               for k, n in kept_study.items()]
+    return res
+
+
+def _study_of_body(body: dict, layers: list) -> tuple[str | None, dict]:
+    """(study key, {layer kind: FeatureCollection}) of a create request; (None,
+    {}) for the default study, whose request and write_project call are
+    today's. Only the default study and BUILDER_STUDIES are taken; a study's
+    layers are its own layer kinds (an upload is read again in full, with its
+    attribute columns), and mine layers belong to the default study."""
+    from . import domains
+    key = str(body.get("study") or domains.DEFAULT_STUDY).strip().lower()
+    try:
+        st = domains.study(key)
+    except KeyError as exc:
+        raise ValueError(str(exc).strip("'\"")) from None
+    study_rows = [L for L in layers if L["role"] == "study"]
+    if st.key == domains.DEFAULT_STUDY:
+        if study_rows:
+            raise ValueError(f"the {st.label} study takes mine layers, not {study_rows[0].get('kind')!r}: choose the "
+                             "study the layer belongs to in step 0, or remove it")
+        return None, {}
+    if st.key not in BUILDER_STUDIES or st.builder_status != "offered":
+        raise ValueError(f"the builder does not offer the {st.label} study yet "
+                         f"({st.builder_reason if st.builder_status != 'offered' else NOT_IN_BUILDER})")
+    mine = next((L for L in layers if L["role"] == "mine"), None)
+    if mine is not None:
+        raise ValueError(f"mine layers belong to the mining subsidence study, not {st.label}: remove "
+                         f"{mine.get('name') or 'the mine layer'!r} or choose that study in step 0")
+    out = {}
+    for L in study_rows:
+        LK = _study_kind(st.key, str(L.get("kind") or ""))
+        if L.get("upload_id"):
+            fc = study_features(_upload_main(L["upload_id"]), LK.geometry, LK.label)
+        else:
+            fc = L.get("geojson")
+            if not (isinstance(fc, dict) and fc.get("type") == "FeatureCollection"):
+                raise ValueError(f"{LK.label}: no geometry")
+        out.setdefault(LK.key, {"type": "FeatureCollection", "features": []})["features"] += list(fc["features"])
+    return st.key, out
 
 
 def api_projects(_: dict) -> dict:
@@ -434,8 +682,33 @@ def api_project(body: dict) -> dict:
     if not any(L["role"] == "area" for L in layers):
         w, s, e, n = cfg.bbox
         layers.insert(0, {"role": "area", "name": "processing box", "geojson": areas.box(s, w, n, e).geojson()})
+    extra = _study_reopened(cfg, layers)
     return {"name": Path(body["config"]).stem.replace("config_", ""), "reference": raw.get("reference_lalo") or "",
-            "layers": layers, "bbox": list(cfg.bbox), **window}
+            "layers": layers, "bbox": list(cfg.bbox), **window, **extra}
+
+
+def _study_reopened(cfg, layers: list) -> dict:
+    """A project of a study other than the default, written without the
+    builder: its study layers from the config fields, and {"study": key}.
+    {} for the default study (today's reopening)."""
+    from . import domains
+    try:
+        st = domains.study_of(cfg)
+    except KeyError:
+        return {}
+    if st.key == domains.DEFAULT_STUDY:
+        return {}
+    for L in st.layer_kinds:
+        if L.config_field == "feature_layers":
+            files = [p for k, p in (domains.split_feature_layer(x) for x in getattr(cfg, "feature_layers", ()) or ())
+                     if k == L.key]
+        else:
+            files = [getattr(cfg, L.config_field, "") or ""]
+        for f in files:
+            if f and Path(f).exists():
+                layers.append({"role": "study", "kind": L.key, "name": L.label, "reopened": True,
+                               "geojson": json.loads(Path(f).read_text())})
+    return {"study": st.key}
 
 
 def api_info(_: dict) -> dict:
@@ -477,7 +750,7 @@ def api_geocode(body: dict) -> dict:
     return {"hits": [{"name": h["name"], "lat": h["lat"], "lon": h["lon"], "bbox": h["area"].bbox} for h in hits]}
 
 
-API = {"/api/outline": api_outline, "/api/check": api_check, "/api/create": api_create,
+API = {"/api/outline": api_outline, "/api/check": api_check, "/api/create": api_create, "/api/studies": api_studies,
        "/api/projects": api_projects, "/api/project": api_project, "/api/info": api_info,
        "/api/exists": api_exists, "/api/geocode": api_geocode}
 

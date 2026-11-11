@@ -21,7 +21,9 @@ kept to integrity and naming (a gate that blocks every farmland site teaches
 people to ignore it): network not connected; a report area under half
 measured (or, in a report from before 5 Oct 2026, with no comparison with
 ordinary ground); an area name that looks like a file stem; a feature not
-checked in the review; a screening-route report; stale inputs (including a
+checked in the review; a screening-route report; a report of a study other
+than mining subsidence, whose wording is not checked yet
+('study_not_released', 8 Nov 2026); stale inputs (including a
 signal-to-noise raster that is not the report's); a report older than the
 quality assessment; a time-series run that did not finish; a reissue that
 does not say so (decision M3, 7 Oct 2026: the project already issued a
@@ -67,6 +69,8 @@ import re
 from datetime import datetime
 from pathlib import Path
 from types import SimpleNamespace
+
+from . import domains
 
 REVIEW_FILE = "review.json"
 MIN_MEASURED_PERCENT = 50.0
@@ -690,6 +694,32 @@ def specialist_release(rev: dict | None, sr: dict) -> dict | None:
     return sp
 
 
+_STOPPED_RE = re.compile(r"\b(stopped moving|has stopped|no longer moving|no longer moves)\b", re.I)
+
+
+def study_report_problems(rep: dict) -> list[tuple[str, str]]:
+    """Hard problems in a study's screening report (A4, PLAN_oil_gas_slopes.md):
+    a number printed for a point inside a fast zone; a rising-ground rate
+    printed as a number (the uplift check, Gate 2, has not run); "stopped
+    moving" anywhere in the record's words (the detection-power check, Gate
+    2b, has not run)."""
+    out = []
+    pts = rep.get("study_points") or []
+    if any(r.get("refused") and (r.get("shown_vertical_mm_yr") is not None
+                                 or r.get("relative_vertical_mm_yr") is not None) for r in pts):
+        out.append(("study_fast_zone_number", "A point inside a fast zone carries a number; the satellite cannot "
+                                              "follow movement there, so no number may be given."))
+    if any(r.get("detected") and (r.get("shown_vertical_mm_yr") or 0) > 0 for r in pts):
+        out.append(("study_rising_number", "A rising-ground rate is printed as a number; rising ground is given no "
+                                           "rate until the uplift check is done."))
+    words = json.dumps({k: rep.get(k) for k in ("study_points", "study_events", "features", "observations",
+                                                 "answer", "areas")}, default=str)
+    if _STOPPED_RE.search(words):
+        out.append(("study_stopped_moving", "The report says ground stopped moving; that needs the detection-power "
+                                            "check, which has not been done."))
+    return out
+
+
 def blockers(cfg, rep: dict | None = None, qa: dict | None = None) -> list[dict]:
     """Plain-English reasons the client report is not ready to send.
 
@@ -723,6 +753,30 @@ def blockers(cfg, rep: dict | None = None, qa: dict | None = None) -> list[dict]
         add("screening_route",
             "This report comes from the screening route (OPERA DISP-S1), not the official phase-linked "
             "processing; screening results are not sent to clients.", True)
+
+    # a study other than the default (domains.py) still carries the mining study's
+    # wording until its own passes Gate 1b (review_2026-11-07/PLAN.md), so its
+    # report is never final; the default study and configs without `study` add nothing
+    # either side saying another study holds it: a config edited back to the default
+    # must not release a report built for another study
+    named = [str(v).strip().lower() for v in (getattr(cfg, "study", ""), rep.get("study")) if v]
+    other = [s for s in named if s != domains.DEFAULT_STUDY]
+    if other:
+        try:
+            held = domains.study(other[0]).wording.held_sentence
+        except KeyError:
+            held = ""
+        if held and len(named) == 2 and named[0] == named[1]:
+            # a study whose own wording is checked (A3/A4 of PLAN_oil_gas_slopes.md,
+            # decision G1, 9 Nov 2026): a screening report, sent only with the
+            # reviewer's sign-off (the sign-off rule below), so a soft reading item
+            add("study_screening", held, False)
+            for code, text in study_report_problems(rep):
+                add(code, text, True)
+        else:
+            add("study_not_released",
+                f"This report answers the '{other[0]}' study, whose report wording has not been checked yet; it "
+                "is not sent to clients until it is.", True)
 
     for a in rep.get("areas", []) or []:
         if not isinstance(a, dict):

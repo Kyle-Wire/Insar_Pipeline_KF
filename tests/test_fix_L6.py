@@ -269,7 +269,13 @@ def test_download_and_orbits_emit_progress(tmp_path, monkeypatch, quiet):
     assert ev[0]["status"] == "start" and ev[0]["total"] == 2
     assert ev[-1]["status"] == "done" and ev[-1]["done"] == 2 and ev[-1]["total"] == 2
     fake_eof = types.ModuleType("eof.download")
-    fake_eof.download_eofs = lambda **kw: [Path(kw["save_dir"]) / "x.EOF"]
+    def _eof(**kw):          # a file that covers the scene, as the real one would
+        d = Path(kw["sentinel_file"]).name[17:25]
+        f = Path(kw["save_dir"]) / f"S1A_OPER_AUX_POEORB_OPOD_X_V{d}T000000_{d}T235959.EOF"
+        f.parent.mkdir(parents=True, exist_ok=True)
+        f.touch()
+        return [f]
+    fake_eof.download_eofs = _eof
     monkeypatch.setitem(sys.modules, "eof", types.ModuleType("eof"))
     monkeypatch.setitem(sys.modules, "eof.download", fake_eof)
     da.download_orbits(cfg, out, "u", "p")

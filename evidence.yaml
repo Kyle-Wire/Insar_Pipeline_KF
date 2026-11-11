@@ -1,0 +1,259 @@
+# What the program has been shown to measure, one entry per evidence id.
+#
+# This file is the ONLY place a verdict, its per-quantity grades and its regime
+# envelope live (review_2026-11-07/PLAN.md, decision D1). domains.py names these
+# ids; evidence.output_tier computes an output's readiness tier from both.
+# VALIDATION.md and LIMITATIONS.md tag their entries with the id ([B2]) and
+# tests/test_domains.py checks each tag against the verdict here.
+# Seeded 8 Nov 2026 (S0.4) from the protocol files, the harness results under
+# review_2026-10-08/results/ and review_2026-10-28/, VALIDATION.md and LIMITATIONS.md.
+#
+# Words:
+#   verdict (the protocol's own verdict for the entry):
+#     PASS | FAIL | MARGINAL | UNTESTABLE | PENDING
+#   quantities (per quantity):
+#     PASS | FAIL | MARGINAL      the protocol graded it so
+#     HELD                        its rows passed but the entry's verdict did not
+#     REPORTED                    measured against the truth and published, but
+#                                 the protocol made it report-only (not graded)
+#     UNTESTABLE                  could not be tested (too few stations, excluded
+#                                 by the protocol's design)
+#     PENDING                     a graded row that has not been computed yet
+#   sign: down | up | east | any (any = sign-neutral: noise or agreement)
+#   footprint (scale of the scored motion, smallest first): local | panel | compact | area
+#   max_rate_mm_yr: the regime ceiling in rate_basis; rate_source says where it is from.
+#     For GNSS entries it is the frozen MIDAS vU of the scored stations (the plan's
+#     convention, PLAN.md:466-467), which the protocols call context only.
+#   independent_truth: false caps every output resting on the entry at SCREENING
+#     (published InSAR, DISP, synthetic, model values, operator statements).
+#   local: true = the protocol and results are local records (git-ignored), so
+#     no hash is checked here.
+schema: 1
+
+records:
+  B2:
+    title: Slow subsidence, Houston (Katy), Texas
+    protocol: review_2026-10-08/protocol_B2.yaml
+    protocol_sha256: 6efd8497b81bb66113293857ff506b1c6a64480a1d28fd5e6c429a2421975da0
+    results: review_2026-10-08/results/exp_b2_houston_asc34/protocol_B2_B-2a/validation.md
+    runs: [B-2a]
+    verdict: PASS
+    quantities:
+      multi_year_rate: PASS        # rate_rmse_dd 2.92 mm/yr LOS (CI 0.54-4.37), 21 pairs
+      rate_bias: PASS              # rate_bias_loo -0.50 mm/yr
+      rate_uncertainty: PASS       # uncertainty_calibration 7 of 7
+      scale: PASS                  # york_slope 1.09 (amendment 2026-10-08/2; wide CI)
+      series: PASS                 # series_rmse median 6.39 mm
+      series_correlation: FAIL     # r 0.854, one qualifying station; not a route row
+      plane_check: FAIL            # amendment 2026-10-08/3; not a route row
+      rate_correlation: REPORTED   # r 0.917, report-only under amendment 2026-10-08/2
+      vertical_rate: REPORTED      # LOS / cos(incidence) against GNSS Up, report-only
+    sign: down
+    max_rate_mm_yr: 20.0
+    rate_basis: vertical
+    rate_source: frozen MIDAS vU of the scored stations, -7.7 to -20.0 (protocol_B2.yaml:88-94); graded rows are LOS
+    ground: [suburban]             # rice and prairie farmland on the west edge (protocol_B2.yaml:49)
+    footprint: area
+    band: C
+    route: miaplpy
+    geometry: single               # ascending 34
+    independent_truth: true        # 7 NGL GNSS stations
+
+  B1_B3:
+    title: Long-term groundwater subsidence, Corcoran, San Joaquin Valley, California
+    protocol: review_2026-10-08/protocol_B1.yaml
+    protocol_sha256: aefd45e0b86ae76219f7c2c88275a80f153cd084b1c4080c9e27eae6d3cfcc7a
+    results: review_2026-10-08/results/exp_b1_corcoran_asc137/protocol_B1_B1/validation.md
+    runs: [B1, B3]                 # the lower grade of the two per quantity
+    verdict: FAIL
+    quantities:
+      single_year_rate: FAIL       # rate_rmse_dd on water-year rates: B1 13.7, B3 12.4 mm/yr
+      multi_year_rate: HELD        # uncertainty_calibration on overlap-mean rates: 6 of 6 in both runs
+      multi_year_total: HELD       # VALIDATION.md: time series and multi-year totals held
+      series: HELD                 # series_rmse B1 9.33 / B3 6.57 mm; r 0.992 / 0.998
+      rate_bias: MARGINAL          # B1 -2.35 mm/yr (marginal), B3 +0.47 (pass)
+      scale: FAIL                  # york_slope B1 1.19 (fail), B3 1.00 (pass); amendment 2026-10-08/2
+      plane_check: FAIL            # B1 fail, B3 pass; not a route row
+      tre_vertical: PENDING        # the comparison with the state's official InSAR: no reader yet
+      vertical_rate: REPORTED      # LOS / cos(incidence) against GNSS Up, report-only
+    sign: down
+    max_rate_mm_yr: 290.6
+    rate_basis: vertical
+    rate_source: frozen MIDAS vU of the scored stations, -42.6 to -290.6 (protocol_B1.yaml:107-112); the window's GNSS Up overlap-mean reaches -127.7
+    ground: [irrigated_farmland]
+    footprint: area
+    band: C
+    route: miaplpy
+    geometry: single               # each run graded alone: ascending 137, descending 144
+    independent_truth: true        # 7 NGL GNSS stations (6 rate stations)
+
+  D1:
+    title: Vertical and east-west from both directions, Corcoran
+    protocol: review_2026-10-08/protocol_B1.yaml
+    protocol_sha256: aefd45e0b86ae76219f7c2c88275a80f153cd084b1c4080c9e27eae6d3cfcc7a
+    results: review_2026-10-08/results/exp_b1_corcoran_asc137/protocol_B1_B1_with_d1/validation.md
+    runs: [D1]                     # B1 + B3 decomposed (exp_d1_corcoran_b1b3)
+    verdict: PENDING               # its one graded row (tre_vertical) has not been computed
+    quantities:
+      vertical_series: REPORTED          # Up series_rmse median 7.13 mm against GNSS Up
+      vertical_rate_bias: REPORTED       # +0.40 mm/yr
+      vertical_scale: REPORTED           # york_slope 0.975
+      vertical_single_year_rate: REPORTED  # rate_rmse_dd 13.6 mm/yr
+      vertical_uncertainty: UNTESTABLE   # the decomposed series carry no per-epoch uncertainty
+      vertical_only_bias: REPORTED       # one direction assuming vertical: 9.1-12.5 mm, bias to -5.0 mm/yr
+      tre_vertical: PENDING
+    sign: down
+    max_rate_mm_yr: 290.6
+    rate_basis: vertical
+    rate_source: as B1_B3
+    ground: [irrigated_farmland]
+    footprint: area
+    band: C
+    route: miaplpy
+    geometry: asc+desc
+    independent_truth: true
+
+  B5a:
+    title: NISAR L-band (GUNW products, under one year), Corcoran
+    protocol: review_2026-10-08/protocol_B1.yaml
+    protocol_sha256: aefd45e0b86ae76219f7c2c88275a80f153cd084b1c4080c9e27eae6d3cfcc7a
+    results: review_2026-10-08/results/exp_b5a_corcoran_nisar_asc34/protocol_B1_B5/validation.md
+    runs: [B5a]                    # the protocol's run B5
+    verdict: UNTESTABLE            # no route verdict: both route rows not testable on under a year
+    quantities:
+      series: HELD                 # series_rmse median 5.98 mm, r 0.991
+      rate_uncertainty: HELD       # 2 of 2 inside a stated sigma of about 51 mm/yr LOS
+      single_year_rate: UNTESTABLE
+      rate_bias: UNTESTABLE
+      scale: FAIL                  # york_slope -4.95 from 3 stations
+      plane_check: UNTESTABLE
+      nisar_rows: PENDING          # pair differences and cumulative window: not computed
+      against_sentinel1: REPORTED  # L-band against C-band, report-only
+      tre_vertical: UNTESTABLE     # the protocol does not run it on B5
+    sign: down
+    max_rate_mm_yr: 159.7
+    rate_basis: vertical
+    rate_source: frozen MIDAS vU of the scored stations CAHA and QCAP (protocol_B1.yaml:109, :111)
+    ground: [irrigated_farmland]
+    footprint: area
+    band: L
+    route: nisar
+    geometry: single               # ascending 34
+    independent_truth: true
+
+  A:
+    title: Fast longwall subsidence, Appin LW902 and Tahmoor West, NSW, Australia
+    protocol: review_2026-10-08/protocol_A.yaml
+    protocol_sha256: 905261986b6864c7d25744b0babaf2610e0720c04ba2fb52aa86560360bb45de
+    results: review_2026-10-08/results/exp_a1_appin_des147/protocol_A_A1/validation.md
+    runs: [A1, A2, A3]             # the lowest grade of the runs per quantity
+    verdict: FAIL
+    quantities:
+      panel_change: FAIL           # CA19 over LW902: A1 129 mm short of a 219 mm LOS drop; A2 worse
+      panel_outage: FAIL           # A1, A2
+      series: FAIL                 # CA19 series: A1, A2
+      unit_changes: MARGINAL       # 17 digitised units: A1 30.2 mm, A3 44.5 mm
+      peak_ratio: FAIL             # A1 0.15, A3 0.25
+      flag_selectivity: FAIL       # too-fast flag on 45-49% of stable ground against 20%
+      route_bias: FAIL             # A1 +58.4 mm, A2 +154.8 mm (fail); A3 +21.1 mm (pass)
+      route_uncertainty: FAIL      # A1 54%, A3 54%, A2 0 of 2
+      stable_ring: PENDING         # not computed
+    sign: down
+    max_rate_mm_yr: null           # the protocol scores panel events, not rates
+    rate_basis: los
+    rate_source: none
+    regime: active_longwall
+    ground: [semi_rural, farmland, forested_hills]
+    footprint: panel
+    band: C
+    route: miaplpy                 # A1, A3; A2 is the disp route
+    geometry: single               # descending 147 and ascending 9, each graded alone
+    independent_truth: true        # the national GNSS station over LW902; the units come from published mine reports
+
+  P0.3b:
+    title: East-west in a combined ascending and descending project (injection re-test)
+    protocol: review_2026-10-28/PLAN.md
+    local: true
+    results: review_2026-10-28/p0/east_retest.json
+    runs: [P0.3b]
+    verdict: PASS                  # 78.1% found at the stated limit (>= 70%), 4.4% false alarms (<= 10%)
+    quantities:
+      east_detection: PASS
+      east_false_alarm: PASS
+    note: registered for 60 sites, ran on 38 with nothing relaxed; awaiting sign-off (LIMITATIONS.md)
+    sign: east                     # eastward plants only
+    max_rate_mm_yr: 2.79
+    rate_basis: east
+    rate_source: the largest planted east rate (synthetic)
+    ground: [built_up, grassland]
+    footprint: compact             # planted widths 0.3, 1 and 2 km
+    band: C
+    route: miaplpy
+    geometry: asc+desc
+    independent_truth: false       # synthetic injection
+
+  LC:
+    title: Local change layer, Site D
+    protocol: local record (criteria fixed 22 Oct 2026, before the result)
+    local: true
+    results: local record (22 Oct 2026)
+    runs: [config1, config2]
+    verdict: FAIL                  # both configurations, against criteria fixed in advance
+    quantities:
+      near_pair_agreement: FAIL    # config 1: 2 of 4 near pairs within 0.20 in/yr; config 2 passed only after a revision on the same data
+      kept_share: FAIL             # both configurations
+      stable_ground: FAIL          # config 2: a town control and a spoil patch above 1.5 mm/yr
+      reference_scale: FAIL        # config 2: 4 km against 8 km reference not within 0.1 in/yr
+      noise: PASS                  # config 2: median noise 11.7 mm/yr (11 +/- 3)
+      significance: UNTESTABLE     # never defined in code
+      official_record_agreement: UNTESTABLE
+    sign: any                      # relative-rate agreement, kept share, stable ground: sign-neutral
+    max_rate_mm_yr: null
+    rate_basis: los
+    rate_source: none (scored against another provider's relative rates)
+    ground: [rain_fed_cropland, small_town, mine_spoil]
+    footprint: local
+    band: C
+    route: miaplpy                 # merged SLCs of a phase-linked run; the layer itself is local_change
+    geometry: single
+    independent_truth: false       # another provider's InSAR from the same images
+
+  N3:
+    title: Phase-linked NISAR route, Gate 3, L-band test project
+    protocol: review_2026-10-28/PLAN_nisar_phase_linked.md
+    local: true
+    results: review_2026-10-28/p3/checks.json
+    runs: [N3]
+    verdict: FAIL                  # Gate 3 not passed; revisited unchanged after 2027-10-30
+    quantities:
+      spread_vs_gunw: FAIL         # C1: ratio 0.78 against 0.7 or less
+      agreement_with_sentinel1: FAIL  # C2: r 0.113 against 0.3 or more
+      gnss_station: PASS           # C3: 1.72 mm/yr against a tolerance of 24.1
+      west_edge_sign: FAIL         # C4: not required for the gate
+    sign: any
+    max_rate_mm_yr: 3.29
+    rate_basis: los
+    rate_source: the one scored GNSS station pair, LOS
+    ground: [built_up, grassland]
+    footprint: compact             # 1 km squares
+    band: L
+    route: nisar
+    geometry: single
+    independent_truth: false       # C1 and C2 compare with other InSAR; only C3 uses GNSS
+
+# Tier overrides, each signed and dated by the owner with its reason. Only these
+# are applied (PLAN.md rule 7).
+overrides: {}
+
+# Proposed in the plan (PLAN.md:476-478) but NOT signed, so NOT applied. To sign
+# one, move it to overrides with `signed: <date>`.
+pending_overrides:
+  P0.3b: {tier: INDICATIVE, why: "East-West indicative until signed off"}
+  LC: {tier: SCREENING, why: "LIMITATIONS lists it as a screening aid"}
+
+# Evidence transfers to a new study (PLAN.md rule 6, decision D6).
+transfers:
+  basin_subsidence:
+    quantities: [multi_year_rate]
+    evidence: [B2, B1_B3]
+    signed: "2026-11-07: decision D6 accepted as recommended (review_2026-11-07/PLAN.md)"
