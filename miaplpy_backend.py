@@ -370,6 +370,156 @@ def cleanup_coreg_date(cfg: PipelineConfig, date: str) -> float:
     return size / 1e9
 
 
+# --------------------------------------------------------------- sparse merged SLCs
+# 11 Nov 2026 (Kyle: "we definitely want that cropping feature"). A real merged
+# <date>.slc.full covers the whole burst frame (0.84 GB per date per 3 bursts),
+# but MiaplPy reads only the phase-linking window (aligned_subset) and nothing
+# else on this route reads outside it (the stack stops at the merge; the local
+# change layer reads inside the same window). So each date's file is rewritten
+# as a SPARSE file of the same name, size and header: the window's bytes are
+# written, everything else is left as unallocated holes that read as zero.
+# Every reader (MiaplPy through the .vrt, the size checks, local_change's
+# memmap) sees the same file; the disk holds about crop_fraction of it. The
+# window used is recorded beside each date (SPARSE_MARKER) and check_sparse_
+# windows refuses a load whose window reaches outside it (a changed bbox, or a
+# re-link onto this stack with another area): those dates must be merged again.
+SPARSE_MARKER = ".slc.full.sparse.json"
+_SPARSE_LOCK = __import__("threading").Lock()
+
+
+def sparse_window(cfg: PipelineConfig) -> tuple | None:
+    """The full-resolution window (y0, y1, x0, x1) the merged SLCs keep, or
+    None: the switch is off, no crop window yet, or no merged SLC metadata."""
+    if not getattr(cfg, "miaplpy_sparse_merged_slc", True):
+        return None
+    cw = cfg.stack_dir / "crop_window.json"
+    lat = cfg.stack_dir / "merged" / "geom_reference" / "lat.rdr"
+    try:
+        rec = json.loads(cw.read_text())
+        # a window left by an earlier area or an earlier geometry is not this run's
+        same_area = [round(float(v), 9) for v in rec["bbox_wsen"]] == [round(float(v), 9) for v in cfg.bbox] and \
+            abs(float(rec["margin_deg"]) - float(cfg.stack_bbox_margin_deg)) < 1e-12
+        same_geom = abs(float(rec["geometry_mtime"]) - os.path.getmtime(lat)) < 1e-6
+        if not (same_area and same_geom):
+            return None
+        return tuple(int(v) for v in aligned_subset(cfg))
+    except (RuntimeError, OSError, ValueError, KeyError, TypeError):
+        return None
+
+
+def ensure_crop_window(cfg: PipelineConfig) -> bool:
+    """Write stack/crop_window.json as soon as the merged geometry (lat, lon,
+    hgt) is complete, so the dates merged after it can be made sparse at once.
+    Called from the merge hook after each geometry command (worker threads:
+    locked). True when the window exists."""
+    from .stack_backend import isce_size_problem
+    from .unwrap_crop import compute_crop_window
+    if sparse_window(cfg) is not None:
+        return True
+    geom = cfg.stack_dir / "merged" / "geom_reference"
+    parts = [geom / f"{n}.rdr" for n in ("lat", "lon", "hgt")]
+    if not all(p.exists() and Path(str(p) + ".xml").exists() and not isce_size_problem(p) for p in parts):
+        return False
+    with _SPARSE_LOCK:
+        if sparse_window(cfg) is None:
+            compute_crop_window(cfg)
+    return sparse_window(cfg) is not None
+
+
+def _allocated(path: Path) -> int:
+    return path.stat().st_blocks * 512
+
+
+def sparsify_merged_slc(cfg: PipelineConfig, date: str, win: tuple | None = None) -> float:
+    """Rewrite one date's verified merged SLC as a sparse file keeping only
+    `win` (default sparse_window). Same name, size and bytes inside the
+    window, zeros outside; checked byte for byte inside the window before it
+    replaces the original. Returns GB freed (0 when not done or not needed)."""
+    win = win or sparse_window(cfg)
+    if win is None or not _merged_slc_verified(cfg, date):
+        return 0.0
+    full = cfg.stack_dir / "merged" / "SLC" / date / f"{date}.slc.full"
+    marker = full.with_name(f"{date}{SPARSE_MARKER}")
+    if marker.exists():
+        return 0.0
+    t = full.with_name(full.name + ".xml").read_text()
+    if not _re.search(r'<property name="data_type">\s*<value>\s*CFLOAT', t, flags=_re.IGNORECASE):
+        log.warning("%s is not CFLOAT: left whole", full)
+        return 0.0
+    W = int(_re.search(r'<property name="width">\s*<value>(\d+)', t).group(1))
+    L = int(_re.search(r'<property name="length">\s*<value>(\d+)', t).group(1))
+    y0, y1, x0, x1 = win
+    y0, y1, x0, x1 = max(0, y0), min(L, y1), max(0, x0), min(W, x1)
+    if y0 >= y1 or x0 >= x1:
+        return 0.0
+    before = _allocated(full)
+    tmp = full.with_name(full.name + ".sparse_tmp")
+    tmp.unlink(missing_ok=True)
+    with open(tmp, "wb") as f:
+        f.truncate(L * W * 8)
+    src = np.memmap(full, dtype="<c8", mode="r", shape=(L, W))
+    dst = np.memmap(tmp, dtype="<c8", mode="r+", shape=(L, W))
+    step = max(1, (64 << 20) // max(1, (x1 - x0) * 8))            # ~64 MB of window per block
+    for r in range(y0, y1, step):
+        dst[r:min(y1, r + step), x0:x1] = src[r:min(y1, r + step), x0:x1]
+    dst.flush()
+    del dst
+    with open(tmp, "rb+") as f:
+        os.fsync(f.fileno())
+    chk = np.memmap(tmp, dtype="<c8", mode="r", shape=(L, W))
+    for r in range(y0, y1, step):
+        a, b = src[r:min(y1, r + step), x0:x1], chk[r:min(y1, r + step), x0:x1]
+        if not np.array_equal(a.view("<u8"), b.view("<u8")):          # bit for bit (NaN included)
+            del chk, src
+            tmp.unlink(missing_ok=True)
+            raise RuntimeError(f"{full}: the sparse copy differs inside the window; original kept")
+    del chk, src
+    after = _allocated(tmp)
+    if after >= before:                       # a filesystem without holes (e.g. a Windows drive): nothing gained
+        tmp.unlink(missing_ok=True)
+        log.warning("%s: this filesystem kept no holes (%d >= %d bytes): merged SLC left whole", full, after, before)
+        return 0.0
+    os.replace(tmp, full)
+    marker.write_text(json.dumps({"window_yx": [y0, y1, x0, x1], "length": L, "width": W,
+                                  "allocated_before": before, "allocated_after": after,
+                                  "written": time.strftime("%Y-%m-%dT%H:%M:%S")}) + "\n")
+    return (before - after) / 1e9
+
+
+def sparsify_after_merge(cfg: PipelineConfig) -> float:
+    """Every verified merged SLC the per-date hook did not reach (dates merged
+    before the window existed, a resumed run). Returns GB freed."""
+    win = sparse_window(cfg)
+    if win is None:
+        return 0.0
+    gb = sum(sparsify_merged_slc(cfg, full.parent.name, win)
+             for full in sorted((cfg.stack_dir / "merged" / "SLC").glob("*/*.slc.full")))
+    if gb:
+        log.info("Merged SLCs kept to the phase-linking window: %.1f GB freed", gb)
+    return gb
+
+
+def check_sparse_windows(cfg: PipelineConfig) -> None:
+    """Before MiaplPy loads: every sparse merged SLC must hold the window it
+    is about to be read over. Raises with the dates to merge again."""
+    want = tuple(int(v) for v in aligned_subset(cfg))
+    bad = []
+    for m in sorted((cfg.stack_dir / "merged" / "SLC").glob(f"*/*{SPARSE_MARKER}")):
+        try:
+            y0, y1, x0, x1 = json.loads(m.read_text())["window_yx"]
+        except (OSError, ValueError, KeyError):
+            bad.append(m.parent.name)
+            continue
+        if not (y0 <= want[0] and want[1] <= y1 and x0 <= want[2] and want[3] <= x1):
+            bad.append(m.parent.name)
+    if bad:
+        raise RuntimeError(
+            f"{len(bad)} merged SLCs keep only an earlier phase-linking window (miaplpy_sparse_merged_slc), and "
+            f"this load reads {want} outside it - the area or its margin changed since they were merged "
+            f"(first: {bad[:3]}). Merge those dates again (delete their merged/SLC/<date> folders and the "
+            f"coreg_secondarys/<date>.cleaned markers, then resume), or restore the earlier area.")
+
+
 def cleanup_coreg_after_merge(cfg: PipelineConfig) -> float:
     """Every date the per-date hook did not reach (a resumed run)."""
     reclaimed = sum(cleanup_coreg_date(cfg, full.parent.name)
@@ -2813,6 +2963,9 @@ def run(cfg: PipelineConfig) -> Path:
     if not relinked:                  # both write in the stack, which a re-link only reads
         repoint_full_vrts(stack)          # VRTs must not depend on the bursts...
         cleanup_coreg_after_merge(cfg)    # ...before the bursts go
+        sparsify_after_merge(cfg)         # the merged SLCs keep only the phase-linking window
+    if slcs and not loaded:
+        check_sparse_windows(cfg)         # (a re-link reads the source's: its window must hold ours too)
     tpl = write_template(cfg)
     if not (work / "inputs" / "slcStack.h5").exists() and not (work / "inverted" / "phase_series.h5").exists():
         # A fresh start. MiaplPy prefers an existing custom_smallbaselineApp.cfg

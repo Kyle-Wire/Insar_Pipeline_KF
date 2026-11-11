@@ -9,6 +9,18 @@ apart even when their version is the same.
 
 ## [Unreleased]
 
+### Disk: merged images keep only the area (11 Nov 2026, Kyle)
+- **Sparse merged SLCs** (`miaplpy_sparse_merged_slc`, on). On the
+  phase-linked route each date's merged `<date>.slc.full` is rewritten, right
+  after its merge, as a sparse file holding only the phase-linking window:
+  same name, size and header, the window's bytes checked bit for bit before
+  the original is replaced. The window is written as soon as the lat, lon and
+  height merges finish; a window left by another area or an older geometry is
+  never used; a load that would read outside a kept window is refused. The run
+  plan credits it: 10 years, 3 bursts, 36% crop went from a 465 GB to a
+  363 GB projected peak (merged images 347 to 134 GB).
+- Numbers that move: none (the bytes MiaplPy reads are the same).
+
 ### Readiness review fixes (2 Nov 2026, Kyle)
 - **Releases hold no client data** (BLD-06). `make_release.sh` leaves out
   `tests/test_local_*.py` and the golden client numbers, and ships only the

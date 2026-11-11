@@ -86,20 +86,27 @@ def _resolve(cfg, rel: str) -> Path:
 
 
 def _sizes(d: Path, timeout: float = 25.0) -> dict:
-    """{child name: apparent bytes} for d's children in one `du` pass (None on timeout)."""
-    try:
-        out = subprocess.run(["du", "-sb", "--", *[str(c) for c in d.iterdir()]], capture_output=True, text=True,
-                             timeout=timeout).stdout
-    except (subprocess.TimeoutExpired, OSError):
-        return {}
-    res = {}
-    for line in out.splitlines():
-        n, _, path = line.partition("\t")
+    """{child name: bytes} for d's children: apparent bytes (`du -sb`), or the
+    allocated bytes where they are fewer (a sparse merged SLC, 11 Nov 2026)."""
+    def run(flag):
         try:
-            res[Path(path).name] = int(n)
-        except ValueError:
-            pass
-    return res
+            out = subprocess.run(["du", flag, "--", *[str(c) for c in d.iterdir()]], capture_output=True, text=True,
+                                 timeout=timeout).stdout
+        except (subprocess.TimeoutExpired, OSError):
+            return {}
+        res = {}
+        for line in out.splitlines():
+            n, _, path = line.partition("\t")
+            try:
+                res[Path(path).name] = int(n)
+            except ValueError:
+                pass
+        return res
+    apparent = run("-sb")
+    if not apparent:
+        return {}
+    alloc = run("-sB1")
+    return {k: min(v, alloc.get(k, v)) for k, v in apparent.items()}
 
 
 def list_dir(cfg, rel: str = "") -> dict:
@@ -117,7 +124,7 @@ def list_dir(cfg, rel: str = "") -> dict:
         kind = "link" if c.is_symlink() else "dir" if c.is_dir() else "file"
         why = _protect_reason(cfg, c)
         items.append({"name": c.name, "rel": str(c.relative_to(P)), "kind": kind,
-                      "bytes": sizes.get(c.name, st.st_size if kind == "file" else None), "mtime": st.st_mtime,
+                      "bytes": sizes.get(c.name, min(st.st_size, st.st_blocks * 512) if kind == "file" else None), "mtime": st.st_mtime,
                       "protected": why, "about": ABOUT.get(c.name, "") if d == P else ""})
     return {"rel": str(d.relative_to(P)) if d != P else "", "items": items,
             "total": sum(i["bytes"] or 0 for i in items), "running": runs.state(P) == "running"}

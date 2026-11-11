@@ -20,8 +20,10 @@ Built on what exists, with no deletion rules of its own:
     whose report is FINAL needs its name typed as well.
 
 Every action is a dry run unless apply=True (--apply): the plan says what
-would go and how many GB. Sizes are apparent bytes (like `du -sb`), symlinks
-not followed, hard links counted once; GB = 1e9 as everywhere else.
+would go and how many GB. Sizes are each file's apparent bytes (like `du -sb`),
+except that a sparse file counts what it really holds on disk (11 Nov 2026:
+the merged SLCs keep only the area, miaplpy_sparse_merged_slc); symlinks not
+followed, hard links counted once; GB = 1e9 as everywhere else.
 """
 from __future__ import annotations
 
@@ -50,9 +52,17 @@ ARCHIVE_MARGIN_GB = 2.0              # the archive must fit the real budget with
 
 
 # ---------------------------------------------------------------- sizes
+def file_bytes(st) -> int:
+    """A file's bytes on disk: its apparent size, or less for a sparse file
+    (the allocated blocks), so a sparse merged SLC counts what it holds."""
+    blocks = getattr(st, "st_blocks", None)
+    return st.st_size if blocks is None else min(st.st_size, blocks * 512)
+
+
 def du(path) -> int:
-    """Apparent bytes under path, like `du -sb`: symlinks not followed (and
-    not counted), each hard-linked file once."""
+    """Bytes under path, like `du -sb` but a sparse file counts what it holds
+    (file_bytes): symlinks not followed (and not counted), each hard-linked
+    file once."""
     p = Path(path)
     try:
         st = p.lstat()
@@ -61,7 +71,7 @@ def du(path) -> int:
     if p.is_symlink():
         return 0
     if not p.is_dir():
-        return st.st_size
+        return file_bytes(st)
     total, seen, stack = 0, set(), [str(p)]
     while stack:
         d = stack.pop()
@@ -85,7 +95,7 @@ def du(path) -> int:
                     if k in seen:
                         continue
                     seen.add(k)
-                total += s.st_size
+                total += file_bytes(s)
     return total
 
 

@@ -1596,12 +1596,31 @@ def _merge_cleanup_hook(cfg: PipelineConfig, low: str):
         return None
     from . import miaplpy_backend as _mb
 
+    geom_done: set = set()                 # geometry merges finished in this execution
+
     def after(cmd, res):
         d = _mb.merge_date_from_command(cmd)
         if d:
             gb = _mb.cleanup_coreg_date(cfg, d)
             if gb:
                 log.info("merged %s verified; %.2f GB of its coregistered bursts removed", d, gb)
+            # 11 Nov 2026: and the merged copy keeps only the phase-linking window
+            try:
+                gb = _mb.sparsify_merged_slc(cfg, d)
+                if gb:
+                    log.info("merged %s kept to the phase-linking window; %.2f GB freed", d, gb)
+            except (OSError, RuntimeError, ValueError) as e:       # the whole file stays; the catch-up retries
+                log.warning("merged %s left whole: %s", d, e)
+        elif getattr(cfg, "miaplpy_sparse_merged_slc", True):
+            m = re.search(r"config_merge_(lat|lon|hgt)(?:\s|$)", cmd)
+            if m:                                                  # (the hook runs only on success)
+                geom_done.add(m.group(1))
+            if not {"lat", "lon", "hgt"} <= geom_done:
+                return
+            try:                                                   # lat, lon and hgt merged: the window
+                _mb.ensure_crop_window(cfg)
+            except (OSError, RuntimeError, ValueError) as e:
+                log.warning("crop window not written yet: %s", e)
     return after
 
 
@@ -1708,6 +1727,9 @@ def execute(cfg: PipelineConfig, from_step=None, to_step=None) -> list:
             if getattr(cfg, "stack_crop_unwrap", False):
                 from .unwrap_crop import compute_crop_window
                 compute_crop_window(cfg)
+            if cfg.backend == "miaplpy":
+                from . import miaplpy_backend as _mb
+                _mb.sparsify_after_merge(cfg)      # dates merged before the window existed
         if "timeseries_misreg" in low:
             cleanup_misreg_inputs(cfg)
         if cfg.stack_cleanup_burst_igrams and "merge_burst_igram" in low:
@@ -3974,6 +3996,10 @@ def plan_stack(cfg: PipelineConfig) -> StackPlan:
         plan.crop_fraction, plan.crop_source = _crop_fraction(cfg, bursts_per_date)
         f = plan.crop_fraction
         merged_slc = 0.84 * scale * plan.n_dates           # real merged SLC per date (whole frame)
+        if getattr(cfg, "miaplpy_sparse_merged_slc", True):
+            # 11 Nov 2026: each merged SLC keeps only the crop once merged (sparse
+            # file); a few dates are whole at any moment (the merge workers)
+            merged_slc = 0.84 * scale * (plan.n_dates * f + max(1, _workers_for(cfg, "merge")))
         slcstack = PL_SLCSTACK_GB * f * scale * plan.n_dates         # MiaplPy slcStack.h5 (lzf gains nothing on SLC noise)
         patches = PL_PATCHES_GB * f * scale * plan.n_dates          # inverted/PATCHES
         phase_series = PL_PHASE_SERIES_GB * f * scale * plan.n_dates

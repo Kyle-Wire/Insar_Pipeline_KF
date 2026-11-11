@@ -238,6 +238,12 @@ class PipelineConfig:
     # peaks near the coregistration peak instead of twice it.
     miaplpy_delete_merged_slc_after_load: bool = True     # secondary <date>.slc.full once slcStack.h5 holds finite data for every date
     miaplpy_delete_patches_after_concatenate: bool = True  # inverted/PATCHES once phase_series.h5 exists
+    # 11 Nov 2026: each merged <date>.slc.full is rewritten as a sparse file
+    # holding only the phase-linking window (miaplpy_backend.sparsify_merged_slc):
+    # same name, size and header, zeros outside the window, ~crop_fraction of the
+    # disk. A later change of area that reaches outside the window is refused
+    # before loading (re-merge those dates). Off = whole-frame merged SLCs.
+    miaplpy_sparse_merged_slc: bool = True
     # MEASURED 24 Sep 2026 on the 273-date Site A stack: MiaplPy's
     # sequential_EMI anchors every mini-stack to the compressed image of the
     # FIRST mini-stack, so over decorrelating farmland each mini-stack carries

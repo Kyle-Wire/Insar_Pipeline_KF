@@ -953,6 +953,7 @@ def test_plan_resume_needs_only_what_the_project_lacks(tmp_path, planner, monkey
 
 def test_plan_bursts_per_date_from_the_record_scales_the_estimate(tmp_path, planner):
     cfg = site_b_cfg(tmp_path)
+    cfg.miaplpy_sparse_merged_slc = False          # whole-frame merged SLCs (the sparse case: below)
     p3 = sb.plan_stack(cfg)
     (cfg.slc_dir / "assembly_status.json").write_text(json.dumps({"modal_burst_count": 6}))
     p6 = sb.plan_stack(cfg)
@@ -964,6 +965,15 @@ def test_plan_bursts_per_date_from_the_record_scales_the_estimate(tmp_path, plan
     assert p6.est_coreg_gb > 1.9 * p3.est_coreg_gb - 3
     assert p6.crop_fraction == pytest.approx(p3.crop_fraction / 2, rel=0.01)
     assert 1.7 * p3.est_peak_gb < p6.est_peak_gb < 2 * p3.est_peak_gb
+    # 11 Nov 2026: sparse merged SLCs keep the crop, the same ground at 3 or 6
+    # bursts, so they hardly grow with the frame (only the dates in flight do)
+    cfg.miaplpy_sparse_merged_slc = True
+    (cfg.slc_dir / "assembly_status.json").unlink()
+    s3 = sb.plan_stack(cfg)
+    (cfg.slc_dir / "assembly_status.json").write_text(json.dumps({"modal_burst_count": 6}))
+    s6 = sb.plan_stack(cfg)
+    assert s3.est_merged_gb < 0.6 * p3.est_merged_gb
+    assert s6.est_merged_gb < 1.2 * s3.est_merged_gb
 
 
 def test_plan_bursts_per_date_from_one_catalogue_query(tmp_path, monkeypatch):
@@ -994,10 +1004,16 @@ def test_phase_linked_terms_scale_with_the_crop(tmp_path, planner):
     """Site B measured: slcStack 49, PATCHES 52.7, phase_series 50 GB at
     crop 0.2331 over 270 dates; the old constants planned 77 / 94 / 85."""
     cfg = site_b_cfg(tmp_path)
+    cfg.miaplpy_sparse_merged_slc = False          # Site B was measured with whole-frame merged SLCs
     (cfg.stack_dir / "crop_window.json").write_text(json.dumps({"crop_fraction": 0.2331}))
     plan = sb.plan_stack(cfg)
     assert plan.crop_fraction == 0.2331 and "measured" in plan.crop_source
     assert plan.est_merged_gb == pytest.approx(226.8, abs=1)
+    # 11 Nov 2026: kept to the crop (sparse), the merged SLCs are ~the crop's share
+    cfg.miaplpy_sparse_merged_slc = True
+    sp = sb.plan_stack(cfg)
+    assert sp.est_merged_gb < 0.35 * plan.est_merged_gb and sp.est_peak_gb < plan.est_peak_gb
+    cfg.miaplpy_sparse_merged_slc = False
     # the peak is loading the SLC stack beside the merged SLCs: 226.8 + 49.1 + 3
     assert plan.est_peak_gb == pytest.approx(278.9, abs=1.5)
     note = next(n for n in plan.notes if n.startswith("Phase-linked route"))

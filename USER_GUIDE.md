@@ -1639,6 +1639,20 @@ show this real figure and warn below 350 GB. During a run, a watchdog warns
 below 60 GB and stops the run cleanly below 20 GB, before the Windows drive
 fills (which would corrupt files in every project).
 
+**Merged images keep only the area** (since 11 Nov 2026, phase-linked route,
+`miaplpy_sparse_merged_slc`, on by default). Each date's merged image covers
+the whole burst frame, but phase linking reads only the area and its margin.
+As each date is merged, its file is rewritten as a *sparse* file: the same
+name and size, the area's data kept exactly, the rest left empty (it reads as
+zero and takes no disk). On a 10-year, 3-burst run this cut the merged images
+from about 347 GB to about 134 GB. Two things follow:
+
+- Changing the area after the merge, so that it reaches outside what was kept,
+  is refused before phase linking: those dates must be merged again.
+- Windows Explorer shows these files at their full size. Check a project's real
+  size with `insar storage` or `du -sh`, not Explorer, and delete project files
+  from WSL (`insar storage`, or `rm -rf` in the terminal), not from Explorer.
+
 **Freeing space.** Press `g` on the projects screen (or run `insar storage`)
 for every project's size, state and how much each option would free:
 
