@@ -5,7 +5,10 @@
  * shows blown up into hard blocks, in pale fringe colours (--mist). Buttons
  * saturate into it; the hero panels and the live progress carry it. The map's
  * data layers keep their own colour scales: they are measurements, not decoration.
- * Tokens: black by default; data-theme="light" (or the OS light setting) inverts. */
+ * Tokens: black by default; data-theme="light" (or the OS light setting) inverts.
+ * Banners (page heads, the "now" card, dialog heads) are the page inverted:
+ * black in light mode, white in dark (--ban, --ban-ink). A click on one sends
+ * a holographic ripple out from where it landed (app.js ripple()). */
 @font-face { font-family: "Press Start 2P"; src: url("fonts/PressStart2P.woff2") format("woff2"); font-display: block; }
 @font-face { font-family: "VT323"; src: url("fonts/VT323.woff2") format("woff2"); font-display: block; }
 :root {
@@ -15,6 +18,7 @@
   --pixel: "Press Start 2P", "Courier New", monospace;
   --term: "VT323", "Cascadia Mono", Consolas, monospace;
   color-scheme: dark;
+  --ban: var(--ink); --ban-ink: var(--inv); --ban-mut: var(--muted);   /* banners: the page inverted */
 }
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) { --bg: #f2f2f2; --panel: #f2f2f2; --ink: #000; --muted: #606060; --dim: #bdbdbd; --soft: #e2e2e2; --inv: #f2f2f2; color-scheme: light; }
@@ -49,7 +53,7 @@ img, .leaflet-image-layer { image-rendering: pixelated; }
 /* ---------------------------------------------------------------- rail */
 .rail { width: 110px; flex: none; background: var(--bg); color: var(--muted); display: flex; flex-direction: column;
         align-items: stretch; padding: 18px 12px; gap: 6px; position: sticky; top: 0; height: 100vh;
-        border-right: var(--px) solid var(--ink); }
+        border-right: var(--px) solid var(--ink); z-index: 10; }     /* above the satellite (#sky) and the page */
 .brand { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; margin-bottom: 20px;
          font: 8px/1.4 var(--pixel); color: var(--ink); }
 .brand img { width: 84px; height: 84px; image-rendering: auto; }
@@ -74,12 +78,12 @@ main { flex: 1; min-width: 0; padding: 30px 36px 52px; overflow-x: hidden; }
 .view { display: flex; flex-direction: column; gap: 26px; max-width: 1560px; margin: 0 auto; }
 /* the hero: the page's title panel, in the mist */
 .pagehead { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; padding: 22px 24px 20px; margin: var(--px);
-            background-color: #dfe9f2; background-image: var(--mist);
-            background-size: cover; color: #000; }
-.pagehead .sub { margin: 10px 0 0; color: #1d1d1d; font-size: 20px; }
+            background: var(--ban); color: var(--ban-ink); }
+.pagehead .sub { margin: 10px 0 0; color: var(--ban-ink); opacity: .85; font-size: 20px; }
 .pagehead .actions { display: flex; gap: 12px; flex-wrap: wrap; }
-.pagehead .muted, .pagehead .meta { color: #222; }
-.pagehead a { color: #000; }
+.pagehead .muted, .pagehead .meta { color: var(--ban-ink); }
+.pagehead .muted { opacity: .75; }
+.pagehead a { color: var(--ban-ink); }
 .back { font: 8px var(--pixel); text-transform: uppercase; text-decoration: none; display: inline-block; margin-bottom: 10px; }
 .back:hover { text-decoration: underline; }
 .meta { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 10px; font-size: 19px; }
@@ -107,13 +111,13 @@ button.ghost { box-shadow: none; background: transparent; }
 button.ghost:hover:not(:disabled) { background: transparent; color: var(--ink); text-decoration: underline; }
 button.small { font-size: 8px; padding: 7px 10px 6px; }
 button.big { font-size: 12px; padding: 16px 22px 15px; }
-/* the hero's own buttons sit on the mist: black on white, saturating to black */
-.pagehead button { background: #f2f2f2; color: #000;
-  box-shadow: 0 -3px 0 0 #000, 0 3px 0 0 #000, -3px 0 0 0 #000, 3px 0 0 0 #000, 6px 6px 0 0 rgba(0, 0, 0, .35); }
-.pagehead button:hover:not(:disabled) { background: #000; color: #f2f2f2; background-image: none; }
-.pagehead button.primary { background: #000; color: #f2f2f2; background-image: none; }
-.pagehead button.primary:hover:not(:disabled) { background: #f2f2f2; color: #000; filter: none; }
-.pagehead button.danger { background: #000; color: #f2f2f2; }
+/* the hero's own buttons sit on the banner: its colours, inverting when reached for */
+.pagehead button { background: var(--ban); color: var(--ban-ink);
+  box-shadow: 0 -3px 0 0 var(--ban-ink), 0 3px 0 0 var(--ban-ink), -3px 0 0 0 var(--ban-ink), 3px 0 0 0 var(--ban-ink), 6px 6px 0 0 var(--ban-mut); }
+.pagehead button:hover:not(:disabled), .pagehead button:focus-visible { background: var(--ban-ink); color: var(--ban); background-image: none; }
+.pagehead button.primary { background: var(--ban-ink); color: var(--ban); background-image: none; }
+.pagehead button.primary:hover:not(:disabled) { background: var(--ban); color: var(--ban-ink); filter: none; }
+.pagehead button.danger { background: var(--ban-ink); color: var(--ban); }
 input[type=search] { font: 20px var(--term); padding: 6px 12px; border: 0; background: var(--bg); color: var(--ink); min-width: 240px; margin: var(--px);
   box-shadow: 0 -3px 0 0 var(--ink), 0 3px 0 0 var(--ink), -3px 0 0 0 var(--ink), 3px 0 0 0 var(--ink); }
 input[type=search]:focus { outline: 0; background: var(--soft); }
@@ -133,7 +137,7 @@ input[type=checkbox] { accent-color: var(--ink); width: 16px; height: 16px; }
 .pill.failed, .pill.bad, .pill.invalid, .pill.interrupted, .pill.stopped, .pill.warn { background: var(--ink); color: var(--inv); box-shadow: 0 0 0 2px var(--ink); }
 .pill.failed::before, .pill.invalid::before { animation: blink .6s steps(2) infinite; }
 .pill.plain::before { display: none; }
-.pagehead .pill { color: #000; box-shadow: 0 0 0 2px #000; }
+.pagehead .pill { color: var(--ban-ink); box-shadow: 0 0 0 2px var(--ban-ink); }
 .tag { font: 8px/1 var(--pixel); padding: 6px 7px 5px; }
 .tag.final { box-shadow: 0 0 0 2px var(--ink); }
 .tag.draft { background: var(--ink); color: var(--inv); }
@@ -237,16 +241,15 @@ input[type=checkbox] { accent-color: var(--ink); width: 16px; height: 16px; }
 
 /* the live stages: a hero each */
 .now { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 22px; }
-.nowcard { padding: 16px 18px 14px; display: flex; flex-direction: column; gap: 10px; color: #000;
-           background-color: #dfe9f2; background-image: var(--mist); background-size: cover; }
+.nowcard { padding: 16px 18px 14px; display: flex; flex-direction: column; gap: 10px; color: var(--ban-ink); background: var(--ban); }
 .nowcard .l { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
 .nowcard .l b { font: 9px/1.5 var(--pixel); text-transform: uppercase; font-weight: 400; }
 .nowcard .big { font: 22px/1 var(--pixel); }
-.nowcard .bar { height: 18px; background-color: #f2f2f2; box-shadow: 0 0 0 2px #000; }
-.nowcard .bar > i { background: repeating-linear-gradient(90deg, #000 0 10px, transparent 10px 12px); }
-.nowcard .bar.live > i::after { background: #000; }
+.nowcard .bar { height: 18px; background: var(--ban); box-shadow: 0 0 0 2px var(--ban-ink); }
+.nowcard .bar > i { background: repeating-linear-gradient(90deg, var(--ban-ink) 0 10px, transparent 10px 12px); }
+.nowcard .bar.live > i::after { background: var(--ban-ink); }
 .nowcard .sub { display: flex; gap: 18px; font-size: 19px; flex-wrap: wrap; }
-.nowcard .muted { color: #222; }
+.nowcard .muted { color: var(--ban-ink); opacity: .75; }
 
 .pgrid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(380px, 1fr); gap: 26px; align-items: start; }
 .mapcard { overflow: hidden; }
@@ -372,10 +375,9 @@ textarea { resize: vertical; }
 .dlg.narrow { width: min(560px, 94vw); }
 .dlg::backdrop { background: rgba(0, 0, 0, .78); }
 .dlgbody { display: flex; flex-direction: column; max-height: 86vh; }
-.dlgbody > header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; color: #000;
-  background-color: #dfe9f2; background-image: var(--mist); background-size: cover; }
-.dlgbody > header h2 { font-size: 12px; color: #000; }
-.dlgbody > header button { background: transparent; color: #000; box-shadow: none; }
+.dlgbody > header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; color: var(--ban-ink); background: var(--ban); }
+.dlgbody > header h2 { font-size: 12px; color: var(--ban-ink); }
+.dlgbody > header button { background: transparent; color: var(--ban-ink); box-shadow: none; }
 .dlgbody > div { padding: 18px 20px; overflow: auto; display: flex; flex-direction: column; gap: 14px; }
 .dlgbody > footer { display: flex; justify-content: flex-end; gap: 10px; padding: 14px 20px 18px; border-top: 2px dashed var(--dim); }
 .x { font-size: 12px; padding: 6px 8px; }
@@ -412,24 +414,39 @@ summary { cursor: pointer; color: var(--muted); font: 8px/2 var(--pixel); text-t
 .leaflet-control-attribution { font: 13px var(--term) !important; }
 .leaflet-bar a { border-radius: 0 !important; font-family: var(--pixel) !important; font-size: 12px !important; }
 
-/* a soft ring through the mist from where the pointer rests (app.js sets --mx, --my) */
-@property --ring { syntax: "<length>"; inherits: false; initial-value: 0px; }
-.pagehead:hover, .nowcard:hover, .dlgbody > header:hover,
-button.primary:hover:not(:disabled), button:not(.ghost):not(.danger):not(.seg button):not(.tabs button):hover:not(:disabled) {
-  background-image: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), transparent calc(var(--ring) - 22px),
-                    rgba(255, 255, 255, .42) var(--ring), transparent calc(var(--ring) + 22px)), var(--mist);
-  background-size: auto, cover; animation: ring 2.6s steps(16) infinite; }
-.pagehead button:hover:not(:disabled) { background-image: none; animation: none; }
-@keyframes ring { from { --ring: 0px; } to { --ring: 460px; } }
+/* the results map, inside the app: the viewer page in a frame, the whole height */
+.view.wide { max-width: none; }
+.pagehead.slim { padding: 14px 20px 12px; }
+.pagehead.slim h1 { font-size: 18px; }
+.resframe { position: relative; height: calc(100vh - 170px); min-height: 520px; }
+.resframe iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: var(--soft); z-index: 1; }
+.resframe .rhint { position: absolute; left: 16px; bottom: 10px; margin: 0; max-width: 640px; }
 
-/* now and then, a satellite passes behind the panels (app.js) */
+/* a click sends a holographic ripple out from where it landed; it stays there
+   while it spreads (app.js ripple(): one <i class="ripple"> per click) */
+/* isolation: the ripple (z-index -1) paints over the element's background, under its text */
+.pagehead, .nowcard, .dlgbody > header { position: relative; overflow: hidden; isolation: isolate; }
+button { overflow: hidden; isolation: isolate; }
+.ripple { position: absolute; border-radius: 50%; pointer-events: none; z-index: -1; transform: scale(0);
+  background: conic-gradient(from 0deg, #ff7ad9, #ffd97a, #7affb2, #7ae4ff, #a07aff, #ff7ad9);
+  -webkit-mask: radial-gradient(closest-side, transparent 52%, #000 60%, #000 74%, transparent 82%, rgba(0,0,0,.18) 90%, transparent 100%);
+          mask: radial-gradient(closest-side, transparent 52%, #000 60%, #000 74%, transparent 82%, rgba(0,0,0,.18) 90%, transparent 100%);
+  animation: ripple 1.15s steps(22) forwards; }
+@keyframes ripple { 0% { transform: scale(0) rotate(0deg); opacity: .95; } 70% { opacity: .75; } 100% { transform: scale(1) rotate(140deg); opacity: 0; } }
+
+/* now and then, a satellite passes far behind everything (the page, its maps and
+   the nav rail), with the latest results as its message (app.js fly()) */
 #sky { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
 main { position: relative; z-index: 1; }
 .sat { position: absolute; left: 0; top: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--muted); will-change: transform; }
 .sat .body { width: 90px; } .sat svg { width: 100%; height: auto; fill: currentColor; shape-rendering: crispEdges; display: block; }
-.sat .say small { display: block; font: 15px/1.1 var(--term); text-transform: none; color: var(--muted); margin-top: 3px; }
-.sat .say { font: 8px/1.4 var(--pixel); text-transform: uppercase; color: var(--ink); padding: 5px 7px 4px; background: var(--bg);
-            box-shadow: 0 0 0 2px var(--ink); white-space: nowrap; animation: blink 1.4s steps(2) infinite; }
+/* the satellite's downlink: steady, large text (only the little lamp blinks) */
+.sat .say { display: flex; flex-direction: column; gap: 2px; max-width: 480px; padding: 8px 11px 7px; background: var(--bg); color: var(--ink);
+            box-shadow: 0 0 0 3px var(--ink), 5px 5px 0 3px var(--dim); font: 22px/1.1 var(--term); }
+.sat .say b { font: 10px/1.6 var(--pixel); text-transform: uppercase; font-weight: 400; display: flex; gap: 8px; align-items: center; white-space: nowrap; }
+.sat .say .led { width: 8px; height: 8px; background: var(--ink); flex: none; animation: blink 1.2s steps(2) infinite; }
+.sat .say .ln { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sat .say small { display: block; font: 17px/1.1 var(--term); color: var(--muted); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sat .beam { width: 4px; height: 30px; background: repeating-linear-gradient(180deg, var(--muted) 0 4px, transparent 4px 9px); animation: ping .5s steps(2) infinite; }
 @keyframes ping { 50% { opacity: .2; } }
 

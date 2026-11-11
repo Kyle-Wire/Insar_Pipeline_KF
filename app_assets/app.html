@@ -100,6 +100,20 @@
     </div>
   </section>
 
+  <!-- ======================================================== results map -->
+  <section id="v-results" class="view wide" hidden>
+    <header class="pagehead slim">
+      <div><a href="#/" class="back" id="rback">&lt; Project</a><h1 id="rname">Results map</h1></div>
+      <div class="actions">
+        <button id="rreload" title="Load the results map again">Reload</button>
+        <button id="rwindow" title="The same map in its own browser window">Own window</button>
+      </div>
+    </header>
+    <div class="resframe card"><iframe id="rframe" title="Results map" referrerpolicy="no-referrer"></iframe>
+      <p class="muted small rhint">Blank? The results viewer running on this computer is from before 11 Nov 2026 and refuses to be shown
+        inside the app: restart the dashboard (or <code>insar viewer</code>), or press <b>Own window</b>.</p></div>
+  </section>
+
   <!-- ======================================================== files -->
   <section id="v-files" class="view" hidden>
     <header class="pagehead"><div><h1>Files</h1><p class="sub">What each project keeps on disk. Free space a folder at a time, or a whole project at once.</p></div></header>

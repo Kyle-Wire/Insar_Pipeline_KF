@@ -122,3 +122,17 @@ def test_wells_take_the_reports_reading_and_the_change_raster_appears(home):
     assert im["kind"] == "image" and im["legend"]["units"] == "mm"
     assert im["source"] == "los_change_mm_20180101_20200101.tif"
 
+
+def test_the_results_viewer_lists_the_wells_with_their_readings(home):
+    """11 Nov 2026: the results viewer's wells (/api/wells) are the live map's
+    rows: the point layers only, each well's reading."""
+    from insar_pipeline import results_viewer as rv
+    cfg, P = _oil_gas(home)
+    d = rv.api_wells({"config": str(cfg)})
+    assert [L["id"] for L in d["layers"]] == ["study_wells"]          # faults and pads are not points
+    L = d["layers"][0]
+    assert L["label"] == "Wells" and not L["from_report"]
+    assert [(p["id"], p["status"]) for p in L["points"]] == [("W1", "no_report"), ("W2", "no_report")]
+    assert L["points"] == app.api_layer({"config": str(cfg), "id": "study_wells"})["points"]
+    assert {c["name"] for c in L["legend"]} == {w for k, w, _ in app.WELL_STATUS if k == "no_report"}
+    assert "/api/wells" in rv.API

@@ -87,8 +87,11 @@ CONTENT_TYPES = {".js": "text/javascript; charset=utf-8", ".css": "text/css; cha
                  ".svg": "image/svg+xml", ".txt": "text/plain; charset=utf-8", ".woff2": "font/woff2"}
 TILE_HOSTS = ("https://basemap.nationalmap.gov", "https://server.arcgisonline.com", "https://tile.openstreetmap.org",
               "https://*.tile.opentopomap.org")
+# the results section shows the results viewer (results_viewer.PORT) in a frame: that one server only
+VIEWER_ORIGINS = ("http://localhost:8766", "http://127.0.0.1:8766")
 CSP = ("default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
        f"img-src 'self' data: blob: {' '.join(TILE_HOSTS)}; connect-src 'self'; font-src 'self'; "
+       f"frame-src {' '.join(VIEWER_ORIGINS)}; "
        "object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'")
 
 # The run's stages grouped into the phases the page shows as steps. A stage

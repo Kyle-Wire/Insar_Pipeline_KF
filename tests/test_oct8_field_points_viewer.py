@@ -394,3 +394,20 @@ def test_polygon_panel_from_every_cell(viewer, monkeypatch):
     monkeypatch.setattr(rv, "POLYGON_LINES", 5)
     few = rv.api_polygon_cells({"config": viewer.config, "rings": [ring]})
     assert len(few["cells_series_vertical_mm"]) == 5 < few["cells_series_of"]
+
+
+def test_a_wells_own_series_is_its_map_cells(viewer):
+    """11 Nov 2026 (Kyle: the well's chart on the well, not "the nearest
+    point"): api_well gives the measured map cell the well sits in, as
+    api_cell gives it; a well just off a cell's centre still lands in that
+    cell, and a well far off the grid is refused."""
+    fd = fp.load(viewer.built.npz)
+    field = np.flatnonzero((fd["group"] == 0) & ~fd["fast"] & np.isfinite(fd["rate"]))
+    j = int(field[len(field) // 2])
+    r, c = int(fd["row"][j]), int(fd["col"][j])
+    cell = rv.api_cell({"config": viewer.config, "row": r, "col": c})
+    w = rv.api_well({"config": viewer.config, "lat": cell["lat"] + 1e-5, "lon": cell["lon"] - 1e-5})
+    assert (w["row"], w["col"]) == (r, c) and w["own_vert_mm"] == cell["own_vert_mm"]
+    assert 0 < w["offset_m"] < 3
+    with pytest.raises(ValueError):
+        rv.api_well({"config": viewer.config, "lat": 0.0, "lon": 0.0})

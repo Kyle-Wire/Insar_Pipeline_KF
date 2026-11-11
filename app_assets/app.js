@@ -76,6 +76,8 @@
     const next = cur === 'dark' ? 'light' : 'dark';
     document.documentElement.dataset.theme = next;
     try { localStorage.setItem('insar-app-theme', next); } catch (e) { /* fine */ }
+    const f = $('#rframe');                       // the results section's viewer follows
+    if (f && f.src && f.contentWindow) { try { f.contentWindow.postMessage({theme: next}, new URL(f.src).origin); } catch (e) { /* not loaded */ } }
   });
 
   // ------------------------------------------------------------ maps
@@ -184,13 +186,16 @@
   function go() {
     stopTimers();
     const hash = location.hash || '#/';
-    const m = hash.match(/^#\/p\/(.+)$/), mf = hash.match(/^#\/files(?:\/(.+))?$/);
+    const m = hash.match(/^#\/p\/(.+)$/), mf = hash.match(/^#\/files(?:\/(.+))?$/), mr = hash.match(/^#\/r\/(.+)$/);
     route = m ? {view: 'project', name: decodeURIComponent(m[1])}
+      : mr ? {view: 'results', name: decodeURIComponent(mr[1])}
       : mf ? {view: 'files', name: mf[1] ? decodeURIComponent(mf[1]) : null}
       : hash === '#/new' ? {view: 'new'} : hash === '#/computer' ? {view: 'computer'} : {view: 'projects'};
     $$('.view').forEach(v => { v.hidden = v.id !== 'v-' + route.view; });
-    $$('.navlink').forEach(a => a.classList.toggle('on', a.dataset.nav === (route.view === 'project' ? 'projects' : route.view)));
+    $$('.navlink').forEach(a => a.classList.toggle('on', a.dataset.nav === (['project', 'results'].includes(route.view) ? 'projects' : route.view)));
+    if (route.view !== 'results') $('#rframe').removeAttribute('src');   // the viewer stops when its section is left
     if (route.view === 'projects') showProjects();
+    else if (route.view === 'results') showResults(route.name);
     else if (route.view === 'project') showProject(route.name);
     else if (route.view === 'computer') showComputer();
     else if (route.view === 'files') showFiles(route.name);
@@ -739,8 +744,31 @@
     }
     try { await api('open', {config: P.config, what: 'report'}); toast('Opening the report…'); } catch (e) { toast(e.message, 'bad'); }
   });
-  $('#bviewer').addEventListener('click', async () => {
-    try { const d = await api('viewer', {config: P.config}); window.open(d.url, '_blank'); } catch (e) { toast(e.message, 'bad'); }
+  $('#bviewer').addEventListener('click', () => { location.hash = '#/r/' + encodeURIComponent(route.name); });
+
+  // ============================================================ results map (the viewer, inside the app)
+  // The results viewer (results_viewer.py, its own server) in a frame: its CSP
+  // lets only this app's page frame it. The app's theme goes with it in the
+  // link, and again by message when B/W is pressed (viewer_app.js listens).
+  let resURL = '';
+  const appTheme = () => document.documentElement.dataset.theme ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  async function viewerURL(name) {
+    const d = await api('viewer', {});
+    return d.url.split('#')[0] + '#project=' + encodeURIComponent(name) + '&theme=' + appTheme();
+  }
+  async function showResults(name) {
+    $('#rname').textContent = 'Results map · ' + name;
+    $('#rback').href = '#/p/' + encodeURIComponent(name);
+    try { resURL = await viewerURL(name); $('#rframe').src = resURL; } catch (e) { toast(e.message, 'bad'); }
+  }
+  $('#rreload').addEventListener('click', () => {
+    if (!resURL) return;
+    $('#rframe').src = 'about:blank';
+    setTimeout(() => { $('#rframe').src = resURL; }, 30);
+  });
+  $('#rwindow').addEventListener('click', async () => {
+    try { window.open(await viewerURL(route.name), '_blank'); } catch (e) { toast(e.message, 'bad'); }
   });
 
   // ------------------------------------------------------------ sign-off dialog
@@ -1080,12 +1108,26 @@
   });
 
   // ============================================================ the pointer's ring, the passing satellite
-  addEventListener('pointermove', e => {
-    const el = e.target.closest && e.target.closest('.pagehead, .nowcard, .dlgbody > header, button');
-    if (!el) return;
-    const b = el.getBoundingClientRect();
-    el.style.setProperty('--mx', (e.clientX - b.left) + 'px');
-    el.style.setProperty('--my', (e.clientY - b.top) + 'px');
+  // A click on a banner or a button sends one holographic ripple out from where
+  // it landed. The ripple stays at that spot while it spreads (it does not follow
+  // the pointer) and is removed when it has faded. Sized to reach the farthest corner.
+  const stillR = matchMedia('(prefers-reduced-motion: reduce)');
+  function ripple(el, x, y) {
+    const b = el.getBoundingClientRect(), px = x - b.left, py = y - b.top;
+    const R = Math.ceil(Math.hypot(Math.max(px, b.width - px), Math.max(py, b.height - py))) + 24;
+    const r = document.createElement('i');
+    r.className = 'ripple';
+    r.setAttribute('aria-hidden', 'true');
+    Object.assign(r.style, {left: (px - R) + 'px', top: (py - R) + 'px', width: 2 * R + 'px', height: 2 * R + 'px'});
+    el.prepend(r);                                     // z-index -1 in an isolated box: under the text (app.css)
+    const gone = () => r.remove();
+    r.addEventListener('animationend', gone, {once: true});
+    setTimeout(gone, 1600);                            // in case the animation never runs
+  }
+  addEventListener('pointerdown', e => {
+    if (stillR.matches || e.button > 0) return;
+    const el = e.target.closest && e.target.closest('.pagehead, .nowcard, .dlgbody > header, button:not(.ghost):not(:disabled)');
+    if (el) ripple(el, e.clientX, e.clientY);
   }, {passive: true});
 
   const SAT = ['####..###..####', '#..#..#.#..#..#', '###############', '#..#..#.#..#..#', '####..###..####',
@@ -1168,16 +1210,40 @@
     if (!still2.matches && !document.hidden) fly(ORBIT.draw(seed ? seeded : Math.random, innerWidth / Math.max(1, innerHeight)));
     setTimeout(pass, 120000 + Math.random() * 120000);    // every two to four minutes
   }
-  function fly(o) {
+  // What the satellite reports: the project on screen, else the run going now,
+  // else the most recently updated project; its live stage or its headline
+  // figures (the same rows as the project cards: api home's areas, at most two).
+  function downlink(list) {
+    const here = route.view === 'project' ? list.find(p => p.name === route.name) : null;
+    const live = list.filter(p => !p.gone && p.state === 'running').sort((a, b) => b.updated_t - a.updated_t);
+    const p = here || live[0] || list.filter(q => !q.gone).sort((a, b) => b.updated_t - a.updated_t)[0];
+    if (!p) return null;
+    const lines = [];
+    if (p.live) lines.push(`${p.live.label}${p.live.total ? ` ${p.live.done}/${p.live.total}` : ''}${p.live.remaining ? ` · ${p.live.remaining} left` : ''}`);
+    for (const a of (p.areas || []).slice(0, 2)) lines.push(`${a.name}: ${a.rate}${a.reading ? ' · ' + a.reading : ''}`);
+    if (p.send_rule) lines.push(`Verdict: ${p.send_rule}${p.final ? ' (final)' : p.final === false ? ' (draft)' : ''}`);
+    if (!lines.length) lines.push(p.error ? 'Needs attention' : 'No results yet');
+    return {name: p.name, state: STATE_WORD[p.state] || p.state, lines};
+  }
+  async function fly(o) {
     const sky = $('#sky');
     const mid = o.at((o.t0 + o.t1) / 2);
+    let list = projects;
+    if (!list.length || route.view !== 'projects') { try { list = (await api('home')).projects || []; } catch (e) { /* offline: beeps only */ } }
+    const dl = downlink(list || []);
     const words = BEEPS[Math.floor(Math.random() * BEEPS.length)];
-    const facts = `${Math.round(mid.alt).toLocaleString()} km · i ${o.inc_deg.toFixed(1)}° · ${mid.v.toFixed(1)} km/s`;
+    const facts = `${o.kind} · ${Math.round(mid.alt).toLocaleString()} km · i ${o.inc_deg.toFixed(1)}° · ${mid.v.toFixed(1)} km/s`;
     const body = h('div', {class: 'body'}, sprite(SAT));
-    const sat = h('div', {class: 'sat'}, h('div', {class: 'say'}, words, h('small', {}, o.kind + ' · ' + facts)), body, h('div', {class: 'beam'}));
+    const say = dl
+      ? h('div', {class: 'say'}, h('b', {}, h('i', {class: 'led'}), `${dl.name} · ${dl.state}`),
+          dl.lines.map(t => h('span', {class: 'ln'}, t)), h('small', {}, `${words} · ${facts}`))
+      : h('div', {class: 'say'}, h('b', {}, h('i', {class: 'led'}), words), h('small', {}, facts));
+    const sat = h('div', {class: 'sat'}, say, body, h('div', {class: 'beam'}));
     sky.append(sat);
     const scale = Math.max(0.5, Math.min(1.3, Math.pow(700 / Math.max(mid.alt, 200), 0.3)));   // higher looks smaller
     body.style.width = Math.round(90 * scale) + 'px';
+    // the orbit point is the sprite's centre, wherever the label above it puts the sprite
+    const cx = () => sat.offsetWidth / 2, cy = () => body.offsetTop + body.offsetHeight / 2;
     const W = innerWidth, H = innerHeight, start = performance.now(), ms = o.seconds * 1000;
     let last = 0;
     const step = now => {
@@ -1188,7 +1254,7 @@
         const t = o.t0 + p * (o.t1 - o.t0), q = o.at(t), q2 = o.at(t + (o.t1 - o.t0) / 200);
         const x = Math.round((0.5 + q.x) * W / 3) * 3, y = Math.round((0.5 + q.y) * H / 3) * 3;
         const ang = Math.round(Math.atan2((q2.y - q.y) * H, (q2.x - q.x) * W) / (Math.PI / 12)) * 15;   // faces its way, 15° steps
-        sat.style.transform = `translate(${x - 45}px, ${y - 40}px)`;
+        sat.style.transform = `translate(${x - Math.round(cx())}px, ${y - Math.round(cy())}px)`;
         body.style.transform = `rotate(${ang}deg)`;
         sat.style.opacity = String(Math.min(1, p * 12, (1 - p) * 12));   // a slow pass fades in and out mid-screen
       }

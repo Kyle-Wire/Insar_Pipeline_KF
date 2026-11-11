@@ -70,6 +70,19 @@ input[type=text] { flex: 1; }
 .toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
 .toggle button { border: 0; border-radius: 0; font-size: 12px; padding: 3px 9px; }
 .toggle button.on { background: var(--accent); color: var(--accent-ink); }
+/* layer opacity (11 Nov 2026) */
+.opgrid { display: grid; grid-template-columns: auto 1fr 3.2em; gap: 4px 10px; align-items: center; font-size: 13px; }
+.opgrid input[type=range] { width: 100%; accent-color: var(--accent, #d97706); }
+.opgrid output { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+/* wells: the summary, the list and a well's own figures */
+.wcounts { display: grid; grid-template-columns: 14px 1fr auto; gap: 3px 8px; align-items: center; font-size: 13px; }
+.wcounts i { width: 12px; height: 12px; border: 1px solid #111; display: inline-block; }
+.wlist { max-height: 220px; overflow: auto; font-size: 13px; border-top: 1px solid var(--line); margin-top: 6px; }
+.wlist table { width: 100%; border-collapse: collapse; }
+.wlist td { padding: 3px 4px; border-bottom: 1px solid var(--line); }
+.wlist tr { cursor: pointer; }
+.wlist tr:hover { background: var(--line); }
+.wlist td.v { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 label.inline { display: flex; align-items: center; gap: 6px; font-size: 13px; }
 .note { font-size: 12.5px; padding: 7px 10px; border-radius: 7px; background: var(--soft); border-left: 3px solid var(--line); }
 .note.warn { border-left-color: var(--warn); } .note.bad { border-left-color: var(--bad); } .note.good { border-left-color: var(--good); }

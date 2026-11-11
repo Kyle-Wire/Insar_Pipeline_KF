@@ -14,6 +14,18 @@
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
   const STATIC = !!window.INSAR_BUNDLE_STATIC;
   const MM_IN = C.MM_IN;
+  // Inside the app's results section (11 Nov 2026): the app's theme comes in the
+  // link (#...&theme=dark) and again by message from the app's own page only.
+  const APP_ORIGINS = ['http://localhost:8767', 'http://127.0.0.1:8767'];
+  {
+    const m = (location.hash || '').match(/[#&]theme=(dark|light)\b/);
+    if (m) document.documentElement.setAttribute('data-theme', m[1]);
+  }
+  window.addEventListener('message', e => {
+    if (!APP_ORIGINS.includes(e.origin) || !e.data || !['dark', 'light'].includes(e.data.theme)) return;
+    document.documentElement.setAttribute('data-theme', e.data.theme);
+    if (typeof points !== 'undefined') points.redraw();
+  });
 
   function toast(msg, bad = false, ms = 4500) {
     const t = $('toast'); t.textContent = msg; t.className = bad ? 'bad' : ''; t.hidden = false;
@@ -61,6 +73,9 @@
   };
 
   // ------------------------------------------------------------ the map
+  const OP = {points: 1, areas: 1, wells: 1, base: 1};      // layer opacity, 0..1
+  try { Object.assign(OP, JSON.parse(localStorage.getItem('viewer.opacity') || '{}')); } catch (e) { /* storage off */ }
+  for (const k of Object.keys(OP)) OP[k] = Math.max(0, Math.min(1, Number(OP[k]) || 0));
   const map = L.map('map', {zoomControl: false}).setView([38.33, -87.55], 10);
   L.control.zoom({position: 'topright'}).addTo(map);
   L.control.scale({imperial: true, position: 'bottomright'}).addTo(map);
@@ -72,8 +87,10 @@
     grey: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {maxZoom: 16, attribution: 'Esri, HERE, Garmin, (c) OpenStreetMap contributors, and the GIS user community'}),
   };
   let base = bases.usgs.addTo(map);
-  $('base').onchange = e => { map.removeLayer(base); base = bases[e.target.value].addTo(map); };
+  $('base').onchange = e => { map.removeLayer(base); base = bases[e.target.value].addTo(map); base.setOpacity(OP.base); };
   map.on('mousemove', e => { $('readout').textContent = `${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`; });
+  map.createPane('areas').style.zIndex = 450;          // above the points' canvas (overlay pane, 400)
+  map.createPane('wells').style.zIndex = 620;          // above the markers
   const outlineLayer = L.layerGroup().addTo(map);
   const drawn = new L.FeatureGroup().addTo(map);
   map.addControl(new L.Control.Draw({
@@ -158,6 +175,7 @@
       m.getPanes().overlayPane.appendChild(this._c);
       m.on('moveend resize zoomend viewreset', this.redraw, this);
       m.on('zoomstart', () => { this._c.style.opacity = 0; }, this);
+      this._c.style.opacity = OP.points;
       this.redraw();
     },
     onRemove(m) { this._c.remove(); m.off('moveend resize zoomend viewreset', this.redraw, this); },
@@ -166,7 +184,7 @@
       const size = m.getSize(), dpr = window.devicePixelRatio || 1, c = this._c;
       L.DomUtil.setPosition(c, m.containerPointToLayerPoint([0, 0]));
       c.width = size.x * dpr; c.height = size.y * dpr; c.style.width = size.x + 'px'; c.style.height = size.y + 'px';
-      c.style.opacity = 1;
+      c.style.opacity = OP.points;
       const g = c.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, size.x, size.y);
       if (!P || !P.col) return;
       const z = m.getZoom(), scale = 256 * 2 ** z, org = m.getPixelOrigin(), off = m.containerPointToLayerPoint([0, 0]);
@@ -261,6 +279,26 @@
     },
   });
   const points = new PointsLayer().addTo(map);
+
+  // ------------------------------------------------------------ layer opacity (11 Nov 2026)
+  // One slider a layer: the points' canvas, the areas' pane, the wells' pane,
+  // the basemap's tiles. Remembered on this computer.
+  function applyOpacity(k) {
+    if (k === 'points' && points._c) points._c.style.opacity = OP.points;
+    if (k === 'areas') map.getPane('areas').style.opacity = OP.areas;
+    if (k === 'wells') map.getPane('wells').style.opacity = OP.wells;
+    if (k === 'base') base.setOpacity(OP.base);
+  }
+  for (const k of Object.keys(OP)) {
+    const el = $('op-' + k), out = $('op-' + k + '-v');
+    if (!el) continue;
+    el.value = Math.round(OP[k] * 100); out.textContent = el.value + '%';
+    el.oninput = () => {
+      OP[k] = el.value / 100; out.textContent = el.value + '%'; applyOpacity(k);
+      try { localStorage.setItem('viewer.opacity', JSON.stringify(OP)); } catch (e) { /* storage off */ }
+    };
+    applyOpacity(k);
+  }
 
   const layer = () => document.querySelector('input[name=layer]:checked').value;
 
@@ -697,7 +735,7 @@
 
   async function selectCell(k) {
     const Q = CELLS;
-    sel = -1; selPoly = null; styleShapes();
+    sel = -1; selPoly = null; selWell = null; styleShapes();
     P.cellSel = {config: P.config, row: Q.gridRow[k], col: Q.gridCol[k], lat: Q.lat[k], lon: Q.lon[k]};
     P.cellInfo = null; points.redraw(); showCell(); writeHash();
     try {
@@ -723,8 +761,8 @@
 
   /* the cell's own series (zeroed on its fit at the first image, as a point's)
    * and the KMZ's line (its 3 x 3 cells), over the whole record */
-  function drawCellChart() {
-    const info = P.cellInfo, c = P.cellSel, W = P.W, v = chartMode === 'vert', d = unitDiv(), t = P.meta.t, tw = t.map(x => x - t[0]);
+  function drawCellChart(info = P.cellInfo, c = P.cellSel, who = 'this cell') {
+    const W = P.W, v = chartMode === 'vert', d = unitDiv(), t = P.meta.t, tw = t.map(x => x - t[0]);
     $('detailbody').querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.m === chartMode));
     const y = (v ? info.own_vert_mm : info.own_los_mm).map(x => (x === null ? null : x / d));
     const src = (v ? info.vert : info.los).map(x => (x === null ? NaN : x * MM_IN));
@@ -735,7 +773,7 @@
     const sd = info.sd_vert_mm_yr;
     const half = isFinite(sd) ? C.Z95 * (v ? Math.hypot(sd, bgU) : sd * info.up) : null;
     const rate = v ? info.rate_vert_mm_yr : info.rate_los_mm_yr;
-    const series = [{name: `this cell (its own ${cellM()} m map cell)`, y},
+    const series = [{name: `${who} (its own ${cellM()} m map cell)`, y},
                     {name: '3 x 3 cells around it (the KMZ chart)', y: src.map(x => (isFinite(x) ? (x - a0) / d : null)), width: 1.2, dash: '1 0'}];
     const dates = P.meta.dates;
     const data = {columns: ['date', `${v ? 'vertical' : 'line_of_sight'}_${units}`, `fitted_${units}`, `farmland_95pct_low_${units}`, `farmland_95pct_high_${units}`],
@@ -763,7 +801,7 @@
   });
 
   async function selectPoint(j) {
-    sel = j; selPoly = null; P.cellSel = null; styleShapes(); points.redraw();
+    sel = j; selPoly = null; P.cellSel = null; selWell = null; styleShapes(); points.redraw();
     P.pointInfo = null;
     showPoint(); writeHash();
     if (!STATIC) {
@@ -982,7 +1020,7 @@
 
   function selectPolygon(p) {
     if (!p) return;
-    sel = -1; selPoly = p; P.cellSel = null;
+    sel = -1; selPoly = p; P.cellSel = null; selWell = null;
     styleShapes(); points.redraw(); showPolygon(); writeHash();
   }
 
@@ -1197,7 +1235,7 @@
   }
 
   // ------------------------------------------------------------ the view in the address
-  /* #project=<name>&from=YYYY-MM-DD&to=YYYY-MM-DD&layer=<layer>&units=in|mm&at=lat,lon,zoom:
+  /* #project=<name>&from=YYYY-MM-DD&to=YYYY-MM-DD&layer=<layer>&units=in|mm&at=lat,lon,zoom&well=<id>:
    * a link a coworker opens to the same view (the server still asks for its
    * own page token, so the link holds no secret) */
   function readHash() {
@@ -1215,6 +1253,7 @@
                    ['units', units], ['at', `${c.lat.toFixed(5)},${c.lng.toFixed(5)},${map.getZoom()}`],
                    ['pt', sel >= 0 ? `${P.a.lat[sel].toFixed(6)},${P.a.lon[sel].toFixed(6)}` : ''],
                    ['cell', P.cellSel ? `${P.cellSel.lat.toFixed(6)},${P.cellSel.lon.toFixed(6)}` : ''],
+                   ['well', selWell ? String(selWell.id) : ''],
                    ['poly', polys.map(p => p.rings[0].map(([x, y]) => `${x.toFixed(5)},${y.toFixed(5)}`).join(';')).join('|')],
                    ['names', polys.some(p => p.name !== `Polygon ${p.id}`) ? polys.map(p => p.name.replace(/\|/g, '/')).join('|') : ''],
                    ['sp', selPoly ? String(polys.indexOf(selPoly)) : ''],
@@ -1265,6 +1304,128 @@
       if (isFinite(la) && isFinite(lo)) P.pendingCell = [la, lo];
     } else if (h.pt) { const j = nearestTo(h.pt); if (j >= 0) selectPoint(j); }
     else if (h.sp !== undefined && made[+h.sp]) selectPolygon(made[+h.sp]);
+  }
+
+  // ------------------------------------------------------------ wells (11 Nov 2026)
+  // The study's point layers (wells) from /api/wells: each well's reading from
+  // the client report (whole record, relative to ordinary ground), and, for the
+  // dates chosen here, the measurement points around it (a look, not a test).
+  const wellLayer = L.layerGroup().addTo(map);
+  const wellCanvas = L.canvas({pane: 'wells', padding: 0.3});     // thousands of wells: one canvas, not SVG
+  const wellR = () => { const z = map.getZoom(); return z < 12 ? 2 : z < 14 ? 3 : z < 16 ? 4.5 : 6.5; };
+  map.on('zoomend', () => wellLayer.eachLayer(m => m.setRadius(wellR())));
+  let WELLS = [];                                // [{layer, ...point}] of the project shown
+  let selWell = null;                            // the well in the panel (a link names it: #...&well=<id>)
+  const WELL_R = 150;                            // metres: "the points around a well"
+  $('wellson').onchange = e => (e.target.checked ? wellLayer.addTo(map) : map.removeLayer(wellLayer));
+  async function loadWells(config, want) {          // want: a well's id from the link
+    wellLayer.clearLayers(); WELLS = []; $('wells').hidden = true;
+    if (STATIC || !config) return;
+    let d;
+    try { d = await api('/api/wells', {config}); } catch (e) { return; }      // an older server: no wells
+    if (!P || P.config !== config) return;
+    const colour = {};
+    for (const L_ of d.layers) for (const c of L_.legend) colour[c.name] = c.color;
+    for (const L_ of d.layers) {
+      for (const w of L_.points) {
+        w.layer = L_.label; w.from_report = L_.from_report; w.colour = colour[w.status_words] || '#888';
+        WELLS.push(w);
+        L.circleMarker([w.lat, w.lon], {renderer: wellCanvas, radius: wellR(), color: '#111', weight: 1, fillColor: w.colour, fillOpacity: 1})
+          .bindTooltip(`${esc(w.id)} · ${esc(w.status_words)}`)
+          .on('click', ev => { L.DomEvent.stopPropagation(ev); showWell(w); })
+          .addTo(wellLayer);
+      }
+    }
+    if (!WELLS.length) return;
+    $('wells').hidden = false;
+    $('wellshead').textContent = `${d.layers.map(x => x.label).join(', ')} (${WELLS.length.toLocaleString()})`;
+    renderWellSummary(d);
+    const w = want && WELLS.find(x => String(x.id) === want);
+    if (w) { map.setView([w.lat, w.lon], Math.max(map.getZoom(), 15)); showWell(w); }
+  }
+  const wellRate = w => (w.value_mm_yr == null ? '—' : fmtRate(w.value_mm_yr));
+  function renderWellSummary(d) {
+    const counts = new Map();
+    for (const w of WELLS) counts.set(w.status_words, (counts.get(w.status_words) || 0) + 1);
+    const order = [];
+    for (const L_ of d.layers) for (const c of L_.legend) if (!order.some(o => o.name === c.name)) order.push(c);
+    const measured = WELLS.filter(w => w.value_mm_yr != null).sort((a, b) => a.value_mm_yr - b.value_mm_yr);
+    let h = `<div class="wcounts">${order.map(c => `<i style="background:${esc(c.color)}"></i><span>${esc(c.name)}</span><b>${counts.get(c.name) || 0}</b>`).join('')}</div>`;
+    if (measured.length) {
+      const med = measured[Math.floor(measured.length / 2)].value_mm_yr;
+      h += `<p class="hint">${measured.length} with a number; median ${esc(fmtRate(med))}, fastest sinking ${esc(fmtRate(measured[0].value_mm_yr))}. Whole record, relative to ordinary ground.</p>`;
+    } else if (!WELLS.some(w => w.from_report)) {
+      h += '<p class="hint">No readings yet: the products run gives each well its number.</p>';
+    }
+    const rows = WELLS.slice().sort((a, b) => (b.status === 'moving') - (a.status === 'moving') ||
+      (a.value_mm_yr ?? Infinity) - (b.value_mm_yr ?? Infinity));
+    h += `<div class="wlist"><table>${rows.map((w, k) => `<tr data-k="${WELLS.indexOf(w)}"><td><i class="wdot" style="display:inline-block;width:9px;height:9px;background:${esc(w.colour)};border:1px solid #111"></i> ${esc(w.id)}</td><td class="v">${esc(wellRate(w))}</td></tr>`).join('')}</table></div>`;
+    $('wellsum').innerHTML = h;
+    $('wellsum').querySelectorAll('tr[data-k]').forEach(tr => {
+      tr.onclick = () => { const w = WELLS[+tr.dataset.k]; map.setView([w.lat, w.lon], Math.max(map.getZoom(), 15)); showWell(w); };
+    });
+  }
+  /* the measurement points within WELL_R of a well, over the dates chosen: their
+     count, median and spread of vertical rate, and the nearest one */
+  function aroundWell(w) {
+    if (!P || !P.W) return null;
+    const k = Math.cos(w.lat * Math.PI / 180), m = 111320, idx = [];
+    let near = -1, nd = Infinity;
+    for (let j = 0; j < P.n; j++) {
+      const dy = (P.a.lat[j] - w.lat) * m, dx = (P.a.lon[j] - w.lon) * m * k, d = Math.hypot(dx, dy);
+      if (d < nd && !P.a.fast[j]) { nd = d; near = j; }
+      if (d <= WELL_R && !P.a.fast[j] && isFinite(P.W.vertical[j])) idx.push(j);
+    }
+    const v = idx.map(j => P.W.vertical[j]).sort((a, b) => a - b);
+    const q = f => v[Math.min(v.length - 1, Math.max(0, Math.round(f * (v.length - 1))))];
+    const stand = idx.filter(j => P.W.signal_to_threshold[j] >= 1).length;
+    return {n: v.length, med: v.length ? q(0.5) : NaN, lo: v.length ? q(0.1) : NaN, hi: v.length ? q(0.9) : NaN,
+            stand, near, near_m: nd};
+  }
+  function showWell(w) {
+    sel = -1; selPoly = null; if (P) P.cellSel = null; styleShapes(); points.redraw();
+    selWell = w;
+    const n = x => (x == null ? '' : C.signed(x / unitDiv(), ndRate()));
+    const rows = [];
+    rows.push(['Reading (client report)', `<b>${esc(w.status_words)}</b>`]);
+    if (w.value_mm_yr != null) rows.push(['Vertical, per year (whole record)', `<b>${esc(bothRate(w.value_mm_yr))}</b> relative to ordinary ground`]);
+    if (w.range_mm_yr) rows.push(['95% range', `${n(w.range_mm_yr[0])} to ${n(w.range_mm_yr[1])} ${units}/yr`]);
+    if (w.tier) rows.push(['Tier', esc(w.tier)]);
+    if ((w.shared_with || []).length) rows.push(['Shared value', `with ${esc(w.shared_with.join(', '))}: not a per-well rate`]);
+    if (w.reason) rows.push(['Why', esc(w.reason)]);
+    for (const [k, v] of Object.entries(w.attributes || {})) if (v != null && v !== '') rows.push([esc(k.replace(/_/g, ' ')), esc(v)]);
+    const A = aroundWell(w);
+    if (A) {
+      const W = P.W;
+      rows.push([`Points within ${WELL_R} m, ${C.fmtDate(W.first)} to ${C.fmtDate(W.last)}`,
+        A.n ? `${A.n}; median ${esc(fmtRate(A.med))} (middle 80% ${esc(fmtRate(A.lo))} to ${esc(fmtRate(A.hi))}); ${A.stand} stand out` : 'none measured']);
+      if (A.near >= 0) rows.push(['Nearest point', `${Math.round(A.near_m)} m away`]);
+    }
+    $('detailhead').innerHTML = `Well ${esc(w.id)}`;
+    $('detailbody').innerHTML = `<div class="row"><span class="hint">${w.lat.toFixed(5)}, ${w.lon.toFixed(5)} · ${esc(w.layer)}</span></div>
+      <div class="balloon"><table>${rows.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('')}</table>
+      <small>The reading and range are the client report's, over the whole record. The points around the well are a look over the dates chosen here, not a tested figure.</small></div>
+      <div class="tabs"><button data-m="vert">Vertical</button><button data-m="los">${LOSW()}</button></div>
+      <p class="hint" id="wcellnote"></p><div id="pchart"><span class="spin"></span></div>`;
+    writeHash();
+    if (STATIC) { $('pchart').innerHTML = '<p class="empty">The well\'s own series needs the live viewer.</p>'; return; }
+    const draw = info => {
+      $('detailbody').querySelectorAll('.tabs button').forEach(b => { b.onclick = () => { chartMode = b.dataset.m; draw(info); }; });
+      if (info.fast) { $('pchart').innerHTML = '<p class="note warn"><b>Not measurable here - too fast for this satellite.</b></p>'; return; }
+      drawCellChart(info, {lat: info.lat, lon: info.lon}, 'the well');
+    };
+    const cached = w.cell;
+    const go = info => {
+      if (selWell !== w) return;
+      $('wcellnote').textContent = info.offset_m <= cellM() / 2 + 1
+        ? `The well's own ${cellM()} m map cell, whole record (the date window does not cut this chart).`
+        : `The nearest measured ${cellM()} m map cell, ${Math.round(info.offset_m)} m from the well (its own cell has no measurement); whole record.`;
+      draw(info);
+    };
+    if (cached) { go(cached); return; }
+    api('/api/well', {config: P.config, lat: w.lat, lon: w.lon})
+      .then(info => { w.cell = info; go(info); },
+            err => { if (selWell === w) $('pchart').innerHTML = `<p class="empty">${esc(err.message)}</p>`; });
   }
 
   // ------------------------------------------------------------ loading
@@ -1325,8 +1486,9 @@
       fb.hidden = false; fb.textContent = m.final ? 'FINAL' : 'DRAFT'; fb.className = `badge ${m.final ? 'final' : 'draft'}`;
       fb.title = m.final ? 'Signed off: these are the released numbers.' : `Not signed off${(m.blockers || []).length ? `: ${m.blockers.join('; ')}` : ''}`;
       outlineLayer.clearLayers();
-      for (const ar of m.areas || []) L.polygon(ar.rings.map(r => r.map(([x, y]) => [y, x])), {color: '#1c2530', weight: 2, fill: false, interactive: false}).bindTooltip(ar.name).addTo(outlineLayer);
-      for (const f of m.features || []) L.polygon(f.rings.map(r => r.map(([x, y]) => [y, x])), {color: '#8b1a1a', weight: 2, fillOpacity: .08, interactive: false}).addTo(outlineLayer);
+      for (const ar of m.areas || []) L.polygon(ar.rings.map(r => r.map(([x, y]) => [y, x])), {pane: 'areas', color: '#1c2530', weight: 2, fill: false, interactive: false}).bindTooltip(ar.name).addTo(outlineLayer);
+      for (const f of m.features || []) L.polygon(f.rings.map(r => r.map(([x, y]) => [y, x])), {pane: 'areas', color: '#8b1a1a', weight: 2, fillOpacity: .08, interactive: false}).addTo(outlineLayer);
+      loadWells(config, hash && hash.well);
       const [w, s, e, nn] = m.bbox; map.fitBounds([[s, w], [nn, e]], {padding: [20, 20]});
       setupWindowControls();
       $('detailhead').textContent = 'Point or polygon';

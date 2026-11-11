@@ -57,6 +57,20 @@
     <p class="hint" id="cellhint"></p>
     <p class="hint" id="layerhint"></p>
   </section>
+  <section class="step" id="opacity">
+    <h2>Layer opacity</h2>
+    <div class="opgrid">
+      <label for="op-points">Points and cells</label><input type="range" id="op-points" min="0" max="100" value="100"><output id="op-points-v">100%</output>
+      <label for="op-areas">Areas and features</label><input type="range" id="op-areas" min="0" max="100" value="100"><output id="op-areas-v">100%</output>
+      <label for="op-wells">Wells</label><input type="range" id="op-wells" min="0" max="100" value="100"><output id="op-wells-v">100%</output>
+      <label for="op-base">Basemap</label><input type="range" id="op-base" min="0" max="100" value="100"><output id="op-base-v">100%</output>
+    </div>
+  </section>
+  <section class="step" id="wells" hidden>
+    <h2 id="wellshead">Wells</h2>
+    <label class="inline"><input type="checkbox" id="wellson" checked> Show the wells</label>
+    <div id="wellsum"></div>
+  </section>
   <section class="step">
     <div class="row" id="shapes"><button id="drawpoly" class="small" title="Click the corners on the map; click the first again to close">Draw a polygon</button><button id="drawrect" class="small" title="Drag on the map">Draw a rectangle</button></div>
   </section>

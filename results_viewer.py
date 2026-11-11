@@ -89,9 +89,13 @@ CONTENT_TYPES = {".js": "text/javascript; charset=utf-8", ".css": "text/css; cha
 # the basemaps the page offers (EXTERNAL_SERVICES.md): the only places it fetches from besides this server
 TILE_HOSTS = ("https://basemap.nationalmap.gov", "https://server.arcgisonline.com", "https://tile.openstreetmap.org",
               "https://*.tile.opentopomap.org")
+# the one page that may show this one inside it: the app window's results section
+# (app_server.PORT; 11 Nov 2026). Any other page still cannot frame it (NET-06).
+APP_PORT = 8767
+APP_ORIGINS = (f"http://localhost:{APP_PORT}", f"http://127.0.0.1:{APP_PORT}")
 CSP = ("default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
        f"img-src 'self' data: blob: {' '.join(TILE_HOSTS)}; connect-src 'self'; font-src 'self'; "
-       "object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'")
+       f"object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors {' '.join(APP_ORIGINS)}")
 
 
 # ---------------------------------------------------------------- data
@@ -1067,7 +1071,61 @@ def api_save_area(body: dict) -> dict:
     return save_report_area(body["config"], body.get("name") or "", body["rings"])
 
 
-API = {"/api/projects": api_projects, "/api/load": api_load, "/api/point": api_point, "/api/polygon": api_polygon,
+WELL_CELL_REACH = 3        # cells: how far from a well its own map cell may be looked for
+
+
+def api_well(body: dict) -> dict:
+    """A well's own series (11 Nov 2026): the measured 15 m map cell the well
+    sits in - or, when that cell has no measurement, the nearest measured
+    cell within WELL_CELL_REACH cells - as api_cell gives it, with how far
+    that cell's centre is from the well (offset_m)."""
+    if _is_combined(body["config"]):
+        raise ValueError("a combined view has no single map grid for a well's own series")
+    _, _, ctx, _ = _project_context(body["config"])
+    lat, lon = float(body["lat"]), float(body["lon"])
+    a = ctx.attrs
+    y0, x0, dy, dx = (float(a[k]) for k in ("Y_FIRST", "X_FIRST", "Y_STEP", "X_STEP"))
+    ny, nx = ctx.good.shape
+    r0, c0 = (lat - y0) / dy - 0.5, (lon - x0) / dx - 0.5      # cell centres sit half a step in
+    rc, cc = int(round(r0)), int(round(c0))
+    k = WELL_CELL_REACH
+    best, bd = None, np.inf
+    for r in range(max(0, rc - k), min(ny, rc + k + 1)):
+        for c in range(max(0, cc - k), min(nx, cc + k + 1)):
+            if ctx.good[r, c]:
+                d = (r - r0) ** 2 + (c - c0) ** 2
+                if d < bd:
+                    best, bd = (r, c), d
+    if best is None:
+        raise ValueError(f"no measured map cell within {k} cells of this well")
+    out = api_cell({"config": body["config"], "row": best[0], "col": best[1]})
+    kx = math.cos(math.radians(lat))
+    out["offset_m"] = round(math.hypot((out["lat"] - lat) * 111320.0, (out["lon"] - lon) * 111320.0 * kx), 1)
+    return out
+
+
+def api_wells(body: dict) -> dict:
+    """The project's study point layers (wells) with each one's reading, the
+    same rows the app's live map shows (app_server._study_points: from
+    client_report.json's study_points once the products have run, else as
+    listed in the file, no number yet). [] for a combined view or a project
+    without point layers (11 Nov 2026)."""
+    config = body["config"]
+    if _is_combined(config):
+        return {"layers": []}
+    from . import app_server as app
+    cfg, _, _ = _config_paths(config)
+    out = []
+    for L in app.study_layers(cfg):
+        if L["geometry"] != "point":
+            continue
+        d = app._study_points(cfg, L)
+        out.append({"id": L["id"], "label": L["label"], "kind": L["kind"], "from_report": d["from_report"],
+                    "legend": d["legend"]["classes"], "points": d["points"]})
+    return {"layers": out}
+
+
+API = {"/api/projects": api_projects, "/api/wells": api_wells, "/api/well": api_well, "/api/load": api_load, "/api/point": api_point, "/api/polygon": api_polygon,
        "/api/export_csv": api_export_csv, "/api/export_kmz": api_export_kmz, "/api/save_area": api_save_area,
        "/api/cells": api_cells, "/api/cell": api_cell, "/api/polygon_cells": api_polygon_cells}
 BINARY_API = {"/api/bundle": lambda body: bundle_bytes(body["config"])}

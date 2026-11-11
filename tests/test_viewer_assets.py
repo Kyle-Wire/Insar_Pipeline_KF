@@ -68,7 +68,12 @@ def test_the_page_runs_scripts_only_from_this_server(server):
     page = body.decode()
     csp = h["Content-Security-Policy"]
     assert code == 200 and "script-src 'self'" in csp and "'unsafe-inline'" not in csp.split("script-src")[1].split(";")[0]
-    assert "frame-ancestors 'none'" in csp and "connect-src 'self'" in csp
+    # framed only by the app window's results section (11 Nov 2026), no other page
+    anc = csp.split("frame-ancestors")[1].split(";")[0].split()
+    assert anc == list(rv.APP_ORIGINS) and "connect-src 'self'" in csp
+    from insar_pipeline import app_server
+    assert rv.APP_ORIGINS[0].endswith(f":{app_server.PORT}")
+    assert app_server.VIEWER_ORIGINS[0].endswith(f":{rv.PORT}") and f"frame-src {' '.join(app_server.VIEWER_ORIGINS)};" in app_server.CSP
     # no inline script: every <script> loads a listed file
     srcs = re.findall(r"<script([^>]*)>(.*?)</script>", page, re.S)
     assert srcs and all('src="assets/' in attrs and not inner.strip() for attrs, inner in srcs)
