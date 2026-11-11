@@ -168,9 +168,14 @@ def test_cause_rules_give_todays_sentences(key, sign, shape, start):
 
 # ------------------------------------------------------------------ evidence.yaml
 def test_evidence_yaml_holds_the_seed_ids_and_tracked_protocols_still_match():
-    assert set(EV.records) == {"B2", "B1_B3", "D1", "A", "B5a", "P0.3b", "LC", "N3"}
+    assert set(EV.records) == {"B2", "B1_B3", "D1", "A", "B5a", "P0.3b", "LC", "N3", "R1a", "R1a2"}
     for rec in EV.records.values():
         if rec.local:
+            # 11 Nov 2026: a local record's protocol is checked where it exists (the
+            # machine that ran it), so a frozen local protocol cannot change unseen
+            lp = PKG / rec.protocol
+            if rec.protocol_sha256 and lp.is_file():
+                assert hashlib.sha256(lp.read_bytes()).hexdigest() == rec.protocol_sha256, f"{rec.id}: {rec.protocol} changed"
             continue
         p = need(PKG / rec.protocol, "review records are not shipped in a release")
         assert hashlib.sha256(p.read_bytes()).hexdigest() == rec.protocol_sha256, f"{rec.id}: {rec.protocol} changed"
@@ -208,9 +213,10 @@ DOCS = ("VALIDATION.md", "LIMITATIONS.md")
 # where each id is tagged, and a word its entry must contain (so a tag moved to
 # another entry, or dropped from one document, fails)
 TAGGED_IN = {"VALIDATION.md": {"B2", "B1_B3", "D1", "A", "B5a"},
-             "LIMITATIONS.md": {"A", "B5a", "B1_B3", "LC", "P0.3b", "N3"}}
+             "LIMITATIONS.md": {"A", "B5a", "B1_B3", "LC", "P0.3b", "N3", "R1a", "R1a2"}}
 ANCHOR = {"B2": "houston", "B1_B3": "corcoran", "D1": "vertical and east-west", "A": "longwall", "B5a": "nisar l-band",
-          "LC": "local change layer", "P0.3b": "east-west", "N3": "phase-linked nisar"}
+          "LC": "local change layer", "P0.3b": "east-west", "N3": "phase-linked nisar",
+          "R1a": "seasonal", "R1a2": "re-test"}
 
 
 def _tagged_entries(doc: str) -> list[tuple[str, str]]:

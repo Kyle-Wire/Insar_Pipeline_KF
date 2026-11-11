@@ -1,0 +1,66 @@
+# R1a2: the R1a re-test at a site with enough GNSS (review_2026-11-11/PLAN.md, R1)
+# STATUS: FROZEN 11 Nov 2026 before the run started (Kyle approved, including the
+# NEW condition). Thresholds are R1a's (protocol_R1a.yaml, sha256 675acbc7...785d)
+# plus ONE addition marked NEW below (timing graded only where the GNSS cycle is
+# >= 2 mm). Its sha256 is evidence.yaml record R1a2's; any change needs a new record.
+# R1a was UNTESTABLE (3 and 1 stations inside its two sites).
+
+id: R1a2
+title: Seasonal (annual) amplitude and timing, InSAR against GNSS, Las Vegas Valley
+question: >
+  When each station's InSAR and GNSS time series are fitted with trend +
+  annual + semi-annual terms, do the annual amplitude and the date of the
+  annual peak agree, station against station?
+local: false                # a public validation site: protocol and results can be tracked
+independent_truth: true     # NGL daily positions (tenv3, IGS20); the experiment run makes no GNSS tie
+
+site:
+  name: Las Vegas Valley, NV
+  chosen_by: review_2026-11-11/r1a2_site/RULE.md (count.json, NGL DataHoldings sha256 4a98b65a...ad30)
+  bbox: [-115.36, 36.06, -115.11, 36.26]   # RULE.md addendum: a compact box with >= 8 stations (9)
+  config: insar_projects/configs/las_vegas_valley_seasonal_test.yaml (purpose experiment, site_profile groundwater_basin)
+  satellite: Sentinel-1, descending track 173, IW2, 3 bursts per date
+  window: [2016-07-15, 2026-11-01]   # 413 dates, the full record (Kyle); plan_run peak 363 GB with sparse merged SLCs
+  route: miaplpy (phase-linked, the official route), production defaults
+
+stations:                   # fixed by the rule (addendum) before any series was read: 9 independent, all >= 3 yr in the window
+  [CLV1, CLV3, NVCA, NVDB, NVL1, NVLV, NVNL, NVTP, UNR1]
+station_rule:
+  min_overlap_years: 3.0    # GNSS and InSAR both present, inside the window
+  max_gap_fraction: 0.3
+  exclude_steps: true       # NGL step-file events get step terms
+  insar_cell_rule: "the station's 3 x 3 product-grid cells: at least 5 measured (temporal coherence gate of the run), else not graded"
+  gnss_annual_significant: "amplitude > 2 x its own 1-sigma, else reported, not graded"
+
+method:
+  model: "d(t) = a + b t + A1 cos(2pi t) + B1 sin(2pi t) + A2 cos(4pi t) + B2 sin(4pi t) [+ steps]"
+  fit: ordinary least squares on the dates both have (GNSS: the daily solution of each SAR date, +-1 day)
+  insar_series: "MintPy's final geocoded displacement time series (the corrected one the products read), median of the station's 3 x 3 cells; the median of measured cells within 200 m as a robustness row (reported, not graded)"
+  gnss_projection: "ENU -> line of sight with the incidence and azimuth of geometryGeo.h5 at the station"
+  reference: >
+    Each station's annual phasor (A1, B1) has the median phasor of the graded
+    stations subtracted, for InSAR and GNSS alike: the InSAR reference point
+    and any common seasonal signal cancel, and what is compared is how each
+    station's cycle differs from its neighbours'.
+  amplitude: "sqrt(A1^2 + B1^2) of the differenced phasor, mm in line of sight"
+  peak_day: "day of year of the differenced annual maximum toward the satellite"
+
+metrics_and_thresholds:     # R1a's, frozen 11 Nov 2026, plus the one NEW condition
+  amplitude:
+    per_station_pass: "|A_insar - A_gnss| <= max(2.0 mm, 0.30 x A_gnss)"
+    site_pass: ">= 70% of graded stations pass"
+    marginal: "50-70%"
+  timing:
+    per_station_pass: "peak day difference <= 30 days (circular)"
+    graded_where: "A_gnss >= 2.0 mm (NEW: a smaller cycle has no peak date worth comparing)"
+    site_pass: ">= 70% of graded stations pass"
+    marginal: "50-70%"
+  verdict: "PASS if both quantities PASS; FAIL if either FAILs; else MARGINAL. Fewer than 4 graded stations = UNTESTABLE."
+
+held_out: none (nothing is fitted to the comparison)
+
+fingerprint:
+  protocol_sha256: "in evidence.yaml record R1a2"
+  code_commit: "git HEAD when the run starts (run.json) and when the analysis runs (result.json)"
+  inputs: ["SLC scene list sha256 (the run's manifest)", "timeseries + geometry h5 sha256", "each tenv3 sha256 + download date", "NGL steps file sha256"]
+  results: review_2026-11-11/results/R1a2/

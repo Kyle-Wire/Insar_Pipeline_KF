@@ -40,6 +40,7 @@ configs/archive/*.yml
 review_*/*
 !review_2026-10-08/protocol_*.yaml
 !review_2026-11-07/protocol_*.yaml
+!review_2026-11-11/protocol_R1a2.yaml
 !review_2026-10-08/truth/
 review_2026-10-08/truth/*
 !review_2026-10-08/truth/*.csv

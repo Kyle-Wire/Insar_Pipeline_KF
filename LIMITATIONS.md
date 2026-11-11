@@ -31,6 +31,12 @@ when they were.
   The validation predates it, so its figures were made with woods included.
 - The comparison with California's official TRE-Altamira InSAR, and the
   stable-ring row at Appin, were never run (VALIDATION.md).
+- **Seasonal cycles** (annual amplitude and timing of a point's movement). [R1a]
+  Untestable so far: the test against GNSS (protocol frozen 11 Nov 2026)
+  found too few stations inside the two local projects it named (3 and 1,
+  against 4 needed), so no fit was graded. Its re-test at a public site with
+  9 GNSS stations [R1a2] is pending (frozen 11 Nov 2026; the run started that
+  day). Until a test passes, a seasonal amplitude is not a finding.
 
 A rerun of Houston with today's defaults (HRRR, woods masked) is the planned
 check of the last two items.

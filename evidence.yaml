@@ -241,6 +241,49 @@ records:
     geometry: single
     independent_truth: false       # C1 and C2 compare with other InSAR; only C3 uses GNSS
 
+  R1a:
+    title: Seasonal (annual) amplitude and timing against GNSS, two local projects
+    protocol: review_2026-11-11/protocol_R1a.yaml
+    protocol_sha256: 675acbc7b7736a8d9a4c0e0bf76105567ecd8525ad29cec6ecdf05878e03785d
+    local: true                    # client projects: protocol and results are local records
+    results: review_2026-11-11/results/R1a/result.json
+    runs: [R1a]
+    verdict: UNTESTABLE            # 3 and 1 stations inside with 3+ years, under the protocol's 4; no fit was run
+    quantities:
+      seasonal_amplitude: UNTESTABLE  # |A_insar - A_gnss| <= max(2 mm, 30%), >= 70% of stations
+      seasonal_timing: UNTESTABLE     # annual peak within 30 days, >= 70% of stations
+    sign: any                      # amplitude and timing agreement: sign-neutral
+    max_rate_mm_yr: null
+    rate_basis: los
+    rate_source: none (a seasonal amplitude, not a rate)
+    ground: [bare_or_sparse, grassland, built_up]
+    footprint: local
+    band: C
+    route: miaplpy
+    geometry: single
+    independent_truth: true        # NGL GNSS daily positions
+
+  R1a2:
+    title: Seasonal (annual) amplitude and timing against GNSS, Las Vegas Valley
+    protocol: review_2026-11-11/protocol_R1a2.yaml
+    protocol_sha256: 25905bb9028dd63408938c3c4264d60d299b926b340b2c232037a1e7064205f4
+    results: review_2026-11-11/results/R1a2/
+    runs: [R1a2]
+    verdict: PENDING               # frozen 11 Nov 2026 before the run started; the R1a re-test
+    quantities:
+      seasonal_amplitude: PENDING  # |A_insar - A_gnss| <= max(2 mm, 30%), >= 70% of stations
+      seasonal_timing: PENDING     # annual peak within 30 days where A_gnss >= 2 mm, >= 70% of stations
+    sign: any
+    max_rate_mm_yr: null
+    rate_basis: los
+    rate_source: none (a seasonal amplitude, not a rate)
+    ground: [built_up, bare_or_sparse]
+    footprint: local
+    band: C
+    route: miaplpy
+    geometry: single
+    independent_truth: true        # NGL GNSS; the experiment run makes no GNSS tie
+
 # Tier overrides, each signed and dated by the owner with its reason. Only these
 # are applied (PLAN.md rule 7).
 overrides: {}

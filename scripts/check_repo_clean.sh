@@ -18,7 +18,7 @@ FORBIDDEN='^(tests/test_local_|configs/config_[^/]*\.ya?ml$|context/|tests/golde
 paths="$( { git ls-files; git diff --cached --name-only --diff-filter=ACMR; } | sort -u )"
 # the exceptions: the public mine layers, and the validation protocols and derived truth of the
 # public validation sites (the example configs left the repository on 28 Oct 2026)
-ALLOWED='^context/(SOURCE\.txt|cmis_[^/]*\.geojson|coal_mine[^/]*\.geojson)$|^review_2026-11-07/protocol_[A-Za-z0-9]+\.yaml$|^review_2026-10-08/(protocol_[A-Za-z0-9]+\.yaml|truth/[^/]+\.(csv|geojson|json|md)|truth/scripts/[^/]+|truth/checks/[^/]+\.json)$'
+ALLOWED='^context/(SOURCE\.txt|cmis_[^/]*\.geojson|coal_mine[^/]*\.geojson)$|^review_2026-11-07/protocol_[A-Za-z0-9]+\.yaml$|^review_2026-11-11/protocol_R1a2\.yaml$|^review_2026-10-08/(protocol_[A-Za-z0-9]+\.yaml|truth/[^/]+\.(csv|geojson|json|md)|truth/scripts/[^/]+|truth/checks/[^/]+\.json)$'
 bad="$(printf '%s\n' "$paths" | grep -E "$FORBIDDEN" | grep -vE "$ALLOWED" || true)"
 if [[ -n "$bad" ]]; then
     echo "check_repo_clean: these must not be in the repository (client data or local records):"
